@@ -1,0 +1,23 @@
+{
+  "secrets": {},
+  "outputLocations": {},
+  "outputSettings": {
+    "notion": {
+      "folder": "Notion",
+      "attachments": {
+        "mode": "folder",
+        "path": "04_Archives"
+      },
+      "duplicates": "update",
+      "saveSourceId": true,
+      "idProperty": "notion-id",
+      "template": "",
+      "titleTemplate": "{{title}}"
+    }
+  },
+  "onenoteAttachments": {},
+  "sourceFolders": {
+    "notion": "C:\\Users\\HANTA\\Downloads"
+  },
+  "lastSourceFolder": "C:\\Users\\HANTA\\Downloads"
+}

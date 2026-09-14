@@ -1,0 +1,36 @@
+{
+  "data_version": 2,
+  "command_timeout": 5,
+  "templates_folder": "_System/Templates",
+  "templates_pairs": [],
+  "trigger_on_file_creation_mode": "folder",
+  "auto_jump_to_cursor": false,
+  "jump_to_cursor_after_file_name": false,
+  "shell_path": "",
+  "user_scripts_folder": "",
+  "folder_templates": [
+    {
+      "folder": "01_Daily",
+      "template": "_System/Templates/📅 데일리_템플릿.md"
+    },
+    {
+      "folder": "03_Areas/트레이딩/2026_매매일지",
+      "template": "_System/Templates/📝 나스닥_매매일지_템플릿.md"
+    },
+    {
+      "folder": "02_Projects/회사_업무/회의록",
+      "template": "_System/Templates/💼 회사_업무_회의록_템플릿.md"
+    },
+    {
+      "folder": "03_Areas/자기개발",
+      "template": "_System/Templates/🔄 자기개발_Area_템플릿.md"
+    }
+  ],
+  "file_templates": [],
+  "syntax_highlighting": true,
+  "syntax_highlighting_mobile": false,
+  "enabled_templates_hotkeys": [],
+  "startup_templates": [],
+  "intellisense_render": "1",
+  "ignore_folders_on_creation": []
+}

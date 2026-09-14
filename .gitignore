@@ -1,0 +1,21 @@
+# Obsidian Workspace Cache (기기별 열린 창/탭 상태 충돌 방지 - 필수 제외)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+
+# Obsidian Trash (볼트 내장 휴지통)
+.trash/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python / Temporary Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+*.tmp
+*.log
