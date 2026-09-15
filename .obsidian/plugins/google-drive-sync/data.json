@@ -5,22 +5,8 @@
   "accessTokenUrl": "",
   "autoPush": false,
   "operations": {
-    "_attachments/테라리움": "create",
-    "02_Projects/회사_업무/회의록": "create",
-    "_attachments/회사_업무": "create",
-    "_attachments/취미": "create",
-    "02_Projects/회사_업무/분석_업무": "create",
-    "_attachments/트레이딩": "create",
-    "03_Areas/트레이딩/매매_원칙_및_루틴": "create",
-    "03_Areas/트레이딩/2026_매매일지": "create",
-    "03_Areas/자기개발/AI_데이터분석_역량강화": "create",
-    "02_Projects/회사_업무/unoUtil_모듈개발": "create",
-    "_attachments/이끼도감": "create",
-    "02_Projects/회사_업무/Snow_기반기술": "create",
-    "02_Projects/회사_업무/Tableau": "create",
-    "02_Projects/회사_업무/Snow_기반기술/2025_Snow_기반기술": "create",
-    "02_Projects/회사_업무/Snow_기반기술/2026_Snow_Surface_Characteristics": "create",
-    "02_Projects/회사_업무/unoUtil_모듈개발/ACCBRK": "create"
+    "02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoBuild_대시보드.md": "modify",
+    "01_Daily/2026-09-15.md": "create"
   },
   "driveIdToPath": {
     "1oY12cMkhARw118mUE5kb0thppXR9Krzn": "_attachments",
