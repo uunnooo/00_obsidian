@@ -1,10 +1,10 @@
 # 🗂️ 제동 성능 자동 분석 및 보정 시스템 위키 (Braking AutoBuild Wiki)
-> [!info] **문서 정보**
-> * **최종 수정일:** 2026-09-15 (화요일)
-> * **태그:** #Braking #VehicleDynamics #DataEngineering #ExcelAutomation #EV3_IW01
-> * **관련 가이드:** [[WORK_STATUS]] | [[EV3_IW01_Integrated_Braking_Analysis_Report.xlsx]]
-
-이 위키는 기아 **`EV3_IW01`** 프로젝트 제동 평가 데이터의 기상 보정, 공통 앵커 캘리브레이션, 그리고 제동 시작점 GPS QC 정합성의 전체 공학적 거동 원리와 시스템 사상을 정립한 마스터 위키 노트입니다.
+> [!NOTE] 🏛️ 영구 지식 위키 승격 완료 안내
+> 본 초안 위키 노트는 옵시디언 표준 룰북(AGENTS.md)에 따라 **정식 영구 지식 위키**인 [[40_제동_성능_자동분석_및_기상_공간QC_보정_시스템]]으로 100% 승격 및 통합 반영되었습니다.
+> 
+> * **정식 지식 위키:** [[40_제동_성능_자동분석_및_기상_공간QC_보정_시스템]]
+> * **프로젝트 마스터 대시보드:** [[00_Braking_AutoBuild_대시보드]]
+> * **마스터 기술 보고서:** [[EV3_IW01_Integrated_Braking_Analysis_Report]]
 
 ---
 

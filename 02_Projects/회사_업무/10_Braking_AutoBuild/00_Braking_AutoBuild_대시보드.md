@@ -115,12 +115,35 @@ flowchart TD
   7. `24_EV3_IW01_cross_spec_repeatability.py`: [테마 5] 동일 스펙 교차 의뢰서 반복 시험 정밀 대조.
   8. `25_EV3_IW01_spatial_gps_qc.py`: [테마 6] 제동 진입 위치 GPS 공간 품질 QC 및 중심점 편차 진단.
   9. `30_EV3_IW01_export_integrated_excel.py`: 6대 테마 결과를 1개의 통합 엑셀 파일(**`EV3_IW01_Integrated_Braking_Analysis_Report.xlsx`**)에 7개 시트(Executive Summary 표지 + 6개 분석 시트)로 자동 완성.
+  10. `31_EV3_IW01_export_integrated_markdown.py`: 엑셀급 데이터 투명성을 보장하는 24개 이상 마크다운 상세 표 및 21개 차트 내장 통합 마스터 리포트(**`EV3_IW01_Integrated_Braking_Analysis_Report.md`**) 자동 생성 및 옵시디언 볼트 이중 동기화.
+
+### ⑧ 📑 [NEW] 엑셀 수준의 데이터 투명성을 갖춘 통합 마크다운 마스터 리포트 빌더 (`31_EV3_IW01_export_integrated_markdown.py`)
+* **목표:** 엑셀을 열지 않고도 웹/옵시디언 환경에서 전수 데이터를 검증할 수 있도록 엑셀의 모든 산출 근거 데이터(24개 이상의 마크다운 정밀 표)를 100% 이식.
+* **표준 상대 경로 및 옵시디언 이중 지원:** 로컬 환경에서는 `![\1](<2. fig/\1>)` 상대경로로, 옵시디언 볼트에서는 `![[\1]]` 위키링크 형식으로 완벽 호환 변환.
+* **온디맨드 동기화 스위치:** 기본값은 로컬 빌드(`sync_obsidian=False`)로 격리하여 불필요한 I/O를 방지하고, 필요 시 1회성 파라미터(`sync_obsidian=True`)로 볼트(`02_Projects/...` 및 `_attachments/...`)에 원클릭 무결 배포.
+
+### ⑨ 🌡️ [NEW] 마른 노면(Lane 7) 콘트롤 타이어 온도 감인성 이상치(Anomaly) 규명
+* **현상 진단:** Lane 7(마른 아스팔트)의 겉보기 음(-)의 추세선은 서로 다른 콘트롤 타이어 투입에 의한 통계적 착시(심슨의 역설)였으며, 동일 콘트롤 타이어 내에서도 10~13°C의 극심한 온도 상승 대비 제동거리 증가량은 +0.17m에 불과하거나 -0.70m 역전 발생.
+* **공학적 원인 규명:**
+  1. **트랙 컨디셔닝(Track Conditioning) 왜곡:** 아침 첫 시험(C1, Green Track) 시 노면 먼지로 인한 슬립 ➔ 주행 반복에 따른 트랙 클리닝 및 고무 피막(Rubber Deposit) 형성으로 오후(C2) 접지력 급상승.
+  2. **아스팔트 점착(Adhesion) 마찰 보상:** 45~53°C 폭염 노면에서 아스팔트 바인더와 트레드 고무의 연화로 인한 점착 마찰 이득이 타이어 강성 저하를 상쇄.
+* **엔지니어링 원칙 확립:** 타 노면(+0.10~+0.15 m/°C) 대비 비정상적으로 극히 작은 이상치(Anomaly)이므로, **인위적인 온도 보정식 적용을 엄격히 배제**하고 반드시 당일 콘트롤 직접 대조 방식으로만 평가하도록 규정.
+
+### ⑩ 🎨 [NEW] 차트 시각화 사실주의(Fact-Only) 표준 및 타이틀 오버랩 완벽 해소
+* **피규어 불변성 및 사실주의 원칙:** 이미지 파일(`.png`) 내부에는 주관적 해석/판단("심슨의 역설", "비정상" 등) 텍스트 박스를 일체 배제하고, 순수 데이터 산점도, 회귀 추세선, 통계 수치($r$, $m$, $p$)만 객관적으로 시각화. (판단 변경 시 이미지 재렌더링 방지 및 유지보수성 극대화)
+* **타이틀 오버랩 제로화:**
+  * 4.3 실측 제동거리 vs 성능지수 산점도 매트릭스(`03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png`)의 전체 타이틀(`fig.suptitle`)과 서브플롯 4개 타이틀 간의 글자 겹침을 `figsize=(13, 11)`, `ax.set_title(fontsize=12, pad=9)`, `subplots_adjust(top=0.89)`로 완벽 해소.
+  * GPS 공간 QC 차트 2종(`06_01`, `06_02`)도 동일하게 12pt 지정 및 여백 최적화 적용.
 
 ---
 
-## 📊 3. 엑셀 연동 자동화 및 최종 마스터 보고서
+## 📊 3. 엑셀 및 마크다운 보고서 자동화 산출물
 
-1. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` (6대 테마 통합 마스터 보고서 - NEW)**
+1. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.md` (통합 마크다운 마스터 리포트 - NEW)**
+   * **형태:** 단일 완성형 공학 기술 백서 (옵시디언 볼트 및 로컬 프로젝트 동시 배포).
+   * **데이터 투명성:** 엑셀 6대 시트의 모든 세부 산출 근거 표(표 24개 이상) 전수 수록.
+   * **시각화 무결성:** 21개 고해상도 넘버링 차트 완벽 임베딩.
+2. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` (6대 테마 통합 마스터 엑셀 리포트)**
    * **Executive_Summary 시트:** 전 테마 핵심 공학적 소견 종합 및 시트 구성 가이드.
    * **Surface_Ctrl_Baseline 시트:** 노면별 및 로컬 콘트롤 기준 성능 편차 (스펙/몰드/패턴 계층 분석).
    * **Temperature_Sensitivity 시트:** 콘트롤 타이어 노면온도 의존성 및 감인성(m/°C) 1차 회귀 요약.
@@ -128,9 +151,9 @@ flowchart TD
    * **Anchor_Recalibration 시트:** Method A vs B 순위 변동 대조표 및 전 노면 통합 Overall 재보정 랭킹.
    * **Cross_Spec_Repeatability 시트:** 동일 스펙 반복 시험 변동폭(Delta) 및 세부 평가 로그.
    * **Spatial_GPS_QC 시트:** 프로젝트별 제동 진입 위치 공간 편차 및 운전자 주행 일관성 진단.
-2. **📊 `Braking_Performance_Calibration_Validation_Report.xlsx` (종합 검증 보고서)**
-3. **🌡️ `Control_Tire_Temperature_Dependency_Report.xlsx` (온도/역전 정밀 진단서)**
-4. **🗺️ `Braking_GPS_Spatial_QC_Report.xlsx` (GPS 공간 QC 보고서)**
+3. **📊 `Braking_Performance_Calibration_Validation_Report.xlsx` (종합 검증 보고서)**
+4. **🌡️ `Control_Tire_Temperature_Dependency_Report.xlsx` (온도/역전 정밀 진단서)**
+5. **🗺️ `Braking_GPS_Spatial_QC_Report.xlsx` (GPS 공간 QC 보고서)**
 
 ---
 
@@ -191,4 +214,7 @@ flowchart TD
 | **2026-09-11** | 🚀 엔진 고도화 | 실시간 노면온도(`BRK Dry/Wet Asp`) 결합, 앵커 재보정(Method B), GPS X/Y 종횡 분할 공간 QC 엔진 주조 |
 | **2026-09-11** | 📊 엑셀 자동화 | 최종 3대 마스터 리포트 자동 생성 파이프라인 완성 (슬로프 차트 & 랭크 쉬프트 컬러 마킹) |
 | **2026-09-14** | 🏛️ 볼트 위키 통합 | 날짜별 임시 작업 명세(`10_Braking_AutoBuild_작업_정리.md`)를 마스터 대시보드로 100% 통합 흡수 및 낱개 파일 정리 (Zero-Clutter Law) |
-| **2026-09-15** | 📑 마스터 리포트 | 6대 테마 전수 세부 산출 근거 표(엑셀급 투명성) 및 21개 차트가 포함된 통합 마크다운 마스터 리포트 배포 및 옵시디언 볼트 이중 동기화 완료 |
+| **2026-09-15** | 📑 마스터 리포트 | 6대 테마 전수 세부 산출 근거 표(24개+ 마크다운 표) 및 21개 차트가 포함된 통합 마크다운 마스터 리포트(`31번` 모듈) 구축 및 로컬/볼트 이중 배포 |
+| **2026-09-15** | 🖼️ 볼트 연동 최적화 | 옵시디언 볼트(`02_Projects/...` 및 `_attachments/...`) 자동 동기화 체계 구현 및 온디맨드 스위치(`sync_obsidian`) 제어화 |
+| **2026-09-15** | 🌡️ 물리 이상치 규명 | 마른 노면(Lane 7) 콘트롤 타이어 온도 저반응/역전 원인(트랙 컨디셔닝, 아스팔트 점착 보상) 규명 및 인위적 온도 보정 배제 원칙 확립 |
+| **2026-09-15** | 🎨 시각화 품질 개선 | 피규어 내 주관적 의견 텍스트 전면 배제(순수 팩트 위주) 및 4.3 산점도 매트릭스(`03_01`)·공간 QC 차트 상단 타이틀 오버랩 완벽 해소 |
