@@ -1,4 +1,4 @@
-﻿---
+---
 id: "work_20260910_VT_ACCBRK_TIRE_manual"
 title: "11_VT_ACCBRK_TIRE 단일 타이어 물리 분석 엔진"
 type: resource
@@ -97,13 +97,15 @@ graph TD
   - `weather` (`pd.DataFrame`): 웨더 스테이션 온도/습도 마스터 정보.
   - `item` (`str`): 시험 구분 (`'brk'` 제동 또는 `'acc'` 가속).
   - `surface` (`str`): 시험장 노면 상태 (`'dry'`, `'wet'`, `'snow'`, `'con'`).
+  - `local_pos` (`str` / `dict`, optional): 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 회전각.
 
-### 3.2 핵심 구간 분석: `analysis(test_vel, sel_mode=None, valid_count=None, outlier=None, **kwargs)` -> `VT_ACCBRK_TIRE`
+### 3.2 핵심 구간 분석: `analysis(test_vel, sel_mode=None, valid_count=None, outlier=None, local_pos=None, **kwargs)` -> `VT_ACCBRK_TIRE`
 - **기능**: 차속 변화율 노드를 정밀 슬라이싱하여 제동/가속 유효 런을 선별하고, 이상치 제거 및 상위 런을 병합하여 6대 서브 분석 모듈에 수치를 피팅 연산합니다.
 - **인자**:
   - `test_vel` (`list[int]`): 분석 대상 목표 [시작 속도, 종료 속도].
   - `sel_mode` (`str` / `list[int]`): `'max_min'`, `'minimum_std'` 통계 모드 지정 또는 분석가 수동 지정 런 리스트.
   - `outlier` (`list[int]`): 분석 연산에서 완전 배제할 비정상 주행 런 번호 딕셔너리/리스트.
+  - `local_pos` (`str` / `dict`, optional): 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 회전각 ('technoring', 'technotrack' 또는 `{'reflong': float, 'reflat': float, 'rotate': float}`).
 
 ### 3.3 서브 분석 모듈 및 시각화 가이드
 

@@ -1,7 +1,7 @@
 [
-  "google-drive-sync",
   "dataview",
   "templater-obsidian",
   "quickadd",
-  "obsidian-meta-bind-plugin"
+  "obsidian-meta-bind-plugin",
+  "obsidian-git"
 ]

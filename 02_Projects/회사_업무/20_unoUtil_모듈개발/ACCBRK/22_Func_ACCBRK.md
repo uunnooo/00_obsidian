@@ -1,4 +1,4 @@
-﻿---
+---
 title: "22_Func_ACCBRK 공통 연산 및 유틸리티 함수"
 aliases:
   - "_Func_ACCBRK_"
@@ -29,11 +29,13 @@ aliases:
 | **구간 분할 및 추출**| `cal_split_speed`, `get_valid_trials` | 목표 속도 구간(예: 100~0 km/h) 자동 감지 및 개별 시험 차수(Trial) 슬라이싱 |
 | **통계 분석** | `cal_statistics`, `cal_outlier_iqr` | 평균, 표준편차, 변동계수(CV), IQR 기반 이상치 판별 |
 | **기상/환경 연계** | `integrate_weather_data` | 타이어 시험 타임스탬프와 기상 관측소 10분 주기 DB 인터폴레이션 결합 |
+| **좌표계 변환** | `AN_ACCBRK(local_pos=...)` | GNSS 위경도 좌표를 평면 직교 좌표계(`PosX`, `PosY`)로 투영/회전 변환 (Technoring, Technotrack 등 지원) |
 | **결과 요약 및 병합**| `reorder_columns`, `merge_dataframes` | 통일된 컬럼 명명 규칙 적용 및 요약 테이블 포맷 정렬 |
 
 ### 1.2 핵심 개선 사항 (2026 Revision)
 
 - **Pandas 2.0+ 인덱스 호환성 확보**: `Index.append()` 동작 시 발생하는 Future/Deprecation 경고를 제거하고 `pd.Index(list(col_names) + list(col_local))`로 안정화.
+- **로컬 직교 좌표계(`local_pos`) 파이프라인 연계**: `AN_ACCBRK`에서 문자열('technoring', 'technotrack') 및 사용자 정의 딕셔너리를 통한 평면 좌표 변환을 지원하며, `col_local` 사전 정의를 통해 GPS 부재 환경에서도 안전하게 방어.
 - **Series/DataFrame 인덱싱 방어 로직 강화**: 단일 행 추출 시 `.iloc[0]` 및 스칼라 형 변환 방어 코드를 적용하여 `TypeError` 원천 차단.
 - **독립 실행 테스트 스위트 탑재**: 합성 시뮬레이션 데이터를 기반으로 Scenario A(구간 통계), Scenario B(이상치 필터), Scenario C(동적 디스크립터)를 파일 없이도 자율 검증.
 

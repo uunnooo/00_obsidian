@@ -92,21 +92,44 @@ flowchart TD
   * 예시를 통해 "드라이버가 핸들 횡(Y) 정렬은 44cm 미만으로 잘 지켰으나, 제동 타이밍 종(X) 오차는 ±1.53m 흔들렸음"을 정량적으로 증명할 수 있습니다.
   * 결과물 차트: `Braking_Spatial_Scatter_Analysis.png`, `Braking_Position_Deviation_Analysis.png`
 
+### ⑥ 🔬 [NEW] 동일 스펙 교차 의뢰서 반복 시험 정밀 대조 (`EV3_IW01_cross_spec_compare.py`)
+* **목표:** 서로 다른 의뢰서(`TestReqNo`)에 걸쳐 동일한 노면(`TestCond`)에서 중복/반복 평가된 **동일 타이어 스펙(`TestTireSpec`)**들을 전수 색출하여 시간 경과 및 계절 변화에 따른 물리 거동을 정밀 추적.
+* **텍스트 레이블 가독성 극대화:** "의뢰번호, 마킹명, 시험 일자, 시각(Datetime)"을 X축에 15도 틸팅으로 표기하여 겹침 없이 명확화.
+* **노면별 1:1 대조 차트 (4종):**
+  * `Cross_Spec_Comparison_lane1.png`, `lane4.png`, `lane7.png`, `lane8.png`
+* **주요 공학적 발견:**
+  1. `IW01-X13 (KPKT1033338X00013)`: 4월 서늘한 봄(22.1°C) **31.90m** $\rightarrow$ 7월 혹서기(27.1°C~35.3°C) **36.34m, 35.78m**로 **+4.44m 밀림 현상** 정밀 포착.
+  2. `ex-MC-AP7 (EXT-2026-00147)`: WET 수막 노면에서 4월(32.8m) $\rightarrow$ 6월(36.7m) $\rightarrow$ 7월(36.6m) $\rightarrow$ 8월(35.1m)로 실측 거리는 크게 변동했으나, Method B 재보정을 통해 전 세션 **100.0%**로 완벽하게 수평 정합됨.
+  3. `IW01-X19 (KPKT1033338X00019)`: 57KF(KP 몰드), 29KF/30KF(2nd 몰드)에 걸쳐 Method B 브릿지 체인을 통해 Lane 1: **101.1%**, Lane 4: **103.5%**, Lane 7: **101.4%**로 통일성 있게 환산되어 프로젝트 간 연결성 완비.
+
+### ⑦ 🏛️ [NEW] EV3_IW01 6대 분석 모듈화 및 통합 엑셀 마스터 리포트 완성
+* **목표:** 모놀리식 스크립트 구조를 탈피하고, 동적 계층화(`list_group_cols`)를 지원하는 **6대 독립 분석 모듈 + 1개 통합 엑셀 마스터 빌더 + 1개 총괄 오케스트레이터(Wrapper)** 구조로 전면 리팩토링.
+* **모듈 구성 (`EV3_IW01/`):**
+  1. `00_EV3_IW01_make_result.py`: 원시 데이터 파싱 및 기상 노면온도 결합 전처리 캐시.
+  2. `10_EV3_IW01_analysis.py`: 총괄 오케스트레이터 (Wrapper). 동적 그룹바이, 원클릭 파이프라인.
+  3. `20_EV3_IW01_surface_and_control_baseline.py`: [테마 1] 노면 및 로컬 콘트롤 기준 편차 분석.
+  4. `21_EV3_IW01_temperature_sensitivity.py`: [테마 2] 노면온도 의존성 및 감인성($m \text{ [m/°C]}$) 1차 회귀.
+  5. `22_EV3_IW01_discordance_diagnosis.py`: [테마 3] 실측 제동거리 vs 성능지수 역전 현상(Discordance) 색출 및 온도 보정 타당성 입증.
+  6. `23_EV3_IW01_anchor_recalibration.py`: [테마 4] 공통 앵커(`EXT-2026-00147`) 재보정(Method B), 슬로프 차트 및 Overall 랭킹.
+  7. `24_EV3_IW01_cross_spec_repeatability.py`: [테마 5] 동일 스펙 교차 의뢰서 반복 시험 정밀 대조.
+  8. `25_EV3_IW01_spatial_gps_qc.py`: [테마 6] 제동 진입 위치 GPS 공간 품질 QC 및 중심점 편차 진단.
+  9. `30_EV3_IW01_export_integrated_excel.py`: 6대 테마 결과를 1개의 통합 엑셀 파일(**`EV3_IW01_Integrated_Braking_Analysis_Report.xlsx`**)에 7개 시트(Executive Summary 표지 + 6개 분석 시트)로 자동 완성.
+
 ---
 
-## 📊 3. 엑셀 연동 자동화 및 최종 3대 마스터 보고서
+## 📊 3. 엑셀 연동 자동화 및 최종 마스터 보고서
 
-시트 통합 시 송부가 번거롭던 실무 특성을 방지하고자 **최종 3개의 완전히 독립된 엑셀 보고서**로 분할 구축했으며, 파이썬이 연산하는 고정밀 수치 전체를 무삭제 전수 인쇄(Full Log Table) 기입해 정비했습니다.
-
-1. **📊 `Braking_Performance_Calibration_Validation_Report.xlsx` (종합 검증 보고서)**
-   * **1번 시트 (기존 보정 Method A):** 원시 왜곡 상태의 가로바 차트 2장 및 전수 데이터.
-   * **2번 시트 (재보정 Method B):** 수평 정합된 Overall 차트 및 2x2 노면 차트 4장, 정합된 데이터 전수 표 (패턴 PTN 및 의뢰서 결합으로 바 덮어쓰기 완전 해결).
-   * **3번 시트 (A vs B 대조 비교):** 겹침이 완벽 박멸된 슬로프 그래프 3장 및 기존 지수/순위 vs 재보정 지수/순위 대조, **`▲상승(파랑)`/`▼하락(빨강)` 랭크 쉬프트 컬러 마킹** 전수 탑재.
-   * **4번 시트 (타당성 검증):** 공학적 원리 해설문, 적용 보정 멀티플라이어 표 및 `X10`, `X00`, `X13` 타이어 우열 변동 정밀 Case Study 수록.
-2. **🌡️ `Control_Tire_Temperature_Dependency_Report.xlsx` (온도/역전 정밀 진단서)**
-   * 콘트롤 타이어 온도 의존성 거동 요약표 및 감지된 약 200여 건의 모든 개별 주행 간 역전 쌍 전수 데이터 표 완비.
-3. **🗺️ `Braking_GPS_Spatial_QC_Report.xlsx` (GPS 공간 QC 보고서)**
-   * 수백 회에 이르는 모든 개별 주행 건의 PosX, PosY 좌표와 종(X)/횡(Y)축 개별 편차 오차 전수를 정밀 합격 마크(`합격/경고/탈락`) 채색과 함께 완벽 정합 기재.
+1. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` (6대 테마 통합 마스터 보고서 - NEW)**
+   * **Executive_Summary 시트:** 전 테마 핵심 공학적 소견 종합 및 시트 구성 가이드.
+   * **Surface_Ctrl_Baseline 시트:** 노면별 및 로컬 콘트롤 기준 성능 편차 (스펙/몰드/패턴 계층 분석).
+   * **Temperature_Sensitivity 시트:** 콘트롤 타이어 노면온도 의존성 및 감인성(m/°C) 1차 회귀 요약.
+   * **Discordance_Diagnosis 시트:** 실측 제동거리 vs 성능지수 역전 현상 전수 색출 및 온도 열세 보정 정당성 입증.
+   * **Anchor_Recalibration 시트:** Method A vs B 순위 변동 대조표 및 전 노면 통합 Overall 재보정 랭킹.
+   * **Cross_Spec_Repeatability 시트:** 동일 스펙 반복 시험 변동폭(Delta) 및 세부 평가 로그.
+   * **Spatial_GPS_QC 시트:** 프로젝트별 제동 진입 위치 공간 편차 및 운전자 주행 일관성 진단.
+2. **📊 `Braking_Performance_Calibration_Validation_Report.xlsx` (종합 검증 보고서)**
+3. **🌡️ `Control_Tire_Temperature_Dependency_Report.xlsx` (온도/역전 정밀 진단서)**
+4. **🗺️ `Braking_GPS_Spatial_QC_Report.xlsx` (GPS 공간 QC 보고서)**
 
 ---
 

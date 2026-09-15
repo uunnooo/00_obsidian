@@ -1,4 +1,4 @@
-﻿---
+---
 id: "work_20260910_VT_ACCBRK_manual"
 title: "10_VT_ACCBRK 최상위 통합 자동화 파이프라인 매뉴얼"
 type: resource
@@ -113,6 +113,7 @@ aliases:
 | `self.mu_drop` | `AN_MU_DROP` | 기계학습 기반 수막현상(Mu-Drop) 손실 거리 분석 서브 인스턴스 |
 | `self.slip_mode` | `AN_SLIP_MODE_SKEWNESS` | 2D 밀도 지형도 기반 제어 변위 분석 서브 인스턴스 |
 | `self.sys_response` | `AN_RESPONSE` | 초기 제동 빌드업 및 시스템 지연 시간 분석 서브 인스턴스 |
+| `self.local_pos` | `Optional[Union[str, dict]]` | 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 회전각 ('technoring', 'technotrack' 또는 커스텀 dict) |
 
 ---
 
@@ -131,6 +132,7 @@ aliases:
     *   `valid_count` (`int`): 최종 통계 요약에 포함할 세션 수.
     *   `outlier` (`list[int]`): 분석에서 제외할 불량 세션 번호 리스트.
     *   `sel_mode` (`str` / `list[int]`): 수동 인덱스 리스트 지정 또는 `'max_min'` / `'minimum_std'` 선택 알고리즘 모드 지정.
+    *   `local_pos` (`str` / `dict`, optional): 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 각도 ('technoring', 'technotrack' 또는 커스텀 dict).
 
 #### 3. `save(path, print=True)` : 바이너리 직렬화 파일 압축 저장
 *   **기능**: 분석 연산이 완료된 타이어 인스턴스 전체 상태를 `.tir` 확장자를 가진 이진 파일로 최고 압축률 9단계(`gzip`)로 직렬화하여 기록합니다.
@@ -470,6 +472,9 @@ interval: 0.5
 
 # 2-14. 하이/로우 분석용 분할 기준 속도값 (vel_split)
 vel_split: 50.0
+
+# 2-15. 로컬 직교 좌표계 변환 설정 (local_pos) - 단일값 또는 노면/타이어별 dict
+local_pos: 'technoring'
 ```
 
 ---
