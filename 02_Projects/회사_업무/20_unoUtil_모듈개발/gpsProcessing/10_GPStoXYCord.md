@@ -224,6 +224,7 @@ python unoUtil/gpsProcessing/_GPStoXYCord_.py
 
 ## 🔗 연계 문서 링크
 
-* 🛰️ **[[00_gpsProcessing_대시보드|gpsProcessing 모듈 전체 대시보드]]**
+* 🛰️ **[[20_VBOX_계측_데이터_규격_및_GPS좌표계|20_VBOX 계측 데이터 규격 및 GPS 좌표계 공학 지식 (영구 지식 레퍼런스)]]**
+* 🗺️ **[[00_gpsProcessing_대시보드|gpsProcessing 모듈 전체 대시보드]]**
 * 🏎️ **[[22_Func_ACCBRK|22_Func_ACCBRK: AN_ACCBRK 로컬 좌표 파이프라인 연계]]**
 * 🚗 **[[11_VT_ACCBRK_TIRE|11_VT_ACCBRK_TIRE: 랩별 제동 시작 위치 PosX/PosY 집계]]**
