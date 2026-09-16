@@ -272,7 +272,7 @@ $$\text{Corrected} = \text{Mean}(\text{Baseline}_{\text{Control}}) \times \left(
 graph TD
     A[입력 경로 / YAML 설정] --> B[1. 디렉토리 검증 및 캐시 경로 설정]
     B --> C{load_file 캐시 존재?}
-    C -- No --> D1[ReadDataFile: 원천 VBO 파일 일괄 로드]
+    C -- No --> D1[FileDataReader: 원천 VBO/VBB 파일 일괄 로드]
     D1 --> D2[0. db 디렉토리에 .gz 압축 캐시 저장]
     C -- Yes --> D3[0. db/*.gz 캐시에서 초고속 로드]
     

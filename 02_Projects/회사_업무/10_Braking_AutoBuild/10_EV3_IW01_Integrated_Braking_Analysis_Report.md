@@ -23,7 +23,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 # 🚗 EV3 IW01 실차 제동 성능 종합 공학 분석 마스터 리포트
 ### Engineering Whitepaper: Surface Separation, Control Baseline, Temperature Sensitivity & Anchor Recalibration
 
-> **보고서 생성일시**: `2026-09-16 19:07` | **분석 프로젝트**: `EV3 IW01 제동 평가 (2026)`  
+> **보고서 생성일시**: `2026-09-16 19:36` | **분석 프로젝트**: `EV3 IW01 제동 평가 (2026)`  
 > **시험 차량**: `기아 EV3 (FF Layout / EV)` | **시험 장소**: `TR 실차 주행시험장`  
 > **평가 노면**: `Wet (Lane 1, Lane 4)` / `Dry (Lane 7, Lane 8)` | **분석 데이터셋**: 총 97회차 평가 데이터
 
@@ -1018,15 +1018,29 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 26RE080030KF | lane7 | dry | C2 | 2nd-IW01-X19 | KPKT1033338X00019 | 08/24 | 52.30 | 45.82 | 45.89 | 45.82 | 46.66 | 45.51 | 44.38 | - | - | 45.68 | 1.62 | 2.27 | -0.21 | ❄️ 웜업/접지 향상 (Warm-up) |
 
 
-### 9.3. 반복 횟수별 성능변화 시각화 차트
-#### (1) 레인별 8회 제동 런 차수별 실측 제동거리 순차 추세선
-![[07_01_Run_Sequence_Braking_Trend.png]]
+### 9.3. 반복 횟수별 성능변화 시각화 차트 (노면별 분리 및 라벨 순 정렬)
+#### (1) 노면별 8회 제동 런 차수별 실측 제동거리 순차 추세선 (노면별 분리)
+##### Lane 1 - Wet Asphalt (젖은 아스팔트 80 km/h)
+![[07_01_Run_Trend_lane1.png]]
+##### Lane 4 - Wet Asphalt High (젖은 아스팔트 고속 100 km/h)
+![[07_01_Run_Trend_lane4.png]]
+##### Lane 7 - Dry Asphalt (마른 아스팔트 100 km/h)
+![[07_01_Run_Trend_lane7.png]]
+##### Lane 8 - Dry (마른 노면 100 km/h)
+![[07_01_Run_Trend_lane8.png]]
 
-#### (2) 타이어 스펙별 열화 기울기(Slope) 및 편차폭(Spread) 정량 대조 (스펙 통합)
+#### (2) 타이어 스펙별 열화 기울기(Slope) 및 편차폭(Spread) 정량 대조 (스펙 종합)
 ![[07_02_Spec_Degradation_Slope_Comparison.png]]
 
-#### (3) [신규] 레인별(Lane 1, 4, 7, 8) 타이어 세트 열화 기울기(Slope) 정량 대조
-![[07_03_Lane_Degradation_Slope_Comparison.png]]
+#### (3) 노면별 타이어 세트 열화 기울기 & 편차폭 정량 대조 (노면별 분리, 몰드-패턴-마킹 라벨 순 정렬)
+##### Lane 1 - Wet Asphalt (젖은 아스팔트 80 km/h)
+![[07_03_Lane_Degradation_lane1.png]]
+##### Lane 4 - Wet Asphalt High (젖은 아스팔트 고속 100 km/h)
+![[07_03_Lane_Degradation_lane4.png]]
+##### Lane 7 - Dry Asphalt (마른 아스팔트 100 km/h)
+![[07_03_Lane_Degradation_lane7.png]]
+##### Lane 8 - Dry (마른 노면 100 km/h)
+![[07_03_Lane_Degradation_lane8.png]]
 
 ### 9.4. 제동 순차 거동 및 열화 내구성 핵심 공학 소견
 1. **스펙별 열화 억제력 격차 규명**:

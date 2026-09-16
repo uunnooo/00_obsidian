@@ -43,15 +43,21 @@ aliases:
 ├── 🛰️ gpsProcessing/          # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active)
 │   ├── 00_gpsProcessing_대시보드.md (통합 허브 & MOC)
 │   └── 10_GPStoXYCord.md (WGS84 타원체 벡터화 투영 엔진)
-├── 💾 readDataFile/            # 계측기 바이너리/텍스트 원본 데이터 로더 (Active)
+├── 🚀 fileDataReader/          # 차세대 객체지향 이종 계측 데이터 통합 리더 (Active ⭐ 완전 독립)
+│   ├── FileDataReader.md (VBO, VBB, D7D, TXT/CSV 통합 파서 & 플루언트 파이프라인)
+│   ├── 📂 vbbTopython/        # VBB 바이너리 초고속 파서 & 전원차단 복구 엔진 내재화
+│   │   └── VBBReader.md
+│   └── 📂 DWDataReader_v5_0_8/ # Dewesoft D7D C-DLL 디코더 & 비동기 정합 엔진 내재화
+├── 💾 readDataFile/            # 계측기 원본 데이터 로더 레거시 보존 (Legacy)
+│   ├── ReadDataFile.md (모놀리식 ReadDataFile 레거시 레퍼런스)
 │   └── 📂 vbbTopython/
-│       └── VBBReader.md (VBOX 바이너리 초고속 파서 & 전원차단 복구 엔진)
+│       └── VBBReader.md (레거시 보존)
 └── 🔧 (확장 예정 모듈)         # convenienceFunction, unoAI, Lateral 등
 ```
 
 ---
 
-## 🚀 1. 핵심 활성 모듈: VT_ACCBRK, gpsProcessing & readDataFile
+## 🚀 1. 핵심 활성 모듈: VT_ACCBRK, gpsProcessing, fileDataReader & readDataFile
 
 ### 🏎️ 1.1 VT_ACCBRK (실차 가감속 / 제동 분석 엔진)
 * 🏎️ **[[00_VT_ACCBRK_대시보드|VT_ACCBRK 통합 실차 성능 분석 시스템 대시보드]]**
@@ -69,11 +75,21 @@ aliases:
   * **데이터 방어 필터**: VBOX 종료 시점 0.0 노이즈 격리 및 DataFrame 인덱스 100% 보존
   * **트랙 좌표계 정렬**: 테크노링 직선 제동로 기준점 및 회전각($\theta = -0.4^\circ$) 표준화
 
-### 💾 1.3 readDataFile (바이너리 계측 데이터 로딩 엔진)
+### 🚀 1.3 fileDataReader (차세대 이종 계측 데이터 객체지향 리더 프레임워크) ⭐
+* 🚀 **[[FileDataReader|FileDataReader (이종 계측 데이터 통합 객체지향 로더)]]**
+  * **전략 패턴 파서 라우팅**: VBO, VBB, Dewesoft(D7D), TXT/CSV 자동 식별 및 고속 파싱
+  * **GPS 스마트 타임존**: 글로벌 주요 시험장(태안, 이발로, IDIADA, ATP) 바운딩 박스 기반 동적 서머타임(DST) 자동 보정
+  * **Dewesoft 비동기 채널 정합**: `pd.merge_asof` 기반 고속 타임라인 보간 (15만 행 2.05초)
+  * **플루언트 API & 일괄 스캔**: 메서드 체이닝 및 `scan_dir` 멀티파일 예외 격리 배치 로딩
+  * **대규모 마이그레이션**: 사내 24개 모듈(`VT_ACCBRK`, `2025_Autobuild`, `Snow`, `MakeBRKResult`) 무중단 전면 전환 완료
+  * **영구 도메인 지식 연계**: [[23_이종_계측_데이터_통합_파이프라인_및_대규모_마이그레이션_엔지니어링]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]], [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]]
+
+### 💾 1.4 readDataFile (레거시 데이터 로더 보존 영역)
+* 💾 **[[ReadDataFile|ReadDataFile (모놀리식 레거시 데이터 로더)]]**
+  * 모놀리식 단일 함수 기반 기존 파이프라인 보존 (하위 호환성 유지)
 * 💾 **[[VBBReader|VBBReader (VBOX 바이너리 초고속 파서 & 전원차단 복구 엔진)]]**
   * **전원 급차단 3중 안전망**: 쓰다 만 불완전 레코드 사전 검사 및 크래시 원천 차단
   * **초고속 무손실 벡터 정합**: 마스터 타임라인 기반 조립으로 0.2초대 달성 및 행 삭제 버그 해결
-  * **영구 도메인 지식 연계**: [[20_VBOX_계측_데이터_규격_및_GPS좌표계]] WGS84 좌표계 및 바이너리 구조 규명
 
 
 ---

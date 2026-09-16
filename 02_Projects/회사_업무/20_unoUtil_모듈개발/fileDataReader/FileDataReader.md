@@ -2,7 +2,7 @@
 
 > **소속 모듈**: `unoUtil.fileDataReader.FileDataReader`  
 > **상태**: 릴리즈 완료 (Active)  
-> **관련 영구 지식 문서**: [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]], [[ReadDataFile]]
+> **관련 영구 지식 문서**: [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]], [[23_이종_계측_데이터_통합_파이프라인_및_대규모_마이그레이션_엔지니어링]], [[ReadDataFile]]
 
 ---
 
@@ -62,6 +62,31 @@ flowchart TD
         T7 --> OUT3[".to_measurement_data() (불변 스냅샷)"]
         T7 --> OUT4["FileDataReader.scan_dir() (일괄 배치)"]
     end
+```
+
+### 2.1. 완전 독립 패키지 구성 (Zero-Dependency Package Architecture)
+`fileDataReader`는 향후 레거시 `readDataFile` 패키지가 완전히 제거되어도 독자적으로 100% 동작할 수 있도록, 필요한 모든 하위 디코더와 DLL 라이브러리를 내부에 완벽히 내재화(Self-Contained)하였습니다:
+
+```text
+📂 unoUtil/fileDataReader/
+├── FileDataReader.py            # 통합 Facade 엔트리포인트
+├── BaseParser.py                # 파서 추상 규격 및 MeasurementData 컨테이너
+├── VBOParser.py                 # Racelogic VBO 전용 C-엔진 파서
+├── VBBParser.py                 # Racelogic VBB 바이너리 파서
+├── DWDParser.py                 # Dewesoft D7D 바이너리 파서
+├── TextParser.py                # Oxford RT, 조향로봇, TXT/CSV/SDF 파서
+├── DateTimeHelper.py            # GPS 좌표 바운딩 박스 타임존 & 2-Stage 시계열
+├── 📂 vbbTopython/              # [내재화 ⭐] VBB 바이너리 고속 디코더 엔진
+│   ├── VBBReader.py             # 마스터 타임라인 무손실 조립 & 전원 급차단 3중 방어
+│   ├── FileReader.py            # NumPy 바이트 스트리밍 I/O
+│   ├── VBBFile.py               # VBB 바이너리 구조체 컨테이너
+│   └── VBBReader.md             # VBB 디코더 상세 매뉴얼
+└── 📂 DWDataReader_v5_0_8/      # [내재화 ⭐] Dewesoft C-DLL 및 Python 래퍼
+    ├── DWDataReaderHeader.py    # ctypes C-헤더 정의 및 라이브러리 로더
+    ├── dwdReader.py             # Dewesoft 고속 채널 추출기 (Sync/Async)
+    ├── DWDataReaderLib64.dll    # Windows 64-bit 전용 공식 네이티브 라이브러리
+    ├── DWDataReaderLib64.so     # Linux 64-bit 라이브러리
+    └── DWDataReaderLib64.dylib  # macOS 64-bit 라이브러리
 ```
 
 ---
