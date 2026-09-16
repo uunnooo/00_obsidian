@@ -105,7 +105,7 @@ flowchart TD
 from unoUtil.readDataFile import FileDataReader
 
 # 원시 데이터 로드 (추가 전처리 미적용)
-reader = FileDataReader("example_BRK.VBO", auto_process=False)
+reader = FileDataReader("example/example_BRK.VBO", auto_process=False)
 
 print("절대 경로:", reader.file_path)
 print("부모 폴더:", reader.dir_path)
@@ -119,7 +119,7 @@ print("채널 목록:", reader.channels[:5])
 ```python
 from unoUtil.readDataFile import FileDataReader
 
-reader = FileDataReader("example_BRK.VBO", auto_process=False)
+reader = FileDataReader("example/example_BRK.VBO", auto_process=False)
 
 # 단계별 전처리 체이닝
 (
@@ -139,7 +139,7 @@ from unoUtil.readDataFile import FileDataReader
 
 # 생성자 호출 한 번으로 모든 전처리 일괄 완료
 reader = FileDataReader(
-    "example_BRK.VBO",
+    "example/example_BRK.VBO",
     chname=True,      # 표준 채널명 변환
     date="auto",      # GPS 로컬 타임존 자동 일시 열 생성
     inter=True,       # 결측치 보간
