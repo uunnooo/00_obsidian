@@ -37,7 +37,8 @@ aliases:
 ```text
 📂 unoUtil/gpsProcessing/
 ├── 🛰️ 00_gpsProcessing_대시보드.md # gpsProcessing 모듈 통합 허브 및 MOC (본 문서)
-└── 📐 10_GPStoXYCord.md          # WGS84 타원체 벡터화 변환 및 평면 회전 변환 엔진 매뉴얼
+├── 🚀 GPStoXYCord.md             # WGS84 객체지향 파이프라인 및 트랙 프리셋 통합 클래스 매뉴얼
+└── 📐 10_GPStoXYCord.md          # [레거시 호환] 함수형 인터페이스 및 측지학적 배경 매뉴얼
 ```
 
 * 🧭 **상위 프로젝트 허브**: [[00_unoUtil_모듈개발_대시보드|unoUtil 통합 프레임워크 개발 허브]]
@@ -49,7 +50,8 @@ aliases:
 
 | 모듈 문서명 | 물리 파이선 파일 | 주요 핵심 기능 | 지원 알고리즘 |
 | :--- | :--- | :--- | :--- |
-| **[[10_GPStoXYCord\|10_GPStoXYCord]]** | [`_GPStoXYCord_.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/_GPStoXYCord_.py) | • 위경도 $\to$ 기준점 상대 거리 변환<br/>• 트랙 진북 배치각 회전 변환<br/>• VBOX 분(Minutes) 단위 자동 정규화<br/>• 0.0 노이즈 마스킹 및 NaN 격리 | • **WGS84 타원체 국소 곡률 투영 (기본)**<br/>• Haversine 대원거리<br/>• 2D 평면 회전 행렬($\theta = -0.4^\circ$) |
+| **[[GPStoXYCord\|GPStoXYCord (Class)]]** | [`GPStoXYCord.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/GPStoXYCord.py) | • **모던 OOP 엔드투엔드 파이프라인 (`transform`)**<br/>• 사내 주요 트랙 프리셋 내장 (`technoring`, `snow`)<br/>• VBOX 분/도 자동 감지 및 부호 정규화<br/>• 0.0 노이즈 격리 및 DataFrame 인덱스 100% 보존 | • **WGS84 타원체 국소 곡률 투영 (기본)**<br/>• 2D 평면 회전 행렬<br/>• Haversine 대원거리 |
+| **[[10_GPStoXYCord\|_GPStoXYCord_ (Legacy)]]** | [`_GPStoXYCord_.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/_GPStoXYCord_.py) | • [레거시 호환 및 FutureWarning 안내]<br/>• `GPStoDistance2`, `RotationCoordinate`, `changeVBOXCoord` | • WGS84 타원체 투영<br/>• Haversine 대원거리 |
 
 ---
 

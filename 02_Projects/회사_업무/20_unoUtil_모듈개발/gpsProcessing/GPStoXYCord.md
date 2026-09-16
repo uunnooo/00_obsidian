@@ -1,0 +1,174 @@
+---
+id: "GPStoXYCord"
+title: "GPStoXYCord GPS 평면 직교 좌표계 투영 및 WGS84 객체지향 파이프라인 엔진"
+type: technical_manual
+category_main: 회사_업무
+category_sub: unoUtil
+date: 2026-09-16
+status: 완료
+tags:
+  - 회사_업무
+  - unoUtil
+  - GPS
+  - WGS84
+  - 좌표변환
+  - VBOX
+  - 매뉴얼
+  - OOP
+aliases:
+  - GPStoXYCord
+  - GPSProcessor
+  - 10_GPStoXYCord
+  - _GPStoXYCord_
+---
+
+# 🛰️ GPStoXYCord: GPS 평면 직교 좌표계 투영 및 WGS84 객체지향 파이프라인 엔진
+
+**모듈 물리 경로**: [`unoUtil/gpsProcessing/GPStoXYCord.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/GPStoXYCord.py)  
+**소속 패키지**: `unoUtil.gpsProcessing`  
+**클래스명**: `GPStoXYCord` (별칭: `GPSProcessor`)  
+**버전**: 2026 Modern OOP Revision (WGS84 타원체 정밀 벡터화, 트랙 프리셋 내장, 원스톱 transform 파이프라인)  
+**상위 대시보드**: [[00_gpsProcessing_대시보드]] | [[00_unoUtil_모듈개발_대시보드]]  
+**관련 분석 모듈**: [[22_Func_ACCBRK]] | [[10_VT_ACCBRK]] | [[11_VT_ACCBRK_TIRE]]  
+
+---
+
+## 1. 📌 모듈 개요 및 아키텍처
+
+`GPStoXYCord`는 실차 계측 장비(Racelogic VBOX VBB/VBO, RT3000, GNSS 수신기 등)로부터 취득된 구면 위경도(Latitude, Longitude) 좌표 데이터를 시험장 기준점 및 진행 방향에 맞추어 **2차원 국소 평면 직교 좌표계($X$: 횡방향/레인오프셋, $Y$: 종방향/진행거리, 단위: m)**로 일괄 변환하는 엔드투엔드 객체지향(OOP) 파이프라인 클래스입니다.
+
+```mermaid
+flowchart TD
+    A["Raw Input Data<br/>(DataFrame or NumPy ndarray)"] --> B["GPStoXYCord.transform()"]
+    subgraph Pipeline ["GPStoXYCord 내부 원스톱 파이프라인"]
+        C["1. to_decimal_degrees()<br/>VBOX Minutes 감지 및 부호 정규화"] --> D["2. to_local_xy()<br/>WGS84 타원체 곡률 국소 투영 (m)"]
+        D --> E["3. rotate_xy()<br/>트랙 진북 배치각 회전 정렬 (theta)"]
+    end
+    B --> Pipeline
+    Pipeline --> F["DataFrame 자동 병합 / ndarray 반환<br/>(PosX: 차선횡위치, PosY: 주행진행거리)"]
+```
+
+---
+
+## 2. 🌟 주요 특징 및 장점
+
+1. **사내 주요 시험장 트랙 프리셋 내장 (`TRACK_PRESETS`)**:
+   - `technoring` / `ring`: 한국타이어 테크노링 직선 제동로 (`reflong=126.3355171`, `reflat=36.6424281`, `rotate=-0.4°`)
+   - `technotrack` / `snow` / `track`: 핀란드 이발로 테크노트랙 스노우 시험장 (`reflong=27.6615847`, `reflat=68.6860616`, `rotate=7.0°`)
+   - `technoring_oval`: 고속주회로 (`rotate=0.0°`)
+   - 팩토리 메서드 제공: `GPStoXYCord.from_preset('technoring')`
+2. **원스톱 파이프라인 (`transform`)**:
+   - VBOX 분(Minutes) 단위 자동 판별 (`|lat.mean| > 90°`) 및 60 나눗셈 처리.
+   - VBO(음수 경도 반전 규격) 및 VBB(WGS84 국제 표준 부호) 자동 판정.
+   - WGS84 타원체 곡률 반경 투영 ($M(\phi), N(\phi)$) 기반 고속 연산 (13.8만 포인트 기준 **7.5 ms**).
+   - 2D 평면 회전 변환 적용 후 원본 DataFrame의 인덱스를 100% 보존하며 `PosX`, `PosY` 컬럼 자동 생성.
+3. **완벽한 데이터 방어 및 격리 (`valid_mask`)**:
+   - VBOX 시험 종료 후 발생하는 `(0.0, 0.0)` 노이즈 좌표 및 결측치(`NaN`)를 자동 격리하여 결과 DataFrame의 인덱스 불일치 원천 방지.
+4. **시각화 지원 (`plot_trajectory`)**:
+   - 변환 전 위경도 궤적과 변환 후 트랙 로컬 직교 좌표계 궤적을 2D 플롯으로 즉시 대조 비교 가능.
+
+---
+
+## 3. 📐 수학적 모델 및 알고리즘
+
+### 3.1 WGS84 타원체 정밀 국소 곡률 투영
+기준점 위도 $\phi$에서의 자오선 곡률 반경 $M(\phi)$과 묘유선 곡률 반경 $N(\phi)$을 산출하여 거리를 계산합니다.
+
+$$
+M(\phi) = \frac{a(1 - e^2)}{(1 - e^2 \sin^2\phi)^{1.5}}, \quad N(\phi) = \frac{a}{\sqrt{1 - e^2 \sin^2\phi}}
+$$
+
+$$
+X_{\text{local}} = N(\phi) \cos\phi \cdot (\lambda - \lambda_0)_{\text{rad}}, \quad Y_{\text{local}} = M(\phi) \cdot (\phi - \phi_0)_{\text{rad}}
+$$
+
+* $a = 6,378,137.0\,\text{m}$ (WGS84 타원체 장반경)
+* $e^2 = 0.00669437999014$ (제1이심률의 제곱)
+
+### 3.2 2D 트랙 정렬 회전 변환
+$$
+\begin{bmatrix} X_{\text{rot}} \\ Y_{\text{rot}} \end{bmatrix} =
+\begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}
+\begin{bmatrix} X_{\text{local}} \\ Y_{\text{local}} \end{bmatrix}
+$$
+
+---
+
+## 4. 💻 주요 API 및 사용 예제
+
+### 4.1 기본 사용법 (DataFrame 원스톱 변환)
+```python
+import pandas as pd
+from unoUtil.gpsProcessing import GPStoXYCord
+
+# 1. 테크노링 프리셋으로 인스턴스 생성
+gps_proc = GPStoXYCord.from_preset('technoring')
+
+# 2. VBOX 원시 데이터 준비
+df_raw = pd.DataFrame({
+    'Datetime': pd.date_range('2025-01-01', periods=3, freq='10ms'),
+    'GpsLongitude': [7580.1310, 7580.1312, 7580.1315],  # VBOX 분 단위
+    'GpsLatitude': [2198.5456, 2198.5458, 2198.5460],
+    'VelHorizontal': [50.0, 48.0, 45.0]
+})
+
+# 3. 원스톱 변환 (PosX, PosY 컬럼 자동 추가)
+df_result = gps_proc.transform(df_raw, col_lon='GpsLongitude', col_lat='GpsLatitude')
+print(df_result[['PosX', 'PosY']])
+```
+
+### 4.2 스노우 시험장(테크노트랙) 커스텀 설정
+```python
+from unoUtil.gpsProcessing import GPStoXYCord
+
+# 프리셋 로드 후 회전각 오버라이딩
+gps_snow = GPStoXYCord.from_preset('snow', rotate=7.2)
+xy_meters = gps_snow.transform(coord_array)  # (N, 2) 배열 반환
+```
+
+---
+
+## 5. 🔄 레거시 함수 마이그레이션 가이드
+
+기존 `_GPStoXYCord_.py`의 개별 함수들은 `FutureWarning`이 발생하도록 설정되었으며, 아래와 같이 1:1 매핑하여 대체합니다:
+
+| 기존 레거시 함수 | 신규 `GPStoXYCord` 클래스 메서드 |
+| :--- | :--- |
+| `changeVBOXCoord(coord)` | `GPStoXYCord().to_decimal_degrees(coord)` |
+| `GPStoDistance2(coord, method='wgs84')` | `GPStoXYCord(reflong=..., reflat=...).to_local_xy(coord)` |
+| `RotationCoordinate(xy, theta)` | `GPStoXYCord(rotate=theta).rotate_xy(xy)` |
+| **전체 파이프라인 수동 조합** | **`GPStoXYCord.from_preset('technoring').transform(df)` (권장)** |
+
+---
+
+## 6. 🧪 자가 검증 결과 (Self-Test Benchmark)
+
+```text
+================================================================================
+ [unoUtil GPStoXYCord] 모던 클래스 아키텍처 자가 구동 검증 스위트
+================================================================================
+
+[Test 1] 사내 시험장 프리셋 로딩 검증
+  - 테크노링 프리셋 : RefLong=126.3355171, RefLat=36.6424281, Rotate=-0.4°
+  - 테크노트랙 프리셋: RefLong=27.6615847, RefLat=68.6860616, Rotate=7.0°
+
+[Test 2] DataFrame 원스톱 변환 (VBOX 분 단위 -> 트랙 로컬 직교 좌표)
+  - 변환 결과 DataFrame:
+   GpsLongitude  GpsLatitude      PosX      PosY
+0   7580.131026  2198.545686  0.000000  0.000000
+1   7580.131050  2198.545750  0.036596  0.118116
+2   7580.131080  2198.545820  0.082212  0.247267
+3   7580.131100  2198.545900  0.113053  0.395017
+
+[Test 3] VBO (음수 경도) vs VBB (양수 경도) 정밀 일치성 검증
+  - VBB 좌표 결과: [[0. 0.]]
+  - VBO 좌표 결과: [[0. 0.]]
+  - 두 포맷 변환 오차: 0.000000e+00 m
+
+[Test 4] 137,951개 행(13.8만 포인트) 대용량 연산 속도 벤치마크
+  - 13.8만 행 변환 소요 시간:   7.51 ms
+
+================================================================================
+ [PASS] 모든 GPStoXYCord 자가 검증 테스트를 성공적으로 통과했습니다.
+================================================================================
+```

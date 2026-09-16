@@ -25,9 +25,14 @@ aliases:
 
 **모듈 물리 경로**: [`unoUtil/gpsProcessing/_GPStoXYCord_.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/_GPStoXYCord_.py)  
 **소속 패키지**: `unoUtil.gpsProcessing`  
-**버전**: 2026 Revision (WGS84 타원체 정밀 벡터화 가속화 및 0.0 노이즈 격리 탑재)  
+**버전**: 2026 Revision (Legacy Deprecation / FutureWarning 적용)  
 **상위 대시보드**: [[00_gpsProcessing_대시보드]] | [[00_unoUtil_모듈개발_대시보드]]  
+**신규 객체지향 대체 클래스**: [[GPStoXYCord]]  
 **관련 분석 모듈**: [[22_Func_ACCBRK]] | [[11_VT_ACCBRK_TIRE]]  
+
+> [!WARNING] ⚠️ 레거시 함수 모듈 안내 (Deprecated Notice)
+> 본 문서의 개별 함수들(`GPStoDistance`, `GPStoDistance2`, `RotationCoordinate`, `changeVBOXCoord`)은 향후 버전에서 제거될 예정이며 호출 시 `FutureWarning`이 발생합니다.
+> 트랙 프리셋과 원스톱 파이프라인을 탑재한 모던 객체지향 클래스 **[[GPStoXYCord]]**를 사용하시기 바랍니다.
 
 ---
 
