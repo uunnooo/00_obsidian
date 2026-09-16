@@ -42,6 +42,8 @@ aliases:
 
 * 🚀 **[[20_SnowBrakingPerformance_통합모듈_매뉴얼|SnowBrakingPerformance 통합 모듈 매뉴얼]]**
   * 노면 데이터/제동 평가(ACCBRK) 누적 등록, 3D 디지털 트윈, 차분 ML 보정 및 스펙 영향도 분석 마스터 클래스
+* ❄️ **[[31_스노우_노면_디지털트윈_및_제동성능_보정_위키|스노우 노면 디지털 트윈 및 제동 성능 환경 보정 종합 위키]]**
+  * 1-Run 집계(`a_make_SnowAccBrkTest_DF.py`), 시공간 보간(`Session-Based Digital Twin`), 차분 머신러닝 노면 Decoupling 및 웹 대시보드
 * 📊 **[[10_노면특성_계측데이터_분석|노면특성 계측데이터 분석]]**
   * 다채널 센서 계측 로우데이터 기반 노면 특성 데이터베이스 구축
 * 🧠 **[[30_Snow_제동성능보정_알고리즘|Snow제동성능보정 알고리즘 (Resources)]]**

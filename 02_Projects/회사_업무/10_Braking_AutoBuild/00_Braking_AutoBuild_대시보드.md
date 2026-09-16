@@ -22,6 +22,8 @@ aliases:
   - "10_Braking_AutoBuild_작업_정리"
   - "20260911_Braking_AutoBuild_작업_정리"
   - "Braking_AutoBuild_Work_Status_260911"
+  - "WORK_STATUS"
+  - "Braking_AutoBuild_WORK_STATUS"
 ---
 
 # 🏎️ 제동 성능 자동 분석 플랫폼 (Braking_AutoBuild) 마스터 대시보드
@@ -30,7 +32,7 @@ aliases:
 > 본 프로젝트는 **`EV3_IW01` (Autobuild IW01_EV3)** 기아 EV3 실차 제동 계측 데이터의 전처리, 기상/노면 온도 결합 보정, GPS 공간 품질 관리(QC), 콘트롤 타이어 편차 구제(앵커 교정), 그리고 최종 엑셀 보고서 자동 연동 파이프라인을 구축하는 차세대 제동 데이터 엔지니어링 프로젝트입니다.  
 > 
 > * 🏢 **상위 대시보드**: [[02_Projects/00_프로젝트_통합_대시보드|02_Projects 프로젝트 통합 대시보드]]
-> * 📑 **최신 공학 분석 마스터 리포트**: [[02_Projects/회사_업무/10_Braking_AutoBuild/EV3_IW01_Integrated_Braking_Analysis_Report|EV3 IW01 실차 제동 종합 공학 분석 마스터 리포트 (.md)]]
+> * 📑 **최신 공학 분석 마스터 리포트**: [[10_EV3_IW01_Integrated_Braking_Analysis_Report|EV3 IW01 실차 제동 종합 공학 분석 마스터 리포트 (.md)]]
 > * 📚 **연계 지식 위키**: [[04_Resources/21_제동/40_제동_성능_자동분석_및_기상_공간QC_보정_시스템|40_제동 성능 자동분석 및 기상·공간QC 보정 시스템 위키]]
 > * 🛑 **기술 허브**: [[04_Resources/21_제동/00_제동_기술_통합_색인|00_제동 기술 통합 색인]]
 
@@ -87,13 +89,16 @@ flowchart TD
 * **점-선 기하학적 정합 버그 해결:** 산점도 점과, 주황색 역전 연결선, 라벨 마커의 데이터 소스를 `df_lane_points`로 100% 완전 정합하여 연결선 끝자락이 허공에 둥둥 뜨거나 어긋나던 정렬 오차를 기하학적 정중앙에 자석 밀착시켰습니다.
 * **글씨 겹침 버그 박멸:** 지수 밀집 구간에서 텍스트 라벨이 세로로 심하게 뭉개지던 현상을 **단일 라벨 라벨링(`Single-line`)** 및 **상하 충돌 방지 정렬 임계 마진(0.65)** 기법을 도입해 한 글자도 겹침 없이 사르륵 펼쳐 정렬시켰습니다.
 
-### ⑤ 제동 진입 시작 위치 공간 QC (X, Y 축 분할)
-* **기존:** 대각선 유클리드 편차만을 기준으로 한 단순 요약이었습니다.
-* **개선:** 드라이버의 진입 앞뒤 밀림 오차인 **`X축 편차 (종방향)`**와 좌우 쏠림 오차인 **`Y축 편차 (횡방향)`**를 완벽하게 분할 연산(`abs().mean()`, `abs().max()`) 기재하도록 개조했습니다.
-  * 예시를 통해 "드라이버가 핸들 횡(Y) 정렬은 44cm 미만으로 잘 지켰으나, 제동 타이밍 종(X) 오차는 ±1.53m 흔들렸음"을 정량적으로 증명할 수 있습니다.
-  * 결과물 차트: `Braking_Spatial_Scatter_Analysis.png`, `Braking_Position_Deviation_Analysis.png`
+### ⑤ 제동 진입 시작 위치 공간 QC (X축 횡방향 / Y축 종방향 분할)
+* **기존:** 단순 대각선 합성(Euclid) 편차만 표시하여 운전자의 쏠림(조향)과 밀림(타이밍)을 구분하지 못했습니다.
+* **개선:** 드라이버의 핸들 좌우 차선 유지 오차인 **`횡방향 X축 편차`**와 브레이크 페달 개시 타이밍 오차인 **`종방향 Y축 편차`**를 분할 산출(`abs().mean()`, `abs().max()`)하여 테이블과 차트에 전면 수록했습니다.
+  * **정량 증명:** 전 노면에서 운전자의 횡방향(X) 조향 오차는 평균 0.13~0.41m (최대 0.89m 이내)로 규정 차선(QC 0.5m)을 완벽히 유지했으나, 종방향(Y) 제동 타이밍은 Wet 1~2m, Dry 3~14m의 물리적 산포를 나타냄을 규명.
+  * **결과물 차트 (3종):**
+    * `06_01_Braking_Spatial_Scatter_Analysis.png` (2D 제동 진입 좌표 산점도 맵)
+    * `06_02_Braking_Centroid_Deviation_Analysis.png` (프로젝트별 횡/종/합성 편차 Grouped Bar 차트)
+    * `06_03_Braking_XY_Directional_Deviation.png` (횡방향 조향 정밀도 vs 종방향 제동 타이밍 분할 정밀 대조 차트)
 
-### ⑥ 🔬 [NEW] 동일 스펙 교차 의뢰서 반복 시험 정밀 대조 (`EV3_IW01_cross_spec_compare.py`)
+### ⑥ 동일 스펙 교차 의뢰서 반복 시험 정밀 대조 (`EV3_IW01_cross_spec_compare.py`)
 * **목표:** 서로 다른 의뢰서(`TestReqNo`)에 걸쳐 동일한 노면(`TestCond`)에서 중복/반복 평가된 **동일 타이어 스펙(`TestTireSpec`)**들을 전수 색출하여 시간 경과 및 계절 변화에 따른 물리 거동을 정밀 추적.
 * **텍스트 레이블 가독성 극대화:** "의뢰번호, 마킹명, 시험 일자, 시각(Datetime)"을 X축에 15도 틸팅으로 표기하여 겹침 없이 명확화.
 * **노면별 1:1 대조 차트 (4종):**
@@ -103,7 +108,7 @@ flowchart TD
   2. `ex-MC-AP7 (EXT-2026-00147)`: WET 수막 노면에서 4월(32.8m) $\rightarrow$ 6월(36.7m) $\rightarrow$ 7월(36.6m) $\rightarrow$ 8월(35.1m)로 실측 거리는 크게 변동했으나, Method B 재보정을 통해 전 세션 **100.0%**로 완벽하게 수평 정합됨.
   3. `IW01-X19 (KPKT1033338X00019)`: 57KF(KP 몰드), 29KF/30KF(2nd 몰드)에 걸쳐 Method B 브릿지 체인을 통해 Lane 1: **101.1%**, Lane 4: **103.5%**, Lane 7: **101.4%**로 통일성 있게 환산되어 프로젝트 간 연결성 완비.
 
-### ⑦ 🏛️ [NEW] EV3_IW01 6대 분석 모듈화 및 통합 엑셀 마스터 리포트 완성
+### ⑦ 6대 분석 모듈화 및 통합 엑셀 마스터 리포트 완성
 * **목표:** 모놀리식 스크립트 구조를 탈피하고, 동적 계층화(`list_group_cols`)를 지원하는 **6대 독립 분석 모듈 + 1개 통합 엑셀 마스터 빌더 + 1개 총괄 오케스트레이터(Wrapper)** 구조로 전면 리팩토링.
 * **모듈 구성 (`EV3_IW01/`):**
   1. `00_EV3_IW01_make_result.py`: 원시 데이터 파싱 및 기상 노면온도 결합 전처리 캐시.
@@ -113,36 +118,36 @@ flowchart TD
   5. `22_EV3_IW01_discordance_diagnosis.py`: [테마 3] 실측 제동거리 vs 성능지수 역전 현상(Discordance) 색출 및 온도 보정 타당성 입증.
   6. `23_EV3_IW01_anchor_recalibration.py`: [테마 4] 공통 앵커(`EXT-2026-00147`) 재보정(Method B), 슬로프 차트 및 Overall 랭킹.
   7. `24_EV3_IW01_cross_spec_repeatability.py`: [테마 5] 동일 스펙 교차 의뢰서 반복 시험 정밀 대조.
-  8. `25_EV3_IW01_spatial_gps_qc.py`: [테마 6] 제동 진입 위치 GPS 공간 품질 QC 및 중심점 편차 진단.
+  8. `25_EV3_IW01_spatial_gps_qc.py`: [테마 6] 제동 진입 위치 GPS 공간 품질 QC (횡방향 X축, 종방향 Y축, 합성 편차 정밀 진단).
   9. `30_EV3_IW01_export_integrated_excel.py`: 6대 테마 결과를 1개의 통합 엑셀 파일(**`EV3_IW01_Integrated_Braking_Analysis_Report.xlsx`**)에 7개 시트(Executive Summary 표지 + 6개 분석 시트)로 자동 완성.
-  10. `31_EV3_IW01_export_integrated_markdown.py`: 엑셀급 데이터 투명성을 보장하는 24개 이상 마크다운 상세 표 및 21개 차트 내장 통합 마스터 리포트(**`EV3_IW01_Integrated_Braking_Analysis_Report.md`**) 자동 생성 및 옵시디언 볼트 이중 동기화.
+  10. `31_EV3_IW01_export_integrated_markdown.py`: 엑셀급 데이터 투명성을 보장하는 24개 이상 마크다운 상세 표 및 22개 차트 내장 통합 마스터 리포트(**`10_EV3_IW01_Integrated_Braking_Analysis_Report.md`**) 자동 생성 및 옵시디언 볼트 이중 동기화.
 
-### ⑧ 📑 [NEW] 엑셀 수준의 데이터 투명성을 갖춘 통합 마크다운 마스터 리포트 빌더 (`31_EV3_IW01_export_integrated_markdown.py`)
+### ⑧ 엑셀 수준의 데이터 투명성을 갖춘 통합 마크다운 마스터 리포트 빌더(`31_EV3_IW01_export_integrated_markdown.py`)
 * **목표:** 엑셀을 열지 않고도 웹/옵시디언 환경에서 전수 데이터를 검증할 수 있도록 엑셀의 모든 산출 근거 데이터(24개 이상의 마크다운 정밀 표)를 100% 이식.
 * **표준 상대 경로 및 옵시디언 이중 지원:** 로컬 환경에서는 `![\1](<2. fig/\1>)` 상대경로로, 옵시디언 볼트에서는 `![[\1]]` 위키링크 형식으로 완벽 호환 변환.
 * **온디맨드 동기화 스위치:** 기본값은 로컬 빌드(`sync_obsidian=False`)로 격리하여 불필요한 I/O를 방지하고, 필요 시 1회성 파라미터(`sync_obsidian=True`)로 볼트(`02_Projects/...` 및 `_attachments/...`)에 원클릭 무결 배포.
 
-### ⑨ 🌡️ [NEW] 마른 노면(Lane 7) 콘트롤 타이어 온도 감인성 이상치(Anomaly) 규명
+### ⑨ 마른 노면(Lane 7) 콘트롤 타이어 온도 감인성 이상치(Anomaly) 규명
 * **현상 진단:** Lane 7(마른 아스팔트)의 겉보기 음(-)의 추세선은 서로 다른 콘트롤 타이어 투입에 의한 통계적 착시(심슨의 역설)였으며, 동일 콘트롤 타이어 내에서도 10~13°C의 극심한 온도 상승 대비 제동거리 증가량은 +0.17m에 불과하거나 -0.70m 역전 발생.
 * **공학적 원인 규명:**
   1. **트랙 컨디셔닝(Track Conditioning) 왜곡:** 아침 첫 시험(C1, Green Track) 시 노면 먼지로 인한 슬립 ➔ 주행 반복에 따른 트랙 클리닝 및 고무 피막(Rubber Deposit) 형성으로 오후(C2) 접지력 급상승.
   2. **아스팔트 점착(Adhesion) 마찰 보상:** 45~53°C 폭염 노면에서 아스팔트 바인더와 트레드 고무의 연화로 인한 점착 마찰 이득이 타이어 강성 저하를 상쇄.
 * **엔지니어링 원칙 확립:** 타 노면(+0.10~+0.15 m/°C) 대비 비정상적으로 극히 작은 이상치(Anomaly)이므로, **인위적인 온도 보정식 적용을 엄격히 배제**하고 반드시 당일 콘트롤 직접 대조 방식으로만 평가하도록 규정.
 
-### ⑩ 🎨 [NEW] 차트 시각화 사실주의(Fact-Only) 표준 및 타이틀 오버랩 완벽 해소
+### ⑩ 차트 시각화 사실주의(Fact-Only) 표준 및 타이틀 오버랩 완벽 해소
 * **피규어 불변성 및 사실주의 원칙:** 이미지 파일(`.png`) 내부에는 주관적 해석/판단("심슨의 역설", "비정상" 등) 텍스트 박스를 일체 배제하고, 순수 데이터 산점도, 회귀 추세선, 통계 수치($r$, $m$, $p$)만 객관적으로 시각화. (판단 변경 시 이미지 재렌더링 방지 및 유지보수성 극대화)
 * **타이틀 오버랩 제로화:**
   * 4.3 실측 제동거리 vs 성능지수 산점도 매트릭스(`03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png`)의 전체 타이틀(`fig.suptitle`)과 서브플롯 4개 타이틀 간의 글자 겹침을 `figsize=(13, 11)`, `ax.set_title(fontsize=12, pad=9)`, `subplots_adjust(top=0.89)`로 완벽 해소.
-  * GPS 공간 QC 차트 2종(`06_01`, `06_02`)도 동일하게 12pt 지정 및 여백 최적화 적용.
+  * GPS 공간 QC 차트 3종(`06_01`, `06_02`, `06_03`)도 12pt 지정 및 여백 최적화 적용.
 
 ---
 
 ## 📊 3. 엑셀 및 마크다운 보고서 자동화 산출물
 
-1. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.md` (통합 마크다운 마스터 리포트 - NEW)**
+1. **📑 [[02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report|10_EV3_IW01_Integrated_Braking_Analysis_Report.md]] (통합 마크다운 마스터 리포트)**
    * **형태:** 단일 완성형 공학 기술 백서 (옵시디언 볼트 및 로컬 프로젝트 동시 배포).
    * **데이터 투명성:** 엑셀 6대 시트의 모든 세부 산출 근거 표(표 24개 이상) 전수 수록.
-   * **시각화 무결성:** 21개 고해상도 넘버링 차트 완벽 임베딩.
+   * **시각화 무결성:** 22개 고해상도 넘버링 차트 완벽 임베딩.
 2. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` (6대 테마 통합 마스터 엑셀 리포트)**
    * **Executive_Summary 시트:** 전 테마 핵심 공학적 소견 종합 및 시트 구성 가이드.
    * **Surface_Ctrl_Baseline 시트:** 노면별 및 로컬 콘트롤 기준 성능 편차 (스펙/몰드/패턴 계층 분석).
@@ -157,45 +162,49 @@ flowchart TD
 
 ---
 
-## 🔍 4. 파일별 개발 및 분석 코드 현황
+## 🔍 4. 신규 모듈화 아키텍처 및 실행 파이프라인 (`EV3_IW01/`)
 
-### ① `EV3_IW01_analysis.py` (메인 분석 코드)
-* **상태:** 수정 완료 및 안정화
-* **핵심 기능:**
-  1. 기상 DB 및 노면 온도 연동 + 최종 기상 통합 데이터프레임 캐시 (`df_result_summary.gzip`) 업데이트 및 저장.
-  2. 라인별 제동 성능 지수 편차 가로바 차트 생성.
-  3. 세대(Mold)/패턴(PTN) 그룹 대조 분석 차트 생성.
-  4. 성능 지수와 실측 제동거리 간 역전 현상(Discordant Pair) 발생 시 **노면 온도 편차**를 포함한 정밀 물리 진단 콘솔 출력.
-  5. 제동 진입 위치 GPS 좌표 분석 및 프로젝트 편차 진단 QC 차트 생성.
+전체 파이프라인이 단일 모놀리식 구조에서 **8대 전문 모듈 및 2대 빌더(Excel / Markdown)** 체계로 모듈화되어, 데이터 분리 저장(`0. db/`), 넘버링 시각화(`2. fig/`, 총 22개 차트), 마스터 엑셀 및 마크다운 리포트 배포를 원클릭 제어합니다.
 
-### ② `EV3_IW01_temp_analysis.py` (임시 실험용 분석 코드)
-* **상태:** 메인 통합 대기 중 (실험 로직 보존)
-* **포함된 주요 실험 분석:**
-  * **[분석 1] 콘트롤 타이어 온도 의존성 분석:** 콘트롤 타이어(`C` 세트)들의 대기 온도 변화에 따른 제동거리 상관관계를 분석하여 1차 추세선(기울기 및 상관계수)을 도출하고 산점도에 시간(HH:MM) 라벨을 마킹하는 차트 생성 (`Control_Tire_vs_Temperature_Analysis.png`).
-  * **[분석 2] 실측 제동거리 vs 보정 성능지수 2D 분포 시각화:** 대기 온도를 컬러맵(Colorbar)으로 표현한 2D 산점도에, 역전 현상이 일어난 타이어 쌍들을 붉은 점선으로 연결하여 시각적 왜곡을 진단하는 차트 생성 (`Raw_Distance_vs_Index_Analysis_With_Temp.png`).
+| 모듈 번호 | 파이썬 모듈 파일명 | 핵심 엔지니어링 역할 및 담당 테마 | 주요 산출물 (Chart / Sheet / Doc) |
+| :---: | :--- | :--- | :--- |
+| **00** | `00_EV3_IW01_make_result.py` | 원시 제동 시험 데이터 파싱, 기상 DB(대기/노면온도) 결합 및 캐싱 | `0. db/df_result_summary.gzip` |
+| **10** | `10_EV3_IW01_analysis.py` | **총괄 오케스트레이터 (Wrapper)**: 6대 모듈 로드, 22개 차트 저장, 엑셀/마크다운 마스터 빌더 원클릭 제어 | 파이프라인 통합 관제 |
+| **20** | `20_EV3_IW01_surface_and_control_baseline.py` | **[테마 1] 노면 및 로컬 콘트롤 편차 분석**: Wet과 Dry를 독립 집계하여 왜곡 차단 | `01_01_` ~ `01_06_`<br>Sheet: `Surface_Ctrl_Baseline` |
+| **21** | `21_EV3_IW01_temperature_sensitivity.py` | **[테마 2] 노면온도 의존성 및 감인성 분석**: 1차 선형 회귀 기울기($m \text{ [m/°C]}$) 및 피어슨 $r$ 산출 | `02_01_Control_Tire_vs_Temperature_Analysis.png`<br>Sheet: `Temperature_Sensitivity` |
+| **22** | `22_EV3_IW01_discordance_diagnosis.py` | **[테마 3] 실측 제동거리 vs 성능지수 역전 진단**: Discordant Pair 색출 및 온도 열세 보정 정당성 입증 | `03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png`<br>Sheet: `Discordance_Diagnosis` |
+| **23** | `23_EV3_IW01_anchor_recalibration.py` | **[테마 4] 공통 앵커(`EXT-2026-00147`) 재보정 (Method B)**: 슬로프 차트 동순위 Y슬롯 분리(글자 겹침 제로), Wet/Dry 종합 랭킹 분리 | `04_01_` ~ `04_07_`<br>Sheet: `Anchor_Recalibration` |
+| **24** | `24_EV3_IW01_cross_spec_repeatability.py` | **[테마 5] 동일 스펙 교차 의뢰서 반복 시험 정밀 대조**: X축 라벨 90도 수직 회전 및 하단 마진 확보 | `05_01_` ~ `05_04_`<br>Sheet: `Cross_Spec_Repeatability` |
+| **25** | `25_EV3_IW01_spatial_gps_qc.py` | **[테마 6] 제동 진입 위치 GPS 공간 품질 QC**: 횡방향(X)/종방향(Y) 분할 진단, 주행 일관성 검증 | `06_01_`, `06_02_`, `06_03_`<br>Sheet: `Spatial_GPS_QC` |
+| **30** | `30_EV3_IW01_export_integrated_excel.py` | **통합 엑셀 마스터 리포트 빌더**: 7개 시트 생성, A열 너비 슬림화, 고해상도 차트 11종 자동 삽입 | `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` |
+| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 24개 산출 근거 표 + 22개 차트 수록, 볼트 온디맨드 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
+
+### 🚀 파이프라인 원클릭 실행 스크립트
+
+```python
+# D:\uno\Python\Projects\Braking_AutoBuild\EV3_IW01\10_EV3_IW01_analysis.py 실행
+from EV3_IW01.10_EV3_IW01_analysis import run_ev3_iw01_analysis_pipeline
+
+results = run_ev3_iw01_analysis_pipeline(
+    list_group_cols=['TestTireMold', 'TestTirePTN', 'TestTireMark'],  # 동적 그룹화 계층
+    plot=False,           # Figure 메모리 정리 (저장 후 plt.close() 실행)
+    save=True,            # 2. fig 폴더에 넘버링된 22개 차트 저장
+    excel=True,           # 루트 폴더에 시트별 차트가 삽입된 통합 엑셀 마스터 리포트 빌드
+    sync_obsidian=True,   # 옵시디언 볼트(02_Projects 및 _attachments) 동시 배포
+    b_print_log=True
+)
+```
 
 ---
 
 ## 🚀 5. 향후 작업 로드맵 (Action Items & To-Do)
 
-### 1단계: 임시 실험 코드를 메인 분석 코드로 통합
-* **목표:** `EV3_IW01_temp_analysis.py`의 2대 시각화 로직을 메인 파일인 `EV3_IW01_analysis.py`로 합병.
-* **합칠 대상:**
-  1. 콘트롤 타이어 온도 의존성 분석 그래프 (추세선 + 시간 마킹)
-  2. 실측 제동거리 vs 성능지수 2D 분포 및 역전 라인 연결 그래프 (온도 컬러맵)
-* **기준 변수 고도화:** 대기 온도 대신 메인 코드의 **`노면온도` (`BRK Dry/Wet Asp`)** 컬럼을 기준 변수로 승격하여 정밀도 극대화.
+* [x] **1단계: 임시 실험 코드(`temp_analysis`)의 메인 분석 모듈화 통합** (완료 - `21번`, `22번` 모듈로 분리 구축 완료)
+* [x] **2단계: 메인 분석 스크립트 실행 및 결과 차트 22종·엑셀 7개 시트 전수 검증** (완료)
+* [x] **3단계: 통합 마크다운 마스터 리포트 빌더(`31번`) 구축 및 옵시디언 볼트 이중 동기화** (완료)
+* [ ] **4단계: `MINI_W426` 프로젝트로 분석 로직 확장**
+  * `EV3_IW01`에서 검증된 기상 결합, 앵커 캘리브레이션, GPS 공간 QC, 엑셀/마크다운 자동화 프레임워크를 이웃 프로젝트인 `MINI_W426` 분석 코드에도 그대로 이식하여 전사 통합 제동 분석 플랫폼 완성.
 
-### 2단계: 메인 분석 스크립트 실행 및 결과 차트 6종 검증
-* **예상 결과 이미지 6종 리스트:**
-  1. `Integrated_Braking_Performance_{lane}.png` (라인별 편차 차트)
-  2. `Integrated_Braking_Performance_Group_{lane}.png` (그룹 비교 차트)
-  3. `Control_Tire_vs_Temperature_Analysis.png` (콘트롤 타이어 온도 의존성)
-  4. `Raw_Distance_vs_Index_Analysis_With_Temp.png` (2D 역전 맵)
-  5. `Braking_Spatial_Scatter_Analysis.png` (GPS 시작점 산점도)
-  6. `Braking_Position_Deviation_Analysis.png` (GPS 오차 바 그래프)
-
-### 3단계: `MINI_W426` 프로젝트로 분석 로직 확장
-* `EV3_IW01`에서 검증된 기상 결합, 앵커 캘리브레이션, GPS 공간 QC, 엑셀 자동화 프레임워크를 이웃 프로젝트인 `MINI_W426` 분석 코드에도 그대로 이식하여 전사 통합 제동 분석 플랫폼 완성.
 
 ---
 
@@ -218,3 +227,4 @@ flowchart TD
 | **2026-09-15** | 🖼️ 볼트 연동 최적화 | 옵시디언 볼트(`02_Projects/...` 및 `_attachments/...`) 자동 동기화 체계 구현 및 온디맨드 스위치(`sync_obsidian`) 제어화 |
 | **2026-09-15** | 🌡️ 물리 이상치 규명 | 마른 노면(Lane 7) 콘트롤 타이어 온도 저반응/역전 원인(트랙 컨디셔닝, 아스팔트 점착 보상) 규명 및 인위적 온도 보정 배제 원칙 확립 |
 | **2026-09-15** | 🎨 시각화 품질 개선 | 피규어 내 주관적 의견 텍스트 전면 배제(순수 팩트 위주) 및 4.3 산점도 매트릭스(`03_01`)·공간 QC 차트 상단 타이틀 오버랩 완벽 해소 |
+| **2026-09-16** | 🛰️ GPS QC X/Y축 고도화 | 제동 진입 위치 공간 품질 분석 시 횡방향 X축(조향 편차, 평균 0.13~0.41m) 및 종방향 Y축(타이밍 편차, 1~14m) 분할 통계 표 반영, Grouped Bar 차트(`06_02`) 및 방향별 대조 차트(`06_03`) 신규 추가, 마스터 보고서(`10_EV3_IW01_Integrated_Braking_Analysis_Report.md`) 내용 직접 반영 및 NEW 문구 전면 제거 |
