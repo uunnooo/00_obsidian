@@ -126,6 +126,30 @@ gps_snow = GPStoXYCord.from_preset('snow', rotate=7.2)
 xy_meters = gps_snow.transform(coord_array)  # (N, 2) 배열 반환
 ```
 
+### 4.3 궤적 시각화 및 속도 컬러맵 플롯 (`plot_trajectory`)
+원시 GPS 경위도 좌표(좌측)와 변환된 트랙 직교 좌표계(우측)를 나란히 2D 플롯으로 시각화하며, 속도 채널(`col_color='VelHorizontal'`)을 연동하여 주행/제동 프로파일을 컬러맵으로 확인할 수 있습니다.
+
+> [!IMPORTANT] 🛑 시각화 무중단(Non-blocking) 원칙 준수
+> GUI 피규어 창 닫힘 대기로 인한 프로세스 정지(Hang) 및 데이터 분석 파이프라인 블로킹을 방지하기 위해, `plot_trajectory` 내부에서는 **`plt.show()`를 일체 호출하지 않습니다**. 플롯 결과는 `save_path` 인자를 통해 이미지 파일로 저장한 뒤 `close_fig=True`로 메모리를 즉시 해제하거나, 반환된 `(fig, axes)` 객체를 외부 파이프라인에서 활용합니다. (상세 표준: [[Gemini_Python_코드_생성_규칙]] 및 [[50_Matplotlib_시각화_무중단_개발_표준]])
+
+```python
+# 실차 데이터 변환 및 속도 기반 컬러맵 궤적 플롯 (무중단 파일 저장)
+tr_tech = GPStoXYCord.from_preset('technoring')
+df_trans = tr_tech.transform(df_vbb)
+
+fig, axes = tr_tech.plot_trajectory(
+    df_trans,
+    col_lon='GpsLongitude',
+    col_lat='GpsLatitude',
+    col_x='PosX',
+    col_y='PosY',
+    col_color='VelHorizontal',  # 주행 속도 컬러맵 적용
+    title="Hankook Tire Technoring Dry Braking Test (Lane 8)",
+    save_path="example_dry_brk_lane8_trajectory.png",
+    close_fig=True              # plt.close()로 메모리 해제 및 무중단 유지
+)
+```
+
 ---
 
 ## 5. 🔄 레거시 함수 마이그레이션 가이드
@@ -166,9 +190,22 @@ xy_meters = gps_snow.transform(coord_array)  # (N, 2) 배열 반환
   - 두 포맷 변환 오차: 0.000000e+00 m
 
 [Test 4] 137,951개 행(13.8만 포인트) 대용량 연산 속도 벤치마크
-  - 13.8만 행 변환 소요 시간:   7.51 ms
+  - 13.8만 행 변환 소요 시간:  10.85 ms
+
+[Test 5] 실차 예시 데이터(VBB) 로드 및 트랙 궤적 시각화 플롯 (무중단 파일 저장)
+  [*] 예시 데이터 파일 로드: example_dry_brk_lane8.VBB
+      - 총 데이터 행 수: 137,953 행, 채널 수: 51
+  [*] GPStoXYCord 트랙 투영 변환 완료:
+      - PosX (횡방향/차선오프셋) : -92.82 m ~ 314.28 m
+      - PosY (종방향/진행거리)   : -343.71 m ~ 1146.57 m
+      - 속도(VelHorizontal) 범위: 0.00 ~ 117.81 km/h
+  [*] 트랙 궤적 시각화 이미지를 저장합니다 (Non-blocking)...
+  [*] 그래프 이미지 파일 저장 완료: example_dry_brk_lane8_trajectory.png
 
 ================================================================================
  [PASS] 모든 GPStoXYCord 자가 검증 테스트를 성공적으로 통과했습니다.
 ================================================================================
 ```
+
+### 6.1 테크노링 실차 주행 및 제동 궤적 시각화 결과
+![테크노링 실차 주행 궤적 시각화](example_dry_brk_lane8_trajectory.png)
