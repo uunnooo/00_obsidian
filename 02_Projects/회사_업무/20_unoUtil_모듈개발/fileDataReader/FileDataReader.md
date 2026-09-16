@@ -1,8 +1,8 @@
 # 🚀 FileDataReader 기술 매뉴얼 및 사용자 가이드
 
-> **소속 모듈**: `unoUtil.readDataFile.FileDataReader`  
+> **소속 모듈**: `unoUtil.fileDataReader.FileDataReader`  
 > **상태**: 릴리즈 완료 (Active)  
-> **관련 영구 지식 문서**: [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]]
+> **관련 영구 지식 문서**: [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]], [[ReadDataFile]]
 
 ---
 
@@ -102,7 +102,7 @@ flowchart TD
 
 ### 4.1. [Case 1] 기본 로드 및 경로 속성 접근
 ```python
-from unoUtil.readDataFile import FileDataReader
+from unoUtil.fileDataReader import FileDataReader
 
 # 원시 데이터 로드 (추가 전처리 미적용)
 reader = FileDataReader("example/example_BRK.VBO", auto_process=False)
@@ -117,7 +117,7 @@ print("채널 목록:", reader.channels[:5])
 
 ### 4.2. [Case 2] 독립 메서드 체이닝 (Fluent API)
 ```python
-from unoUtil.readDataFile import FileDataReader
+from unoUtil.fileDataReader import FileDataReader
 
 reader = FileDataReader("example/example_BRK.VBO", auto_process=False)
 
@@ -135,7 +135,7 @@ print(reader.df.head(3))
 
 ### 4.3. [Case 3] 1줄 원스톱(One-shot) 생성자 호출
 ```python
-from unoUtil.readDataFile import FileDataReader
+from unoUtil.fileDataReader import FileDataReader
 
 # 생성자 호출 한 번으로 모든 전처리 일괄 완료
 reader = FileDataReader(
@@ -152,7 +152,7 @@ name, df, save_date, sample_rate = reader.to_legacy_tuple()
 
 ### 4.4. [Case 4] 디렉토리 일괄 스캔 (Batch Scan)
 ```python
-from unoUtil.readDataFile import FileDataReader
+from unoUtil.fileDataReader import FileDataReader
 
 # 특정 폴더 내의 VBO 및 텍스트 로그 파일들을 일괄 수집
 readers = FileDataReader.scan_dir(
@@ -197,7 +197,7 @@ name, df, save_date, sample_rate = results[0]
 # ---------------------------------------------------------
 # [신규 권장 방식: FileDataReader]
 # ---------------------------------------------------------
-from unoUtil.readDataFile import FileDataReader
+from unoUtil.fileDataReader import FileDataReader
 
 reader = FileDataReader("test.vbo", chname=True, date='auto')
 
