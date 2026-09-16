@@ -39,13 +39,17 @@ aliases:
 │   ├── 22_Func_ACCBRK.md (공통 연산 유틸리티)
 │   ├── 30_PLOTTER_TIRE.md / 31_PLOTTER_PROJECT.md (시각화 플로터)
 │   └── 90_ACCBRK_사용자매뉴얼.md (실무 사용자 매뉴얼)
+├── 🛰️ gpsProcessing/          # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active)
+│   ├── 00_gpsProcessing_대시보드.md (통합 허브 & MOC)
+│   └── 10_GPStoXYCord.md (WGS84 타원체 벡터화 투영 엔진)
 └── 🔧 (확장 예정 모듈)         # Lateral(조종안정성), DataQC, Ride&Handling 등
 ```
 
 ---
 
-## 🚀 1. 핵심 활성 모듈: VT_ACCBRK
+## 🚀 1. 핵심 활성 모듈: VT_ACCBRK & gpsProcessing
 
+### 🏎️ 1.1 VT_ACCBRK (실차 가감속 / 제동 분석 엔진)
 * 🏎️ **[[00_VT_ACCBRK_대시보드|VT_ACCBRK 통합 실차 성능 분석 시스템 대시보드]]**
   * **전체 파이프라인**: [[10_VT_ACCBRK]]
   * **개별 물리 분석**: [[11_VT_ACCBRK_TIRE]]
@@ -54,6 +58,13 @@ aliases:
   * **시각화 플로터**: [[31_PLOTTER_PROJECT]], [[30_PLOTTER_TIRE]]
   * **보정 알고리즘**: [[21_CORRECT]]
 * 📜 **품질 혁신 및 체인지로그**: [[00_VT_ACCBRK_대시보드#5-버전-이력-및-주요-품질-혁신-내역-changelog--quality-audit|VT_ACCBRK v2.0 대규모 리팩토링 및 품질 혁신 내역]]
+
+### 🛰️ 1.2 gpsProcessing (공간 데이터 처리 및 좌표 변환 엔진)
+* 🛰️ **[[00_gpsProcessing_대시보드|gpsProcessing 공간 데이터 처리 및 평면 좌표계 투영 엔진 대시보드]]**
+  * **핵심 투영 엔진**: [[10_GPStoXYCord]] (WGS84 타원체 정밀 벡터화, 기존 대비 5.9배 고속화, 0.06mm 정밀도)
+  * **데이터 방어 필터**: VBOX 종료 시점 0.0 노이즈 격리 및 DataFrame 인덱스 100% 보존
+  * **트랙 좌표계 정렬**: 테크노링 직선 제동로 기준점 및 회전각($\theta = -0.4^\circ$) 표준화
+
 
 ---
 
