@@ -29,20 +29,21 @@ aliases:
 
 ```text
 📂 unoUtil/
-├── 🏎️ ACCBRK/                 # 실차 가감속 / 제동 성능 정밀 분석 엔진 (Active)
-│   ├── 00_VT_ACCBRK_대시보드.md
-│   ├── 10_VT_ACCBRK.md (통합 파이프라인)
-│   ├── 11_VT_ACCBRK_TIRE.md (단일 타이어 분석)
-│   ├── 12_VT_ACCBRK_PROJECT.md (취합 및 보정)
-│   ├── 20_VT_ACCBRK_SUB_ANALYZERS.md (7대 전문 서브 분석기)
-│   ├── 21_CORRECT.md (환경 및 콘트롤 성능 보정)
-│   ├── 22_Func_ACCBRK.md (공통 연산 유틸리티)
-│   ├── 30_PLOTTER_TIRE.md / 31_PLOTTER_PROJECT.md (시각화 플로터)
-│   └── 90_ACCBRK_사용자매뉴얼.md (실무 사용자 매뉴얼)
+├── 🏎️ vehicleTest/             # 실차 시험 종합 분석 패키지 (Active)
+│   └── 🏁 ACCBRK/             # 실차 가감속 / 제동 성능 정밀 분석 엔진
+│       ├── 00_VT_ACCBRK_대시보드.md
+│       ├── 10_VT_ACCBRK.md (통합 파이프라인)
+│       ├── 11_VT_ACCBRK_TIRE.md (단일 타이어 분석)
+│       ├── 12_VT_ACCBRK_PROJECT.md (취합 및 보정)
+│       ├── 20_VT_ACCBRK_SUB_ANALYZERS.md (7대 전문 서브 분석기)
+│       ├── 21_CORRECT.md (환경 및 콘트롤 성능 보정)
+│       ├── 22_Func_ACCBRK.md (공통 연산 유틸리티)
+│       ├── 30_PLOTTER_TIRE.md / 31_PLOTTER_PROJECT.md (시각화 플로터)
+│       └── 90_ACCBRK_사용자매뉴얼.md (실무 사용자 매뉴얼)
 ├── 🛰️ gpsProcessing/          # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active)
 │   ├── 00_gpsProcessing_대시보드.md (통합 허브 & MOC)
 │   └── 10_GPStoXYCord.md (WGS84 타원체 벡터화 투영 엔진)
-└── 🔧 (확장 예정 모듈)         # Lateral(조종안정성), DataQC, Ride&Handling 등
+└── 🔧 (확장 예정 모듈)         # readDataFile, convenienceFunction, unoAI, Lateral 등
 ```
 
 ---

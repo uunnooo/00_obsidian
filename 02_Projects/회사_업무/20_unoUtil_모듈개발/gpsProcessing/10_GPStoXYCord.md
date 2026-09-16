@@ -164,21 +164,22 @@ python unoUtil/gpsProcessing/_GPStoXYCord_.py
   - 두 모델 간 거리 차이 최대치     : 2.2397 m (타원체 곡률에 의한 실측 편차 반영)
 
 [Scenario 2] 테크노링(Hankook Technoring) 로컬 좌표계(PosX, PosY) 변환
-  [*] 실제 시험 계측 파일 탐색 성공: C1.VBB
-      - VBB 데이터 로드 완료: 137,951 행, 51 채널
-  [*] GPS 0.0 노이즈 필터링: 유효 행 135,729 / 전체 137,951 행
+  [*] unoUtil 공식 예제 계측 파일 로드: 01_C1.VBO
+      (경로: unoUtil/vehicleTest/ACCBRK/example/.../01_C1.VBO)
+      - VBO/VBB 데이터 로드 성공: 75,271 행, 22 채널
+  [*] GPS 0.0 노이즈 필터링: 유효 행 75,271 / 전체 75,271 행
 
 [Result] 테크노링 로컬 좌표 변환 결과:
-  - PosX (트랙 횡방향 위치) : -92.82m ~ 314.28m (Lane 위치)
-  - PosY (주행 진행 거리)   : -343.71m ~ 1146.57m (종방향)
-  - 종료 후 노이즈 NaN 격리 : 정상 격리됨 (끝부분 PosY=nan)
-  - 제동 시작 시점 위치(first): PosX = 20.16 m, PosY = 249.03 m
+  - PosX (트랙 횡방향 위치) : -48.23m ~ 21.19m (Lane 위치)
+  - PosY (주행 진행 거리)   : -334.13m ~ 724.16m (종방향)
+  - 종료 후 노이즈 NaN 격리 : 정상 격리됨
+  - 제동 시작 시점 위치(first): PosX = 20.97 m, PosY = 221.81 m
 ```
 
 ---
 
 ## 🔗 연계 문서 링크
 
-* 🛰️ **[[00_GPS_대시보드|GPS 모듈 전체 대시보드]]**
+* 🛰️ **[[00_gpsProcessing_대시보드|gpsProcessing 모듈 전체 대시보드]]**
 * 🏎️ **[[22_Func_ACCBRK|22_Func_ACCBRK: AN_ACCBRK 로컬 좌표 파이프라인 연계]]**
 * 🚗 **[[11_VT_ACCBRK_TIRE|11_VT_ACCBRK_TIRE: 랩별 제동 시작 위치 PosX/PosY 집계]]**
