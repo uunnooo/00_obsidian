@@ -4,7 +4,12 @@
 
 > **소속 모듈**: `unoUtil.readDataFile.ReadDataFile` (레거시 보존)  
 > **차세대 대체 모듈**: [[FileDataReader]] (`unoUtil.fileDataReader.FileDataReader`)  
-> **상태**: 레거시 유지 관리 (Legacy Active)
+> **상태**: ⚠️ 레거시 유지 관리 및 향후 완전 폐기(Deprecated & Scheduled for Removal) 예정
+
+> [!WARNING] ⚠️ 패키지 완전 분리 및 레거시 폐기 예고 (Deprecation Notice)
+> 본 `readDataFile` 패키지는 향후 완전히 삭제될 예정입니다.
+> VBB 바이너리 파서(`vbbTopython`) 및 Dewesoft D7D 디코더(`DWDataReader_v5_0_8`)를 포함한 모든 기능이 차세대 독립 패키지인 **[[FileDataReader]] (`unoUtil.fileDataReader`)**로 100% 내재화 및 이전 완료되었습니다.
+> 향후 신규 개발 및 분석 작업에서는 반드시 [[FileDataReader]]를 사용하시기 바랍니다.
 
 ---
 

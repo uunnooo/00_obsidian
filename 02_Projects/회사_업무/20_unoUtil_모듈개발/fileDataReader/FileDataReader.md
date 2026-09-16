@@ -233,3 +233,16 @@ print(reader.file_path, reader.dir_path, reader.channels)
 # 또는 기존 코드 유지를 위해 4-튜플로 언패킹
 name, df, save_date, sample_rate = reader.to_legacy_tuple()
 ```
+
+---
+
+## 7. 🔗 관련 문서 및 영구 도메인 지식
+- [[VBBReader]] : VBOX 바이너리(.vbb) 고속 디코더 엔진 매뉴얼 (`vbbTopython`)
+- [[dwdReader]] : Dewesoft D7D C-DLL 연동 및 비동기 채널 정합 엔진 (`DWDataReader_v5_0_8`)
+- [[23_이종_계측_데이터_통합_파이프라인_및_대규모_마이그레이션_엔지니어링]] : 영구 도메인 지식 (전체 엔지니어링 마스터)
+- [[20_VBOX_계측_데이터_규격_및_GPS좌표계]] : VBOX 하드웨어 및 계측 데이터 규격
+- [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]] : 바이너리 I/O 아키텍처
+- [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]] : GPS 바운딩 박스 타임존 판별 이론
+- [[00_unoUtil_모듈개발_대시보드]] : 모듈 개발 현황 대시보드
+- [[ReadDataFile]] : 레거시 모놀리식 모듈 (폐기 예정)
+

@@ -48,7 +48,8 @@ aliases:
 │   ├── 📂 vbbTopython/        # VBB 바이너리 초고속 파서 & 전원차단 복구 엔진 내재화
 │   │   └── VBBReader.md
 │   └── 📂 DWDataReader_v5_0_8/ # Dewesoft D7D C-DLL 디코더 & 비동기 정합 엔진 내재화
-├── 💾 readDataFile/            # 계측기 원본 데이터 로더 레거시 보존 (Legacy)
+│       └── dwdReader.md
+├── 💾 readDataFile/            # 계측기 원본 데이터 로더 (⚠️ 폐기 예정 / Deprecated)
 │   ├── ReadDataFile.md (모놀리식 ReadDataFile 레거시 레퍼런스)
 │   └── 📂 vbbTopython/
 │       └── VBBReader.md (레거시 보존)
@@ -78,18 +79,21 @@ aliases:
 ### 🚀 1.3 fileDataReader (차세대 이종 계측 데이터 객체지향 리더 프레임워크) ⭐
 * 🚀 **[[FileDataReader|FileDataReader (이종 계측 데이터 통합 객체지향 로더)]]**
   * **전략 패턴 파서 라우팅**: VBO, VBB, Dewesoft(D7D), TXT/CSV 자동 식별 및 고속 파싱
+  * **하위 패키지 완전 내재화 (Zero-Dependency)**: [[VBBReader]] 바이너리 파서 및 [[dwdReader]] C-DLL 디코더를 완전히 내장하여 `readDataFile` 의존도 0% 달성
   * **GPS 스마트 타임존**: 글로벌 주요 시험장(태안, 이발로, IDIADA, ATP) 바운딩 박스 기반 동적 서머타임(DST) 자동 보정
   * **Dewesoft 비동기 채널 정합**: `pd.merge_asof` 기반 고속 타임라인 보간 (15만 행 2.05초)
   * **플루언트 API & 일괄 스캔**: 메서드 체이닝 및 `scan_dir` 멀티파일 예외 격리 배치 로딩
   * **대규모 마이그레이션**: 사내 24개 모듈(`VT_ACCBRK`, `2025_Autobuild`, `Snow`, `MakeBRKResult`) 무중단 전면 전환 완료
+  * **하위 디코더 엔진**:
+    * 📂 **[[VBBReader]]**: VBOX 바이너리(.vbb) 고속 파서 및 전원 급차단 3중 방어 복구 엔진
+    * 📂 **[[dwdReader]]**: Dewesoft D7D C-DLL 연동 및 비동기 CAN/GPS 채널 고속 정합 엔진
   * **영구 도메인 지식 연계**: [[23_이종_계측_데이터_통합_파이프라인_및_대규모_마이그레이션_엔지니어링]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]], [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]]
 
-### 💾 1.4 readDataFile (레거시 데이터 로더 보존 영역)
+### 💾 1.4 readDataFile (레거시 데이터 로더 보존 및 향후 폐기 예정 영역)
 * 💾 **[[ReadDataFile|ReadDataFile (모놀리식 레거시 데이터 로더)]]**
-  * 모놀리식 단일 함수 기반 기존 파이프라인 보존 (하위 호환성 유지)
-* 💾 **[[VBBReader|VBBReader (VBOX 바이너리 초고속 파서 & 전원차단 복구 엔진)]]**
-  * **전원 급차단 3중 안전망**: 쓰다 만 불완전 레코드 사전 검사 및 크래시 원천 차단
-  * **초고속 무손실 벡터 정합**: 마스터 타임라인 기반 조립으로 0.2초대 달성 및 행 삭제 버그 해결
+  * **상태**: ⚠️ 레거시 유지 관리 및 향후 완전 삭제 예정 (Deprecated)
+  * **안전망 조치**: `unoUtil/__init__.py`에서 `try...except ImportError`로 분리되어 향후 폴더가 삭제되어도 전체 패키지 무중단 구동 보장
+  * 모든 신규 분석 및 배치 파이프라인은 [[FileDataReader]]로 완전 대체 완료
 
 
 ---
