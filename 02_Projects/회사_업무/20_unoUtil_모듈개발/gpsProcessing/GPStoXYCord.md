@@ -117,33 +117,60 @@ df_result = gps_proc.transform(df_raw, col_lon='GpsLongitude', col_lat='GpsLatit
 print(df_result[['PosX', 'PosY']])
 ```
 
-### 4.2 트랜스폼 래퍼 시각화 옵션 (`plot=True`)
-`transform()` 메서드에 `plot=True` 인자를 전달하면 별도의 시각화 함수 호출 없이 변환된 궤적과 속도 컬러맵을 원스톱으로 확인하고 파일로 저장할 수 있습니다:
+### 4.2 트랜스폼 래퍼 및 단계별 변환 시각화 (`plot`)
+`transform()` 메서드 및 `transform_gps()` 래퍼 함수는 원스톱 파이프라인 변환 중 각 단계별 전후 플롯을 선별적 또는 전체적으로 시각화/저장할 수 있는 강력한 제어 옵션을 제공합니다.
+
+| `plot` 옵션 값 | Step 1 (분/도 정규화) | Step 2 (로컬 직교 투영) | Step 3 (트랙 각도 회전) | 최종 궤적 (`plot_trajectory`) |
+| :--- | :---: | :---: | :---: | :---: |
+| `plot=True` / `'all'` | ✅ | ✅ | ✅ | ✅ |
+| `plot='steps'` / `'pipeline'` | ✅ | ✅ | ✅ | ❌ |
+| `plot='trajectory'` / `'final'` | ❌ | ❌ | ❌ | ✅ |
+| `plot='step1'` / `'step2'` / `'step3'` | 선별 ON | 선별 ON | 선별 ON | ❌ |
+| `plot=False` (기본값) | ❌ | ❌ | ❌ | ❌ |
+
+> [!TIP] 세분화된 개별 제어 인자
+> `plot_steps=True`, `plot_step1=True`, `plot_step2=True`, `plot_step3=True`, `plot_trajectory=True`와 같이 개별 플래그를 직접 지정하여 원하는 단계만 정밀하게 활성화할 수 있습니다.
+> 
+> 여러 플롯이 동시에 활성화된 상태에서 `save_path="dry_brk.png"`를 지정하면, 파일명에 단계별 접미사가 자동 부여되어 안전하게 저장됩니다:
+> - `dry_brk_step1_degrees.png`
+> - `dry_brk_step2_local_xy.png`
+> - `dry_brk_step3_rotate.png`
+> - `dry_brk_trajectory.png`
 
 ```python
-# 원스톱 변환과 동시에 궤적 시각화 플롯 파일 저장 (Non-blocking)
+# 1. 변환 과정 3단계(Step 1, 2, 3) 플롯만 확인 및 저장
 df_result = gps_proc.transform(
     df_raw,
-    col_lon='GpsLongitude',
-    col_lat='GpsLatitude',
-    plot=True,
-    save_path="trajectory_technoring.png",
+    plot='steps',
+    save_path="process_steps.png",
     close_fig=True
 )
+
+# 2. 전체 단계 및 최종 궤적 일괄 저장
+df_result = gps_proc.transform(
+    df_raw,
+    plot=True,
+    save_path="full_pipeline.png",
+    close_fig=True
+)
+
+# 3. 생성된 Figure 객체에 접근 (메모리 보관)
+step1_fig, step1_ax = gps_proc.step_figures['step1_degrees']
+traj_fig, traj_ax = gps_proc.step_figures['trajectory']
 ```
 
 ### 4.3 모듈 레벨 편의 래퍼 함수 (`transform_gps`)
-클래스 인스턴스화 없이 단일 함수 호출로 좌표 변환 및 시각화를 실행할 수 있는 편의 함수입니다:
+클래스 인스턴스화 없이 단일 함수 호출로 좌표 변환 및 단계별 시각화를 실행할 수 있는 편의 함수입니다:
 
 ```python
 from unoUtil.gpsProcessing import transform_gps
 
-# 단 1줄로 테크노링 프리셋 변환 및 플롯 저장
+# 단 1줄로 테크노링 프리셋 변환 및 단계별 플롯 저장
 df_result = transform_gps(
     df_raw,
     track='technoring',
-    plot=True,
-    save_path="trajectory_technoring.png"
+    plot='steps',
+    save_path="technoring_steps.png"
 )
 ```
 
@@ -225,18 +252,22 @@ fig, axes = tr_tech.plot_trajectory(
   - 두 포맷 변환 오차: 0.000000e+00 m
 
 [Test 4] 137,951개 행(13.8만 포인트) 대용량 연산 속도 벤치마크
-  - 13.8만 행 변환 소요 시간:  14.00 ms
+  - 13.8만 행 변환 소요 시간:  23.52 ms
 
 [Test 5] 실차 예시 데이터(VBB) 로드 및 트랙 궤적 시각화 플롯 (무중단 파일 저장)
   [*] 예시 데이터 파일 로드: example_dry_brk_lane8.VBB
       - 총 데이터 행 수: 137,953 행, 채널 수: 51
-  [*] GPStoXYCord.transform() 원스톱 변환 및 plot=True 시각화 동시 수행 (Non-blocking)...
+  [*] GPStoXYCord.transform() 원스톱 변환 및 plot=True (단계별 플롯 포함) 시각화 수행...
   [*] GPStoXYCord 트랙 투영 변환 완료:
       - PosX (횡방향/차선오프셋) : -92.82 m ~ 314.28 m
       - PosY (종방향/진행거리)   : -343.71 m ~ 1146.57 m
       - 속도(VelHorizontal) 범위: 0.00 ~ 117.81 km/h
-  [*] 그래프 이미지 파일 저장 완료: example_dry_brk_lane8_trajectory.png
-  [*] transform_gps() 편의 래퍼 함수 일치성 검증...
+  [*] 단계별 이미지 파일 저장 확인:
+      - [step1_degrees] example_dry_brk_lane8_step1_degrees.png (크기: 120,104 bytes)
+      - [step2_local_xy] example_dry_brk_lane8_step2_local_xy.png (크기: 118,923 bytes)
+      - [step3_rotate] example_dry_brk_lane8_step3_rotate.png (크기: 84,504 bytes)
+      - [trajectory] example_dry_brk_lane8_trajectory.png (크기: 304,506 bytes)
+  [*] transform_gps() 편의 래퍼 함수 일치성 및 plot='steps' 검증...
       - transform_gps 래퍼 함수 변환 결과 100% 일치 확인 완료
 
 ================================================================================
@@ -245,4 +276,9 @@ fig, axes = tr_tech.plot_trajectory(
 ```
 
 ### 6.1 테크노링 실차 주행 및 제동 궤적 시각화 결과
+- **Step 1 (분/도 정규화)**: VBOX 원시 분(`7580.xx`, `2198.xx`) $\rightarrow$ 표준 십진 도(`126.33°`, `36.64°`)
+- **Step 2 (로컬 직교 투영)**: 경위도 좌표 $\rightarrow$ 기준 원점 대비 동서(East)/남북(North) 국소 직교 거리(m)
+- **Step 3 (트랙 회전 정렬)**: 진북 좌표 $\rightarrow$ 시험장 직선로 기준 정렬 각도 회전 (`PosX`: 차선 오프셋, `PosY`: 주행 진행거리)
+- **Step 4 (최종 궤적 및 속도 프로파일)**: 13.8만 포인트 고해상도 궤적 및 주행/제동 속도 컬러맵 시각화
+
 ![테크노링 실차 주행 궤적 시각화](example_dry_brk_lane8_trajectory.png)
