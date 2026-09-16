@@ -43,12 +43,15 @@ aliases:
 ├── 🛰️ gpsProcessing/          # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active)
 │   ├── 00_gpsProcessing_대시보드.md (통합 허브 & MOC)
 │   └── 10_GPStoXYCord.md (WGS84 타원체 벡터화 투영 엔진)
-└── 🔧 (확장 예정 모듈)         # readDataFile, convenienceFunction, unoAI, Lateral 등
+├── 💾 readDataFile/            # 계측기 바이너리/텍스트 원본 데이터 로더 (Active)
+│   └── 📂 vbbTopython/
+│       └── VBBReader.md (VBOX 바이너리 초고속 파서 & 전원차단 복구 엔진)
+└── 🔧 (확장 예정 모듈)         # convenienceFunction, unoAI, Lateral 등
 ```
 
 ---
 
-## 🚀 1. 핵심 활성 모듈: VT_ACCBRK & gpsProcessing
+## 🚀 1. 핵심 활성 모듈: VT_ACCBRK, gpsProcessing & readDataFile
 
 ### 🏎️ 1.1 VT_ACCBRK (실차 가감속 / 제동 분석 엔진)
 * 🏎️ **[[00_VT_ACCBRK_대시보드|VT_ACCBRK 통합 실차 성능 분석 시스템 대시보드]]**
@@ -65,6 +68,12 @@ aliases:
   * **핵심 투영 엔진**: [[10_GPStoXYCord]] (WGS84 타원체 정밀 벡터화, 기존 대비 5.9배 고속화, 0.06mm 정밀도)
   * **데이터 방어 필터**: VBOX 종료 시점 0.0 노이즈 격리 및 DataFrame 인덱스 100% 보존
   * **트랙 좌표계 정렬**: 테크노링 직선 제동로 기준점 및 회전각($\theta = -0.4^\circ$) 표준화
+
+### 💾 1.3 readDataFile (바이너리 계측 데이터 로딩 엔진)
+* 💾 **[[VBBReader|VBBReader (VBOX 바이너리 초고속 파서 & 전원차단 복구 엔진)]]**
+  * **전원 급차단 3중 안전망**: 쓰다 만 불완전 레코드 사전 검사 및 크래시 원천 차단
+  * **초고속 무손실 벡터 정합**: 마스터 타임라인 기반 조립으로 0.2초대 달성 및 행 삭제 버그 해결
+  * **영구 도메인 지식 연계**: [[20_VBOX_계측_데이터_규격_및_GPS좌표계]] WGS84 좌표계 및 바이너리 구조 규명
 
 
 ---

@@ -146,8 +146,37 @@ GPS 경위도($\lambda, \phi$)로부터 2D 평면 상대 거리($\Delta X, \Delt
 
 ---
 
-## 6. 🔗 연계 모듈 및 시스템 링크
+## 6. ⚡ 실차 시험 전원 급차단(Power-cut) 시 VBB 불완전 바이너리 구조 및 안전 복구 원리
 
+실차 시험 현장에서는 차량 시동 꺼짐, 급격한 전압 강하, 전원 케이블 탈락 등으로 인해 VBOX 계측기가 파일 저장 루틴을 정상 완료하지 못하고 전원이 차단되는 경우가 빈번히 발생합니다.
+
+### 6.1 불완전 바이너리(Truncated Binary)의 물리적 양상
+1. **꼬리 레코드 절단 (Incomplete EOF Record)**:
+   - VBB의 샘플 그룹(Record ID `0x09`)은 `[Header 1B][Timestamp 4B][GroupID 1B][Data N 바이트]`로 구성됩니다.
+   - 전원이 꺼질 때 마지막 레코드가 일부 바이트만 쓰이고 잘린 상태로 SD 카드에 남게 됩니다.
+2. **`NoneType` 비교 런타임 크래시**:
+   - 파일 말미에서 남은 바이트가 부족할 때, 파서가 1바이트 그룹 ID를 읽으면 `None`을 반환합니다.
+   - 이때 `if groupID >= len(channel_group_data)` 같은 인덱스 비교가 실행되면 Python 인터프리터에서 `TypeError: '>=' not supported between 'NoneType' and 'int'` 예외가 발생하며 전체 프로세스가 다운됩니다.
+3. **모듈별 계측 버퍼 시차 및 비동기 단절**:
+   - GNSS(100Hz), IMU, CAN 버스, ADC(100Hz) 모듈은 각자의 하드웨어 버퍼를 가지고 있어 계측 시작 및 종료 시점에서 **1~2 샘플(10~20ms)의 시차**가 발생합니다.
+   - 전원 차단 시 채널별 총 레코드 개수의 불일치(예: GNSS 137,953개 vs ADC 137,951개)가 발생합니다.
+   - 종래 파서가 `pd.concat` 후 무조건 `.dropna()`를 수행할 경우, 이 1~2개 행의 결측치로 인해 **데이터의 대다수가 삭제되거나 타임스탬프가 어긋나는 치명적 결함**이 유발됩니다.
+
+### 6.2 VBOX Test Suite 수준의 3단계 무손실 복구 메커니즘
+`VBBReader`는 전용 분석 소프트웨어(VBOX Test Suite)와 동일한 수준의 무손실 복구 파이프라인을 채택합니다:
+1. **잔여 바이트 선제 검사 (Lookahead Incomplete Drop)**:
+   - `advance_through_file(groupLength - 6)`를 호출하기 전에 파일 잔여 바이트를 검사하여 `groupLength - 6`보다 작으면 해당 불완전 레코드를 무시하고 루프를 안전하게 정상 탈출(`self.isEoF = True`)합니다.
+2. **동적 마스터 타임라인(Master Timeline) 벡터화 정합**:
+   - 최다 샘플을 보유한 채널을 마스터 시간축으로 선정하고, 길이가 일치하는 대다수 채널은 메모리 직접 할당(Vector Direct Packing)을 수행합니다.
+3. **`ffill/bfill` 결측치 적응형 보정**:
+   - 전원 차단으로 끝부분이 1~2샘플 일찍 종료된 채널은 직전 유효값(`ffill`)을 전파하고, 시작 시점이 1샘플 지연된 채널은 최초 유효값(`bfill`)을 보강하여 **1개의 행도 삭제하지 않고 전원 차단 직전까지의 주행 데이터를 100% 완전 복원**합니다.
+
+---
+
+## 7. 🔗 연계 모듈 및 시스템 링크
+
+* 💾 **[[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조|바이너리 파일 I/O 아키텍처 및 VBB 포맷 심층 분석 (영구 지식)]]**
+* 💾 **[[VBBReader|unoUtil readDataFile VBBReader (VBB 고속 무손실 파서 및 전원차단 복구 엔진)]]**
 * 🛰️ **[[10_GPStoXYCord|unoUtil gpsProcessing _GPStoXYCord_ (WGS84 고속 벡터화 구현체)]]**
 * 🏎️ **[[22_Func_ACCBRK|unoUtil vehicleTest ACCBRK _Func_ACCBRK_ (실차 제동 파이프라인)]]**
 * 📊 **[[10_실차_평가_데이터_프레임|실차 평가 데이터 프레임 마스터 규격서]]**
