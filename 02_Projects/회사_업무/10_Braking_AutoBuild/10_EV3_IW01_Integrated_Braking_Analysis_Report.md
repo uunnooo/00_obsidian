@@ -23,7 +23,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 # 🚗 EV3 IW01 실차 제동 성능 종합 공학 분석 마스터 리포트
 ### Engineering Whitepaper: Surface Separation, Control Baseline, Temperature Sensitivity & Anchor Recalibration
 
-> **보고서 생성일시**: `2026-09-16 14:43` | **분석 프로젝트**: `EV3 IW01 제동 평가 (2026)`  
+> **보고서 생성일시**: `2026-09-16 15:10` | **분석 프로젝트**: `EV3 IW01 제동 평가 (2026)`  
 > **시험 차량**: `기아 EV3 (FF Layout / EV)` | **시험 장소**: `TR 실차 주행시험장`  
 > **평가 노면**: `Wet (Lane 1, Lane 4)` / `Dry (Lane 7, Lane 8)` | **분석 데이터셋**: 총 97회차 평가 데이터
 

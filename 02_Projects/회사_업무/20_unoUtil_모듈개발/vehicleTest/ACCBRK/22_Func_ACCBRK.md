@@ -37,7 +37,7 @@ aliases:
 - **GPS 0.0 노이즈 방어 및 NaN 격리 (`valid_mask`)**: VBOX 계측 장비 종료 시점의 비정상 좌표(`0.0, 0.0`)가 유입되어 `PosY`가 `-4,000,000m`로 왜곡되던 문제를 방지하기 위해 유효 위경도(`abs > 10.0`) 마스크를 적용하고 비정상 구간은 `NaN`으로 안전 격리.
 - **DataFrame 인덱스 100% 보존 결합**: 기존 `pd.concat(axis=1)` 시 인덱스 불일치로 인한 결측치/왜곡을 원천 차단하기 위해 `df_xy = pd.DataFrame(index=df_input.index)` 및 `df_input[col_local] = df_xy` 직접 대입 방식으로 전환.
 - **제동 랩 요약표 PosX/PosY 집계 기준 표준화 (`first`)**: 랩 결과 집계 시 이동 구간의 중간 평균값(`mean`, 282m) 대신 운전자가 브레이크를 밟은 **정확한 제동 개시점(`first`, 약 251m)**을 기록하도록 `rule_infor` 개편.
-- **WGS84 타원체 정밀 측지 계산 모드 추가**: [[10_GPStoXYCord|GPStoDistance2]]에 WGS84 타원체 정밀 곡률 반경 모델(`method='wgs84'`)을 기본 연동하여 기존 대비 5.9배 고속화(2.5ms) 및 geopy와 0.06mm 수준으로 일치하는 정밀 좌표 변환 제공.
+- **WGS84 타원체 정밀 측지 계산 모드 추가**: [[10_GPStoXYCord|GPStoXYCord]]에 WGS84 타원체 정밀 곡률 반경 모델(`method='wgs84'`)을 기본 연동하여 기존 대비 5.9배 고속화(2.5ms) 및 geopy와 0.06mm 수준으로 일치하는 정밀 좌표 변환 제공.
 - **Pandas 2.0+ 인덱스 호환성 확보**: `Index.append()` 동작 시 발생하는 Future/Deprecation 경고를 제거하고 `pd.Index(list(col_names) + list(col_local))`로 안정화.
 - **로컬 직교 좌표계(`local_pos`) 파이프라인 연계**: `AN_ACCBRK`에서 문자열('technoring', 'technotrack') 및 사용자 정의 딕셔너리를 통한 평면 좌표 변환을 지원하며, `col_local` 사전 정의를 통해 GPS 부재 환경에서도 안전하게 방어.
 - **Series/DataFrame 인덱싱 방어 로직 강화**: 단일 행 추출 시 `.iloc[0]` 및 스칼라 형 변환 방어 코드를 적용하여 `TypeError` 원천 차단.
