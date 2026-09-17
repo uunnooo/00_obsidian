@@ -125,7 +125,21 @@ flowchart TD
 
 ## 4. 💻 상세 사용법 및 코드 예제
 
-### 4.1. [Case 1] 기본 로드 및 경로 속성 접근
+### 4.1. [Case 1] 1줄 황금 기본값 로드 (Recommended ⭐)
+실무에서 가장 많이 쓰는 **표준 채널 매핑(`chname=True`)**, **GPS 자동 로컬 타임존 일시 열(`date='auto'`)**, **진행 로그(`verbose=True`)**가 기본값으로 내장되어 있어 별도 인자 없이 파일 경로만 넘겨도 완벽히 정제된 데이터를 즉시 얻을 수 있습니다:
+```python
+from unoUtil.fileDataReader import FileDataReader
+
+# 인자 없이 호출해도 표준 채널 매핑 + 한국 로컬 Datetime(+9h) 자동 생성 완료!
+reader = FileDataReader("example/example_BRK.VBO")
+
+print("파일명:", reader.file_name)
+print("크기:", reader.shape)
+print("시작 일시:", reader.data["Datetime"].iloc[0])
+```
+
+### 4.2. [Case 2] 원시 데이터(Raw) 로드 및 경로 속성 접근
+어떠한 전처리도 거치지 않은 순수 원본 데이터를 열람하려면 `auto_process=False`로 로드합니다:
 ```python
 from unoUtil.fileDataReader import FileDataReader
 
