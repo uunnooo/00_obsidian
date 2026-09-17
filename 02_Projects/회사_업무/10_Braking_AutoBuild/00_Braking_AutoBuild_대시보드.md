@@ -169,7 +169,7 @@ flowchart TD
 | 모듈 번호 | 파이썬 모듈 파일명 | 핵심 엔지니어링 역할 및 담당 테마 | 주요 산출물 (Chart / Sheet / Doc) |
 | :---: | :--- | :--- | :--- |
 | **00** | `00_EV3_IW01_make_result.py` | 원시 제동 시험 데이터 파싱, 기상 DB(대기/노면온도) 결합 및 캐싱 | `0. db/df_result_summary.gzip` |
-| **10** | `10_EV3_IW01_analysis.py` | **총괄 오케스트레이터 (Wrapper)**: 11대 모듈 로드, 60개 차트 저장, 엑셀/마크다운 마스터 빌더 원클릭 제어 | 파이프라인 통합 관제 |
+| **10** | `10_EV3_IW01_analysis.py` | **총괄 오케스트레이터 (Wrapper)**: 12대 모듈 로드, 61개 차트 저장, 엑셀/마크다운 마스터 빌더 원클릭 제어 | 파이프라인 통합 관제 |
 | **20** | `20_EV3_IW01_surface_and_control_baseline.py` | **[테마 1] 노면 및 로컬 콘트롤 편차 분석**: Wet/Dry 독립 분리, 막대에 실측거리 `(xx.xx m)` 병기 | `01_01_` ~ `01_06_`<br>Sheet: `Surface_Ctrl_Baseline` |
 | **21** | `21_EV3_IW01_temperature_sensitivity.py` | **[테마 2] 노면온도 의존성 및 감인성 분석**: 1차 선형 회귀 기울기($m \text{ [m/°C]}$) 및 피어슨 $r$ 산출 | `02_01_Control_Tire_vs_Temperature_Analysis.png`<br>Sheet: `Temperature_Sensitivity` |
 | **22** | `22_EV3_IW01_discordance_diagnosis.py` | **[테마 3] 실측 제동거리 vs 성능지수 역전 진단**: Discordant Pair 색출 및 온도 열세 보정 정당성 입증 | `03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png`<br>Sheet: `Discordance_Diagnosis` |
@@ -179,8 +179,70 @@ flowchart TD
 | **26** | `26_EV3_IW01_run_degradation.py` | **[테마 7 신규] 반복 횟수별 성능 변화 분석**: 제동 1회당 1행 마스터 DB(`df_result_runs`, 240행), 런 추세선, 변동 기울기, 편차폭 정량화 | `07_01_` ~ `07_03_` (9종)<br>Sheet: `Run_Degradation` |
 | **27** | `27_EV3_IW01_mudrop_analysis.py` | **[테마 8 신규] 노면별 Mu-Drop 손실거리 및 환경 보정 왜곡 진단**: 실측 vs 보정 손실거리 대조, 콘트롤 분모 0 왜곡 규명 | `08_01_` ~ `08_04_` (4종)<br>Sheet: `MuDrop_Analysis` |
 | **28** | `28_EV3_IW01_speed_zone_analysis.py` | **[테마 9 신규] 속도 구간별 성능 분할 (Speed Zone)**: 고속(100~50) vs 저속(50~0) 분할 및 감속도 변화율($\Delta g$) 프로파일 | `09_01_` ~ `09_04_` (4종)<br>Sheet: `Speed_Zone_Analysis` |
-| **30** | `30_EV3_IW01_export_integrated_excel.py` | **통합 엑셀 마스터 리포트 빌더**: 10개 시트 생성, A열 슬림화, 고해상도 차트 전수 자동 삽입 | `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` |
-| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 35개+ 산출 근거 표 + 60개 차트 수록, 볼트 온디맨드 이중 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
+| **29** | `29_EV3_IW01_surface_contribution.py` | **[테마 10 신규] 노면별 고속 vs 저속 성능 기여도(비율) 종합 대조**: 노면별 평균 제동거리 기반 고속/저속 기여율(%) 및 100% 누적 통합 바 차트 | `10_01_` (1종)<br>Sheet: `Surface_Contribution` |
+| **30** | `30_EV3_IW01_export_integrated_excel.py` | **통합 엑셀 마스터 리포트 빌더**: 11개 시트 생성, A열 슬림화, 고해상도 차트 전수 자동 삽입 | `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` |
+| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 38개+ 산출 근거 표 + 61개 차트 수록, 볼트 온디맨드 이중 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
+
+### 🚀 파이프라인 원클릭 실행 스크립트
+
+```python
+# D:\uno\Python\Projects\Braking_AutoBuild\EV3_IW01\10_EV3_IW01_analysis.py 실행
+from EV3_IW01.10_EV3_IW01_analysis import run_ev3_iw01_analysis_pipeline
+
+results = run_ev3_iw01_analysis_pipeline(
+    list_group_cols=['TestTireMold', 'TestTirePTN', 'TestTireMark'],  # 동적 그룹화 계층
+    plot=False,           # Figure 메모리 정리 (저장 후 plt.close() 실행)
+    save=True,            # 2. fig 폴더에 10대 테마 61개 차트 저장
+    excel=True,           # 11개 시트 통합 엑셀 마스터 리포트 빌드 (차트 전수 삽입)
+    sync_obsidian=True,   # 옵시디언 볼트(02_Projects 및 _attachments) 동시 배포
+    b_print_log=True
+)
+```
+
+---
+
+## 🚀 5. 향후 작업 로드맵 (Action Items & To-Do)
+
+* [x] **1단계: 임시 실험 코드(`temp_analysis`)의 메인 분석 모듈화 통합** (완료 - `21번`, `22번` 모듈로 분리 구축 완료)
+* [x] **2단계: 메인 분석 스크립트 실행 및 결과 차트 22종·엑셀 7개 시트 전수 검증** (완료)
+* [x] **3단계: 통합 마크다운 마스터 리포트 빌더(`31번`) 구축 및 옵시디언 볼트 이중 동기화** (완료)
+* [x] **4단계: 신규 3대 테마(반복 횟수별 성능 변화, Mu-Drop 실측/보정 진단, Speed Zone) 구축 및 10개 시트 확장** (완료)
+* [x] **5단계: 콘트롤 vs 테스트 타이어 재현성 평가 분리 체계 및 실측거리 병기 표기 고도화** (완료)
+* [x] **6단계: 노면별 고속 vs 저속 성능 기여도(비율) 신규 시트(`Surface_Contribution`) 및 100% 누적 통합 바 차트 완성** (완료)
+* [ ] **7단계: `MINI_W426` 프로젝트로 분석 로직 확장**
+  * `EV3_IW01`에서 검증된 10대 테마 파이프라인 및 엑셀/마크다운 자동화 프레임워크를 이웃 프로젝트인 `MINI_W426` 분석 코드에도 그대로 이식하여 전사 통합 제동 분석 플랫폼 완성.
+
+
+---
+
+## 🏠 6. 자택 / 원격 PC 세팅 유의사항
+
+1. `D:\uno\1. 2026\1. BRK\Autobuild IW01_EV3` 등 GCP 데이터 및 캐시 경로가 자택 컴퓨터에도 동일하게 존재하는지 확인합니다.
+2. 드라이브 문자나 폴더 구조가 다를 경우 스크립트 상단의 `BASE_DIR = Path(...)` 경로만 자택 환경에 맞게 일치시킵니다.
+3. 새로운 PC 세팅을 위한 **`GCP_SETUP_GUIDE.md`** 가이드도 프로젝트 루트에 상주하고 있으므로 참고합니다.
+
+---
+
+## 📜 7. 버전 이력 및 주요 체인지로그 (Changelog)
+
+| 일자 | 구분 | 내용 요약 |
+| :--- | :--- | :--- |
+| **2026-09-11** | 🚀 엔진 고도화 | 실시간 노면온도(`BRK Dry/Wet Asp`) 결합, 앵커 재보정(Method B), GPS X/Y 종횡 분할 공간 QC 엔진 주조 |
+| **2026-09-11** | 📊 엑셀 자동화 | 최종 3대 마스터 리포트 자동 생성 파이프라인 완성 (슬로프 차트 & 랭크 쉬프트 컬러 마킹) |
+| **2026-09-14** | 🏛️ 볼트 위키 통합 | 날짜별 임시 작업 명세(`10_Braking_AutoBuild_작업_정리.md`)를 마스터 대시보드로 100% 통합 흡수 및 낱개 파일 정리 (Zero-Clutter Law) |
+| **2026-09-15** | 📑 마스터 리포트 | 6대 테마 전수 세부 산출 근거 표(24개+ 마크다운 표) 및 21개 차트가 포함된 통합 마크다운 마스터 리포트(`31번` 모듈) 구축 및 로컬/볼트 이중 배포 |
+| **2026-09-15** | 🖼️ 볼트 연동 최적화 | 옵시디언 볼트(`02_Projects/...` 및 `_attachments/...`) 자동 동기화 체계 구현 및 온디맨드 스위치(`sync_obsidian`) 제어화 |
+| **2026-09-15** | 🌡️ 물리 이상치 규명 | 마른 노면(Lane 7) 콘트롤 타이어 온도 저반응/역전 원인(트랙 컨디셔닝, 아스팔트 점착 보상) 규명 및 인위적 온도 보정 배제 원칙 확립 |
+| **2026-09-15** | 🎨 시각화 품질 개선 | 피규어 내 주관적 의견 텍스트 전면 배제(순수 팩트 위주) 및 4.3 산점도 매트릭스(`03_01`)·공간 QC 차트 상단 타이틀 오버랩 완벽 해소 |
+| **2026-09-16** | 🛰️ GPS QC 고도화 | 제동 진입 위치 X/Y 분할 통계 표, 2포인트 궤적 벡터 화살표 맵(`06_04`), 제동 중 요(Yaw) 거동(회전각, 요레이트)과 제동거리 잔차 간 무상관($\|r\| \le 0.22$, 이상치 영향 배제) 최종 규명 |
+| **2026-09-16** | 🔄 테마 7 신설 | **반복 횟수별 성능 변화(`26번`)**: 1회당 1행 마스터 런 DB(`df_result_runs`, 240행) 구축, 8회 런 추세선(`07_01`), 스펙 종합 변동 기울기(`07_02`), 노면별 4종 변동 차트(`07_03`) 신설 |
+| **2026-09-16** | 📉 테마 8 신설 | **노면별 Mu-Drop 손실거리 및 환경 보정 왜곡 진단(`27번`)**: 실측 vs 보정 손실거리 대조, 콘트롤 타이어 분모 0 왜곡(Zero-denominator Artifact) 메커니즘 규명, 노면별 단독 차트 4종(`08_01`~`08_04`) 신설 |
+| **2026-09-16** | 🏎️ 테마 9 신설 | **속도 구간별 성능 분할(Speed Zone, `28번`)**: 고속(100~50) vs 저속(50~0) 구간 분할 및 감속도 변화율($\Delta g$) 프로파일링, 노면별 단독 차트 4종(`09_01`~`09_04`) 신설 |
+| **2026-09-16** | 🔬 테마 5 개편 | **콘트롤 vs 테스트 타이어 재현성 평가 분리(`24번`)**: 콘트롤 타이어(세션 간 반복성 및 C1 vs C2)와 테스트 타이어(Method A/B 교차 일관성)를 분리 시각화(`05_01`~`05_04`) |
+| **2026-09-17** | 📝 용어 표준화 | 사용자 피드백에 따라 Run_Degradation 시트 및 보고서/차트 내 '열화/내구성' 용어 전면 배제 ➔ '반복 횟수별 성능 변화', '성능 변동량', '변동 기울기', '후반 밀림 경향'으로 전면 개편 |
+| **2026-09-17** | 📊 베이스라인 고도화 | Surface_Ctrl_Baseline 시트의 모든 차트(`01_01`~`01_06`) 막대 끝에 성능지수와 함께 실측 제동거리 `(xx.xx m)` 병기 반영 및 X축 마진 확장 |
+| **2026-09-17** | 🏎️ 테마 10 신설 | **노면별 고속 vs 저속 기여도 종합 분석(`29번`)**: 노면별 개별 타이어 고속/저속 전수 명세표, 노면별 평균 제동거리 기반 비율화(Lane 1: 62.2% vs 37.8%, Lane 4: 63.2% vs 36.8%, Lane 7: 75.6% vs 24.4%, Lane 8: 74.9% vs 25.1%), 단일 100% Horizontal Stacked Bar 종합 차트(`10_01`) 및 엑셀 11번째 시트(`Surface_Contribution`) 신설 |
+| **2026-09-17** | 🏛️ 마스터 위키 최신화 | `Obsidian_Braking_Wiki.md` 및 옵시디언 볼트 정식 위키 문서(`40_제동...md`), `00_Braking_AutoBuild_대시보드.md`에 10대 테마, 11개 시트 아키텍처, 61종 차트 생태계 최신화 완료 |
 
 ### 🚀 파이프라인 원클릭 실행 스크립트
 
