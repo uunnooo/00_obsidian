@@ -158,28 +158,39 @@ reader = FileDataReader("example/example_BRK.VBO", auto_process=False)
 print(reader.df.head(3))
 ```
 
-### 4.3. [Case 3] 1줄 원스톱(One-shot) 생성자 호출
+### 4.3. [Case 3] 1줄 원스톱(One-shot) 생성자 호출 (상세 로깅 및 소요 시간 모니터링)
 ```python
 from unoUtil.fileDataReader import FileDataReader
 
-# 생성자 호출 한 번으로 모든 전처리 일괄 완료
+# verbose=True 또는 print=True를 전달하면 단계별 소요 시간과 상세 진행 로그가 출력됩니다.
 reader = FileDataReader(
     "example/example_BRK.VBO",
     chname=True,      # 표준 채널명 변환
     date="auto",      # GPS 로컬 타임존 자동 일시 열 생성
     inter=True,       # 결측치 보간
-    unit=True         # 단위 레벨 포함
+    unit=True,        # 단위 레벨 포함
+    print=True        # [NEW ⭐] 상세 진행 로그 및 단계별 소요 시간 출력 (verbose=True와 동일)
 )
+
+# 콘솔 출력 예시:
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] ✔ [example_BRK.VBO] 파일 로드 및 원시 데이터 파싱 완료 (0.045s)
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] 파서 매칭 완료: VBOParser -> 'example_BRK.VBO'
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] 데이터 로드 완료: Shape=(78526행, 20채널), 샘플링=100.0Hz, 시작일시=2023-08-25 10:15:30
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] ✔ 표준 채널명 매핑 완료 (0.003s)
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] ✔ Datetime 시계열 생성 완료 (0.008s)
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] ✔ 결측치 보간 (pchip) 완료 (0.012s)
+# 15:35:00 [ℹ️ INFO   ] [unoUtil.FileDataReader] ✔ 단위 MultiIndex 변환 완료 (0.001s)
 
 # 기존 레거시 함수와 동일한 4-튜플로 즉시 언패킹 가능
 name, df, save_date, sample_rate = reader.to_legacy_tuple()
 ```
 
-### 4.4. [Case 4] 디렉토리 일괄 스캔 (Batch Scan)
+### 4.4. [Case 4] 디렉토리 일괄 스캔 및 실시간 프로그레스 바 (Batch Scan)
 ```python
 from unoUtil.fileDataReader import FileDataReader
 
-# 특정 폴더 내의 VBO 및 텍스트 로그 파일들을 일괄 수집
+# 특정 폴더 내의 로그 파일들을 일괄 수집 (순수 파이썬 프로그레스 바 자동 동작)
+# 콘솔 출력: 계측 파일 일괄 로딩: 100.0% |█████████████████████████| 12/12 [00:03<00:00, 3.8file/s]
 readers = FileDataReader.scan_dir(
     dir_path="D:/LogFolder",
     extensions=[".vbo", ".vbb", ".d7d"],
@@ -245,4 +256,3 @@ name, df, save_date, sample_rate = reader.to_legacy_tuple()
 - [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]] : GPS 바운딩 박스 타임존 판별 이론
 - [[00_unoUtil_모듈개발_대시보드]] : 모듈 개발 현황 대시보드
 - [[ReadDataFile]] : 레거시 모놀리식 모듈 (폐기 예정)
-

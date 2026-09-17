@@ -19,6 +19,7 @@ aliases:
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층
 > - **상위 허브**: [[unoUtil]] (사내 자동화 도구 통합 허브)
+> - **공통 인프라**: [[Logger]] (표준 ANSI 로깅, 스마트 타이머 measure, 프로그레스 바 track, GUI 팝업)
 > - **하위 핵심 모듈**:
 >   - [[12_VT_ACCBRK_PROJECT]]: 프로젝트 단위 다중 타이어 취합, 선형 보간 성능 보정(Control Tire), 비교 시각화 엔진
 >   - [[11_VT_ACCBRK_TIRE]]: 단일 타이어 동역학 분석, Wavelet 노이즈 제거, 6대 전문 서브 분석 모듈
@@ -38,7 +39,8 @@ aliases:
 4. [통합 프로젝트 보정 엔진: `VT_ACCBRK_PROJECT` & 보정 알고리즘](#4-통합-프로젝트-보정-엔진-vt_accbrk_project--보정-알고리즘)
 5. [통합 프로젝트 비교 시각화 엔진: `PLOTTER_PROJECT` 비교 가이드](#5-통합-프로젝트-비교-시각화-엔진-plotter_project-비교-가이드)
 6. [통합 자동화 최상위 인터페이스: `VT_ACCBRK` & YAML 연동](#6-통합-자동화-최상위-인터페이스-vt_accbrk--yaml-연동)
-7. [실무 문제 해결 및 아키텍처 제약 규칙 (Troubleshooting)](#7-실무-문제-해결-및-아키텍처-제약-규칙-troubleshooting)
+7. [통합 로깅 및 실시간 진행률(Progress Bar) 아키텍처](#7--통합-로깅-및-실시간-진행률progress-bar-아키텍처)
+8. [실무 문제 해결 및 아키텍처 제약 규칙 (Troubleshooting)](#8-실무-문제-해결-및-아키텍처-제약-규칙-troubleshooting)
 
 ---
 
@@ -817,12 +819,34 @@ if dir_1st_wet.exists() and dir_2nd_wet.exists():
         label_x="Air Temperature [℃]", label_y="Braking Distance [m]",
         title="EV3 1st vs 2nd Mold Braking Scatter (Wet)"
     )
-    plt.show()
+    plt.savefig(Path(dir_1st_wet).parent / "EV3_Comparative_Scatter.png", dpi=150, bbox_inches='tight')
+    plt.close('all')
 ```
 
 ---
 
-## 7. 실무 문제 해결 및 아키텍처 제약 규칙 (Troubleshooting)
+## 7. 🌟 통합 로깅 및 실시간 진행률(Progress Bar) 아키텍처
+
+`VT_ACCBRK` 패키지는 대규모 실차 계측 데이터의 I/O 및 분석 파이프라인에서 직관적인 실행 모니터링을 위해 최신 `LOGGER` 인프라를 전면 채택하였습니다.
+
+### 7.1. 자동 시간 측정 (`with logger.measure()`)
+- **Raw Data 압축 저장/로드**: 대용량 바이너리 피클 스트림 입출력 시 소요 시간 자동 측정 및 로깅.
+- **프로젝트 직렬화/역직렬화**: `.pjt` 압축 캐시 생성 및 지연 로딩 속도 실시간 프로파일링.
+- **엑셀 리포트 최종 렌더링**: 워크북 저장 및 이미지 삽입 소요 시간 자동 로깅.
+
+### 7.2. 초경량 프로그레스 바 (`logger.track()`)
+- 순수 파이썬 표준 라이브러리(`\r` + `\033[K`) 기반으로 외부 의존성(tqdm 등) 없이 동작.
+- 수십 개에 달하는 타이어 런(`gz_data`) 분석 및 `.tir` 객체 로드 시 부드러운 단일 라인 진행률 게이지 표시:
+```text
+[VT_ACCBRK] [EV3_Dry_Project] 타이어 시험 분석: 100.0% |█████████████████████████| 8/8 [00:12<00:00, 1.5s/tire]
+```
+
+### 7.3. 안전한 예외 알림 (`logger.error(..., popup=True)`)
+- 필수 인자(예: 분석 경로 `path`) 누락 시 터미널 콘솔뿐 아니라 PyQt 기반 GUI 팝업 알림 창을 띄워 사용자 실수 방지.
+
+---
+
+## 8. 실무 문제 해결 및 아키텍처 제약 규칙 (Troubleshooting)
 
 | 발생 가능한 버그 및 오류 현상 | 아키텍처 원인 분석 | 실무 즉각 조치 가이드 및 해결책 |
 |:---|:---|:---|
