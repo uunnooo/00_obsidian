@@ -164,24 +164,24 @@ flowchart TD
 
 ## 🔍 4. 신규 모듈화 아키텍처 및 실행 파이프라인 (`EV3_IW01/`)
 
-전체 파이프라인이 단일 모놀리식 구조에서 **11대 전문 분석 모듈 및 2대 빌더(Excel / Markdown)** 체계로 모듈화되어, 데이터 분리 저장(`0. db/`), 9대 테마 60종 고해상도 시각화(`2. fig/`), 10개 시트 마스터 엑셀 및 마크다운 리포트 배포를 원클릭 제어합니다.
+전체 파이프라인이 단일 모놀리식 구조에서 **11대 전문 분석 모듈 및 2대 빌더(Excel / Markdown)** 체계로 모듈화되어, 데이터 분리 저장(`0. db/`), 10대 테마 68종 고해상도 시각화(`2. fig/`), 11개 시트 마스터 엑셀 및 마크다운 리포트 배포를 원클릭 제어합니다.
 
 | 모듈 번호 | 파이썬 모듈 파일명 | 핵심 엔지니어링 역할 및 담당 테마 | 주요 산출물 (Chart / Sheet / Doc) |
 | :---: | :--- | :--- | :--- |
 | **00** | `00_EV3_IW01_make_result.py` | 원시 제동 시험 데이터 파싱, 기상 DB(대기/노면온도) 결합 및 캐싱 | `0. db/df_result_summary.gzip` |
-| **10** | `10_EV3_IW01_analysis.py` | **총괄 오케스트레이터 (Wrapper)**: 12대 모듈 로드, 61개 차트 저장, 엑셀/마크다운 마스터 빌더 원클릭 제어 | 파이프라인 통합 관제 |
+| **10** | `10_EV3_IW01_analysis.py` | **총괄 오케스트레이터 (Wrapper)**: 12대 모듈 로드, 68개 차트 저장, 엑셀/마크다운 마스터 빌더 원클릭 제어 | 파이프라인 통합 관제 |
 | **20** | `20_EV3_IW01_surface_and_control_baseline.py` | **[테마 1] 노면 및 로컬 콘트롤 편차 분석**: Wet/Dry 독립 분리, 막대에 실측거리 `(xx.xx m)` 병기 | `01_01_` ~ `01_06_`<br>Sheet: `Surface_Ctrl_Baseline` |
 | **21** | `21_EV3_IW01_temperature_sensitivity.py` | **[테마 2] 노면온도 의존성 및 감인성 분석**: 1차 선형 회귀 기울기($m \text{ [m/°C]}$) 및 피어슨 $r$ 산출 | `02_01_Control_Tire_vs_Temperature_Analysis.png`<br>Sheet: `Temperature_Sensitivity` |
 | **22** | `22_EV3_IW01_discordance_diagnosis.py` | **[테마 3] 실측 제동거리 vs 성능지수 역전 진단**: Discordant Pair 색출 및 온도 열세 보정 정당성 입증 | `03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png`<br>Sheet: `Discordance_Diagnosis` |
 | **23** | `23_EV3_IW01_anchor_recalibration.py` | **[테마 4] 공통 앵커(`EXT-2026-00147`) 재보정 (Method B)**: 슬로프 차트 동순위 Y슬롯 분리(글자 겹침 제로), Wet/Dry 종합 랭킹 분리 | `04_01_` ~ `04_07_`<br>Sheet: `Anchor_Recalibration` |
 | **24** | `24_EV3_IW01_cross_spec_repeatability.py` | **[테마 5 개편] 콘트롤 타이어 vs 테스트 타이어 재현성 분리 평가**: 세션 간/세션 내 C1 vs C2 편차 및 Method A/B 수렴성 검증 | `05_01_` ~ `05_04_`<br>Sheet: `Cross_Spec_Repeatability` |
 | **25** | `25_EV3_IW01_spatial_gps_qc.py` | **[테마 6] 제동 시작/정지 GPS 2포인트 공간 QC 및 요(Yaw) 모션**: 횡방향(X)/종방향(Y) 분할 진단, 요 모션 무관성 입증 | `06_01_` ~ `06_05_`<br>Sheet: `Spatial_GPS_QC` |
-| **26** | `26_EV3_IW01_run_degradation.py` | **[테마 7 신규] 반복 횟수별 성능 변화 분석**: 제동 1회당 1행 마스터 DB(`df_result_runs`, 240행), 런 추세선, 변동 기울기, 편차폭 정량화 | `07_01_` ~ `07_03_` (9종)<br>Sheet: `Run_Degradation` |
-| **27** | `27_EV3_IW01_mudrop_analysis.py` | **[테마 8 신규] 노면별 Mu-Drop 손실거리 및 환경 보정 왜곡 진단**: 실측 vs 보정 손실거리 대조, 콘트롤 분모 0 왜곡 규명 | `08_01_` ~ `08_04_` (4종)<br>Sheet: `MuDrop_Analysis` |
-| **28** | `28_EV3_IW01_speed_zone_analysis.py` | **[테마 9 신규] 속도 구간별 성능 분할 (Speed Zone)**: 고속(100~50) vs 저속(50~0) 분할 및 감속도 변화율($\Delta g$) 프로파일 | `09_01_` ~ `09_04_` (4종)<br>Sheet: `Speed_Zone_Analysis` |
-| **29** | `29_EV3_IW01_surface_contribution.py` | **[테마 10 신규] 노면별 고속 vs 저속 기여도, 감속도 레벨 차이 및 Mu-Drop 영향도 종합 대조**: 노면별 기여율(%), 감속도 레벨 대조($\Delta g$), Mu-Drop 손실 영향도 진단 | `10_01_` ~ `10_03_` (3종)<br>Sheet: `Surface_Contribution` |
+| **26** | `26_EV3_IW01_run_degradation.py` | **[테마 7] 반복 횟수별 성능 변화 분석**: 제동 1회당 1행 마스터 DB(`df_result_runs`, 240행), 런 추세선, 변동 기울기, 편차폭 정량화 | `07_01_` ~ `07_03_` (9종)<br>Sheet: `Run_Degradation` |
+| **27** | `27_EV3_IW01_mudrop_analysis.py` | **[테마 8] 노면별 Mu-Drop 손실거리 및 환경 보정 왜곡 진단**: 실측 vs 보정 손실거리 대조, 콘트롤 분모 0 왜곡 규명 | `08_01_` ~ `08_04_` (4종)<br>Sheet: `MuDrop_Analysis` |
+| **28** | `28_EV3_IW01_speed_zone_analysis.py` | **[테마 9] 속도 구간별 성능 분할 (Speed Zone)**: 고속(100~50) vs 저속(50~0) 분할 및 감속도 변화율($\Delta g$) 프로파일 | `09_01_` ~ `09_04_` (4종)<br>Sheet: `Speed_Zone_Analysis` |
+| **29** | `29_EV3_IW01_surface_contribution.py` | **[테마 10] 노면별 기여율, 감속도 레벨 차이, Mu-Drop 영향도 및 의뢰서별 속도 프로파일 대조**: 고속/저속 기여율(%), $\Delta g$, Mu-Drop 영향도 및 의뢰서별 속도 구간 감속도 프로파일 대조 | `10_01_` ~ `10_04_` (8종)<br>Sheet: `Surface_Contribution` |
 | **30** | `30_EV3_IW01_export_integrated_excel.py` | **통합 엑셀 마스터 리포트 빌더**: 11개 시트 생성, A열 슬림화, 고해상도 차트 전수 자동 삽입 | `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` |
-| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 40개+ 산출 근거 표 + 63개 차트 수록, 볼트 온디맨드 이중 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
+| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 40개+ 산출 근거 표 + 68개 차트 수록, 볼트 온디맨드 이중 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
 
 ### 🚀 파이프라인 원클릭 실행 스크립트
 
@@ -192,7 +192,7 @@ from EV3_IW01.10_EV3_IW01_analysis import run_ev3_iw01_analysis_pipeline
 results = run_ev3_iw01_analysis_pipeline(
     list_group_cols=['TestTireMold', 'TestTirePTN', 'TestTireMark'],  # 동적 그룹화 계층
     plot=False,           # Figure 메모리 정리 (저장 후 plt.close() 실행)
-    save=True,            # 2. fig 폴더에 10대 테마 63개 차트 저장
+    save=True,            # 2. fig 폴더에 10대 테마 68개 차트 저장
     excel=True,           # 11개 시트 통합 엑셀 마스터 리포트 빌드 (차트 전수 삽입)
     sync_obsidian=True,   # 옵시디언 볼트(02_Projects 및 _attachments) 동시 배포
     b_print_log=True
@@ -208,7 +208,7 @@ results = run_ev3_iw01_analysis_pipeline(
 * [x] **3단계: 통합 마크다운 마스터 리포트 빌더(`31번`) 구축 및 옵시디언 볼트 이중 동기화** (완료)
 * [x] **4단계: 신규 3대 테마(반복 횟수별 성능 변화, Mu-Drop 실측/보정 진단, Speed Zone) 구축 및 10개 시트 확장** (완료)
 * [x] **5단계: 콘트롤 vs 테스트 타이어 재현성 평가 분리 체계 및 실측거리 병기 표기 고도화** (완료)
-* [x] **6단계: 노면별 고속 vs 저속 성능 기여도(비율) 신규 시트(`Surface_Contribution`) 및 100% 누적 통합 바 차트 완성** (완료)
+* [x] **6단계: 노면별 기여도/감속도 레벨/Mu-Drop 영향도 및 의뢰서별 속도 감속도 프로파일(가속포인트) 분석 완성** (완료 - 시트 `Surface_Contribution` & 차트 8종)
 * [ ] **7단계: `MINI_W426` 프로젝트로 분석 로직 확장**
   * `EV3_IW01`에서 검증된 10대 테마 파이프라인 및 엑셀/마크다운 자동화 프레임워크를 이웃 프로젝트인 `MINI_W426` 분석 코드에도 그대로 이식하여 전사 통합 제동 분석 플랫폼 완성.
 
