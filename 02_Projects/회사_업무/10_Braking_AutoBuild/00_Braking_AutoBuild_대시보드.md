@@ -179,9 +179,9 @@ flowchart TD
 | **26** | `26_EV3_IW01_run_degradation.py` | **[테마 7 신규] 반복 횟수별 성능 변화 분석**: 제동 1회당 1행 마스터 DB(`df_result_runs`, 240행), 런 추세선, 변동 기울기, 편차폭 정량화 | `07_01_` ~ `07_03_` (9종)<br>Sheet: `Run_Degradation` |
 | **27** | `27_EV3_IW01_mudrop_analysis.py` | **[테마 8 신규] 노면별 Mu-Drop 손실거리 및 환경 보정 왜곡 진단**: 실측 vs 보정 손실거리 대조, 콘트롤 분모 0 왜곡 규명 | `08_01_` ~ `08_04_` (4종)<br>Sheet: `MuDrop_Analysis` |
 | **28** | `28_EV3_IW01_speed_zone_analysis.py` | **[테마 9 신규] 속도 구간별 성능 분할 (Speed Zone)**: 고속(100~50) vs 저속(50~0) 분할 및 감속도 변화율($\Delta g$) 프로파일 | `09_01_` ~ `09_04_` (4종)<br>Sheet: `Speed_Zone_Analysis` |
-| **29** | `29_EV3_IW01_surface_contribution.py` | **[테마 10 신규] 노면별 고속 vs 저속 성능 기여도(비율) 종합 대조**: 노면별 평균 제동거리 기반 고속/저속 기여율(%) 및 100% 누적 통합 바 차트 | `10_01_` (1종)<br>Sheet: `Surface_Contribution` |
+| **29** | `29_EV3_IW01_surface_contribution.py` | **[테마 10 신규] 노면별 고속 vs 저속 기여도, 감속도 레벨 차이 및 Mu-Drop 영향도 종합 대조**: 노면별 기여율(%), 감속도 레벨 대조($\Delta g$), Mu-Drop 손실 영향도 진단 | `10_01_` ~ `10_03_` (3종)<br>Sheet: `Surface_Contribution` |
 | **30** | `30_EV3_IW01_export_integrated_excel.py` | **통합 엑셀 마스터 리포트 빌더**: 11개 시트 생성, A열 슬림화, 고해상도 차트 전수 자동 삽입 | `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` |
-| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 38개+ 산출 근거 표 + 61개 차트 수록, 볼트 온디맨드 이중 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
+| **31** | `31_EV3_IW01_export_integrated_markdown.py` | **통합 마크다운 마스터 리포트 빌더**: 40개+ 산출 근거 표 + 63개 차트 수록, 볼트 온디맨드 이중 동기화(`sync_obsidian`) | `10_EV3_IW01_Integrated_Braking_Analysis_Report.md` |
 
 ### 🚀 파이프라인 원클릭 실행 스크립트
 
@@ -192,7 +192,7 @@ from EV3_IW01.10_EV3_IW01_analysis import run_ev3_iw01_analysis_pipeline
 results = run_ev3_iw01_analysis_pipeline(
     list_group_cols=['TestTireMold', 'TestTirePTN', 'TestTireMark'],  # 동적 그룹화 계층
     plot=False,           # Figure 메모리 정리 (저장 후 plt.close() 실행)
-    save=True,            # 2. fig 폴더에 10대 테마 61개 차트 저장
+    save=True,            # 2. fig 폴더에 10대 테마 63개 차트 저장
     excel=True,           # 11개 시트 통합 엑셀 마스터 리포트 빌드 (차트 전수 삽입)
     sync_obsidian=True,   # 옵시디언 볼트(02_Projects 및 _attachments) 동시 배포
     b_print_log=True
