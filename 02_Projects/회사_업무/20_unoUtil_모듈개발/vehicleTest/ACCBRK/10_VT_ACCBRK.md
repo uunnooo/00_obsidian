@@ -844,6 +844,20 @@ if dir_1st_wet.exists() and dir_2nd_wet.exists():
 ### 7.3. 안전한 예외 알림 (`logger.error(..., popup=True)`)
 - 필수 인자(예: 분석 경로 `path`) 누락 시 터미널 콘솔뿐 아니라 PyQt 기반 GUI 팝업 알림 창을 띄워 사용자 실수 방지.
 
+### 7.4. 5대 전 모듈 계층형 로거 트리 (`VT_ACCBRK.*`) 전면 통합
+- `unoUtil` 표준 `LOGGER`를 기반으로 ACCBRK 패키지 전 모듈의 레거시 `print` 호출을 100% 제거하고 통합 계층 로거 트리로 개편:
+  - `VT_ACCBRK` $\rightarrow$ `logger = LOGGER("VT_ACCBRK", root_name="unoUtil")`
+  - `VT_ACCBRK_PROJECT` $\rightarrow$ `logger = LOGGER("Project", root_name="VT_ACCBRK")`
+  - `VT_ACCBRK_TIRE` $\rightarrow$ `logger = LOGGER("Tire", root_name="VT_ACCBRK")`
+  - `_CORRECT_` $\rightarrow$ `logger = LOGGER("Correct", root_name="VT_ACCBRK")`
+  - `_AN_MEMORY` $\rightarrow$ `logger = LOGGER("Memory", root_name="VT_ACCBRK")`
+- **통일된 로그 레벨 정책**:
+  - `DEBUG`: 캐시 직렬화/역직렬화 상태 및 내부 정렬 완료 정보.
+  - `INFO`: 파이프라인 단계 진입, 시험 설정 로드, 타이어 등록 완료.
+  - `SUCCESS`: 프로젝트 생성, 보정 연산 완료, 파일 저장 성공, 자가 진단 통과.
+  - `WARNING`: 누락 컬럼 자동 보정, 기본 타이어 폴백 안내.
+  - `ERROR`: 파일 누락, 인자 오류, 예외 발생.
+
 ---
 
 ## 8. 실무 문제 해결 및 아키텍처 제약 규칙 (Troubleshooting)
