@@ -138,8 +138,74 @@ sbp.save("./saved_platforms/snow_platform_2026.pkl")
 
 ---
 
+## 🌲 4. 계층형 로거(`LOGGER`) 및 런타임 벤치마크 모니터링 체계
+
+`Snow_braking_relate_condition` 패키지는 전 모듈에 걸쳐 `unoUtil.convenienceFunction.logger.LOGGER`를 표준 로깅 프레임워크로 채택하였습니다.  
+기존의 날것의 `print` 문을 100% 제거하고, 소요 시간 자동 측정 컨텍스트 매니저(`with logger.measure()`)와 계층형 네임스페이스 트리를 구축했습니다.
+
+### 4.1. 계층형 로거 네임스페이스 트리
+```text
+[SnowBraking] (Root Namespace)
+ ├── [SnowBraking.Master]    : Snow_Braking_Performance.py (엔드-투-엔드 오케스트레이션)
+ ├── [SnowBraking.Twin]      : surface_condition_twin.py (3D 시공간 디지털 트윈)
+ ├── [SnowBraking.Engine]    : correction_engine.py (차분 머신러닝 보정 엔진)
+ ├── [SnowBraking.Spec]      : spec_analyzer.py (사양별 분산 및 순위 일관성)
+ ├── [SnowBraking.Physics]   : snow_physics_utils.py (설면 열역학 & 눈 밀도 역추정)
+ └── [SnowBraking.Dashboard] : surface_dashboard.py (4D 대시보드 웹 서버)
+```
+
+### 4.2. 실행 안전성 및 호환성 보강
+1. **단독 스크립트 실행 및 패키지 모듈 실행 양방향 호환**:
+   `try...except ImportError` 상대 임포트 fallback을 구성하여, `python -m Snow_braking_relate_condition.Snow_Braking_Performance`와 `python Snow_Braking_Performance.py` 직접 실행이 모두 원활히 동작합니다.
+2. **파라미터 Alias 지원**:
+   `correct_braking_distance()` 호출 시 `reference_condition`과 `ref_condition` 키워드를 모두 유연하게 지원하도록 개선되었습니다.
+3. **콘솔 다국어/이모지 인코딩 안전성**:
+   Windows 기본 콘솔(`cp949`) 환경에서 눈꽃(❄️) 등의 유니코드 출력 시 발생할 수 있는 `UnicodeEncodeError`를 시스템 수준(`errors='replace'`)에서 완벽 방어하였습니다.
+
+### 4.3. 엔드-투-엔드 자가 검증 런타임 결과 (Exit code 0)
+```text
+17:11:30 [INFO   ] [SnowBraking.Master] ============================================================
+17:11:30 [INFO   ] [SnowBraking.Master]  [Snow_Braking_Performance] 엔드-투-엔드 통합 파이프라인 검증
+17:11:30 [INFO   ] [SnowBraking.Master] ============================================================
+17:11:30 [INFO   ] [SnowBraking.Master] [OK] Step 1~4: Mock 노면/기상/제동 데이터 등록 완료 (0.041s)
+17:11:30 [INFO   ] [SnowBraking.Twin  ] 디지털 트윈 생성 완료: 총 1개 시공간 스냅샷 구축 (RF 방식)
+17:11:30 [INFO   ] [SnowBraking.Master] 노면-제동 매칭 완료: 총 60건 결합
+17:11:30 [INFO   ] [SnowBraking.Master] [OK] Step 5: 디지털 트윈 생성 및 노면 매칭 완료 (0.479s)
+17:11:30 [INFO   ] [SnowBraking.Master]   - Random Forest       : R²=-1.3201, MAE=0.5347
+17:11:30 [INFO   ] [SnowBraking.Master]   - KNN Regressor       : R²=-1.5474, MAE=0.5902
+17:11:30 [INFO   ] [SnowBraking.Master]   - Decision Tree       : R²=-2.6155, MAE=0.6692
+17:11:30 [INFO   ] [SnowBraking.Master]   - Linear Regression   : R²=-1.2568, MAE=0.5440
+17:11:30 [INFO   ] [SnowBraking.Master]   - SVR                 : R²=-2.6381, MAE=0.7179
+17:11:30 [INFO   ] [SnowBraking.Master] [OK] Step 6: 머신러닝 보정 모델 학습 완료 (0.300s)
+17:11:30 [INFO   ] [SnowBraking.Master] 실시간 보정 질의: 실측 25.00m -> 보정 24.50m (Δ=-0.50m)
+17:11:31 [INFO   ] [SnowBraking.Engine] 데이터프레임 일괄 보정 완료: 60건 (신규 컬럼: 'char_brk_dist_corr')
+17:11:31 [INFO   ] [SnowBraking.Master] 스펙별 보정 전/후 성능 비교 요약 표:
+        Spec  Count  Raw_Mean(m)  Raw_Std(m)  Corr_Std(m)  Var_Reduction(%)
+0  Comp_Base     20        23.34       0.441        0.438               1.4
+1  Comp_Hard     20        23.13       0.485        0.481               1.7
+2  Comp_Soft     20        23.35       0.468        0.469              -0.3
+17:11:31 [INFO   ] [SnowBraking.Master] [OK] Step 7~8: 보정 질의 및 일괄 보정/스펙 분석 완료 (0.063s)
+17:11:31 [INFO   ] [SnowBraking.Master] 
+==========================================================
+ [*] SnowPlatform_TestRunner 상태 요약 리포트
+==========================================================
+ 1. 노면 계측 데이터: 20 행 (1개 시공간 스냅샷)
+ 2. 제동 평가 데이터 (제동 1회 단위): 60 행
+ 3. 기상 데이터 연동: 완료
+ 4. 노면 디지털 트윈 매칭: 완료
+ 5. 차분 보정 머신러닝 모델: ['Random Forest', 'KNN Regressor', 'Decision Tree', 'Linear Regression', 'SVR']
+==========================================================
+17:11:31 [INFO   ] [SnowBraking.Master] ============================================================
+17:11:31 [SUCCESS] [SnowBraking.Master] SnowBrakingPerformance 통합 마스터 클래스 정상 작동 확인.
+17:11:31 [INFO   ] [SnowBraking.Master] ============================================================
+```
+
+---
+
 ## 🔗 연관 문서 및 대시보드
 
 * 📊 **[[00_2026_Snow_Surface_Characteristics_대시보드|2026 Snow Surface Characteristics 프로젝트 대시보드]]**
 * 🧠 **[[30_Snow_제동성능보정_알고리즘|Snow제동성능보정 알고리즘 (2-Stage Architecture)]]**
 * ❄️ **[[04_Resources/30_스노우_노면_공학/00_스노우_노면_공학_통합_색인|스노우 노면 공학 통합 지식 색인 (MOC)]]**
+* 🧭 **[[Logger|unoUtil 통합 로깅 및 콘솔 모니터링 모듈 (LOGGER)]]**
+* 🧠 **[[24_파이썬_로깅_엔진_원리와_실시간_성능_프로파일링_설계|파이썬 로깅 엔진 원리와 실시간 성능 프로파일링 설계]]**

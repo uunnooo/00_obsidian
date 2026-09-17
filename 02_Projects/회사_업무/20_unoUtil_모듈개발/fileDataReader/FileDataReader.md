@@ -249,7 +249,8 @@ name, df, save_date, sample_rate = results[0]
 # ---------------------------------------------------------
 from unoUtil.fileDataReader import FileDataReader
 
-reader = FileDataReader("test.vbo", chname=True, date='auto')
+# 황금 기본값(chname=True, date='auto', verbose=True)이 내장되어 별도 옵션 없이 1줄로 호출!
+reader = FileDataReader("test.vbo")
 
 # 명시적 속성으로 직관적 접근
 print(reader.file_name, reader.df, reader.save_date, reader.sample_rate)

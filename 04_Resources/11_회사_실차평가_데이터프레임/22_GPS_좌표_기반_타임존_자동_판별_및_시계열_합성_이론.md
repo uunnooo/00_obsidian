@@ -43,10 +43,13 @@
 flowchart TD
     RawCoords["GPS 위도/경도 데이터 (lat, lon)"] --> Norm["분/도 정규화 (Decimal Degrees)"]
     Norm --> Med["중앙값 산출 (lat_med, lon_med)"]
-    Med --> BBox{"글로벌 시험장 바운딩 박스 매칭"}
+    Med --> BBox{"1단계: 표준 WGS84 직접 매칭"}
     
-    BBox -->|일치| TZ_Name["표준 타임존 IANA 식별자 확정<br>(예: Europe/Helsinki)"]
-    BBox -->|불일치| LongCalc["경도 기반 표준 시차 추정<br>offset = round(lon / 15.0)"]
+    BBox -->|일치| TZ_Name["표준 타임존 IANA 식별자 확정<br>(예: Europe/Helsinki, Asia/Seoul)"]
+    BBox -->|불일치| MirrorCheck{"2단계: 북반구 & 음수 경도?<br>(VBO 레거시 역전 검증: -lon)"}
+    
+    MirrorCheck -->|거울상 일치| TZ_Name
+    MirrorCheck -->|불일치| LongCalc["경도 기반 표준 시차 추정<br>offset = round(lon / 15.0)"]
     
     TZ_Name --> ZoneInfo["Python zoneinfo.ZoneInfo(tz_name)"]
     ZoneInfo --> DSTCalc{"기준 일자(ref_date) 기준<br>서머타임(DST) 적용 여부 판정"}
@@ -109,13 +112,15 @@ $$\Delta T_{\text{local}} = \text{ZoneInfo}(\text{tz\_name}).\text{utcoffset}(\t
 
 ---
 
-## 4. 💡 실무 적용 효과
+## 4. 💡 실무 적용 효과 및 기본값 아키텍처
 
 1. **글로벌 시험 완전 무인화**:
    - 시험 장소가 한국 태안이든 핀란드 이발로든, 엔지니어는 추가 파라미터 없이 `reader.add_datetime()` 또는 `date='auto'` 호출만으로 현지 실시간에 100% 동기화된 데이터를 즉시 확보.
-2. **외기/노면 환경 센서와의 정밀 정합**:
+2. **1줄 황금 기본값 (`chname=True, date='auto', verbose=True`) 내장**:
+   - `reader = FileDataReader("test.vbo")` 호출 1회만으로 표준 채널 매핑, 로컬 시계열 합성, 진행 시간 및 타임존 알림(`print=True` 레거시 완벽 호환)이 기본 구동되어 연구원의 수동 설정 부담 및 휴먼 에러를 0으로 제거.
+3. **외기/노면 환경 센서와의 정밀 정합**:
    - 기상 로거, 적외선 노면 온도계 등 외부 독립 계측기 데이터와 타임스탬프 기반 병합(`pd.merge_asof`) 시 오차가 0으로 수렴.
-3. **코드 신뢰성 및 유지보수성 극대화**:
+4. **코드 신뢰성 및 유지보수성 극대화**:
    - 일자와 시각 생성 로직이 `DateTimeHelper.py`로 완벽히 모듈화되어, 신규 시험장 추가 시 `KNOWN_TRACK_BOUNDS` 딕셔너리에 바운딩 박스 4개 값만 등록하면 전 모듈에 자동 반영.
 
 ---

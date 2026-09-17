@@ -157,6 +157,34 @@ logger.critical("라이선스가 만료되었습니다!")  # 자동으로 팝업
 
 ---
 
+### 3.7. 🛡️ Windows 콘솔(cp949) 이모지 및 다국어 인코딩 안전성
+
+Windows 기본 콘솔 인코딩(`cp949`) 환경에서 눈꽃(❄️), 로켓(🚀) 등의 이모지나 특수 유니코드 문자가 출력될 때 발생하는 `UnicodeEncodeError`를 원천 차단합니다:
+* `ColoredConsoleHandler.emit()` 내부에서 인코딩 예외를 감지하여 현재 스트림 인코딩에 맞게 안전한 대체 문자(`errors='replace'`)로 자동 변환 출력합니다.
+* 개발자나 사용자의 터미널 인코딩 설정과 무관하게 프로그램이 비정상 종료(Crash)되거나 `handleError` 경고가 발생하는 현상을 100% 방지합니다.
+
+---
+
+### 3.8. 🌲 프로젝트별 계층형 로거 트리 (`root_name`)
+
+복잡한 대규모 패키지에서는 `root_name`을 지정하여 일관된 네임스페이스 트리를 구성할 수 있습니다:
+
+```python
+# 마스터 컨트롤러
+logger_master = LOGGER("Master", root_name="SnowBraking")
+# 서브 엔진
+logger_engine = LOGGER("Engine", root_name="SnowBraking")
+logger_twin = LOGGER("Twin", root_name="SnowBraking")
+
+# 콘솔 출력:
+# 17:11:30 [INFO   ] [SnowBraking.Master] 파이프라인 시작
+# 17:11:30 [INFO   ] [SnowBraking.Twin  ] 3D 격자 맵 구축 완료
+# 17:11:30 [DEBUG  ] [SnowBraking.Engine] Random Forest 모델 학습 완료
+```
+부모 로거(`SnowBraking`)의 레벨을 변경하면 모든 자식 로거(`Master`, `Engine`, `Twin`)의 출력 레벨이 동시에 제어됩니다.
+
+---
+
 ## 4. 🔄 레거시 코드 하위 호환성 (Zero Breaking Change)
 
 기존에 `_logger_config_.py`를 사용하던 코드들은 단 1줄도 수정할 필요가 없습니다:
@@ -181,3 +209,31 @@ set_global_log_level("VT_ACCBRK", logging.DEBUG)
 | 대량 파일 / 데이터 순회 루프 | `for item in logger.track(items, desc="..."):` | %, ETA, 속도 렌더링 |
 | 야간 배치 / 장시간 분석 로그 보존 | `LOGGER(..., log_file="analysis.log")` | 파일 자동 ANSI 탈색 |
 | 사용자 주의가 필수적인 치명적 에러 | `logger.error("...", popup=True)` | PyQt5 윈도우 팝업 연동 |
+
+---
+
+## 6. 🏛️ 전사 패키지 적용 현황
+
+`LOGGER` 클래스는 현재 사내 핵심 실차 데이터 분석 패키지에 전면 도입되어 무중단 검증을 완료했습니다:
+
+### 1) `VT_ACCBRK` (실차 가감속 평가 패키지)
+* `VT_ACCBRK.py` (`VT_ACCBRK.Core`)
+* `VT_ACCBRK_PROJECT.py` (`VT_ACCBRK.Project`)
+* `VT_ACCBRK_TIRE.py` (`VT_ACCBRK.Tire`)
+* `_CORRECT_.py` (`VT_ACCBRK.Correct`)
+* `_AN_MEMORY.py` (`VT_ACCBRK.Memory`)
+
+### 2) `Snow_braking_relate_condition` (스노우 노면 특성 및 제동 보정 패키지)
+* `Snow_Braking_Performance.py` (`SnowBraking.Master`)
+* `surface_condition_twin.py` (`SnowBraking.Twin`)
+* `correction_engine.py` (`SnowBraking.Engine`)
+* `spec_analyzer.py` (`SnowBraking.Spec`)
+* `snow_physics_utils.py` (`SnowBraking.Physics`)
+* `surface_dashboard.py` (`SnowBraking.Dashboard`)
+
+---
+
+## 7. 🔗 연관 영구 지식 문서
+* 🧠 **[[24_파이썬_로깅_엔진_원리와_실시간_성능_프로파일링_설계|파이썬 로깅 엔진 원리와 실시간 성능 프로파일링 설계 (포매터/핸들러/인코딩 해부)]]**
+* 📘 **[[10_VT_ACCBRK|VT_ACCBRK 실차 가감속 평가 모듈 매뉴얼]]**
+* ❄️ **[[20_SnowBrakingPerformance_통합모듈_매뉴얼|SnowBrakingPerformance 통합 모듈 매뉴얼]]**
