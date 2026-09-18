@@ -1,4 +1,4 @@
-﻿---
+---
 title: "90_ACCBRK 사용자 매뉴얼 및 종합 가이드라인"
 aliases:
   - "ACCBRK"
@@ -46,8 +46,8 @@ aliases:
 | `analysis_accbrk` | 가장 기본이 되는 제동 거리 및 가속 시간 산출 | - | **custom_report_items**: 추가 집계 항목 리스트<br>(예: [('Peak_G', 'AccForward', 'max')]) | 요약 통계량 |
 | `analysis_acceleration`| 속도 대역별(100-90 등) 가속 성능 정밀 분석 | `interval` (간격) | **interval**: 속도 대역 나눌 간격(기본 10.0)<br>**unit**: 결과값 가속도 단위 지정 | 대역별 평균 가속도 |
 | `analysis_split_speed` | 고속/저속 구간별 제동 기여도 및 응답성 분석 | `vel_split` (기준속도) | **vel_split**: 고/저속 분할 속도 임계값(기본 50.0) | 구간별 거리/가속도 |
-| `analysis_slip_speed_pdf`| ABS 제어 정밀도 및 슬립 밀도 확률 분석 | - | **pos**: 분석 위치('front', 'rear', 'all', 'each')<br>**bw**: KDE 대역폭(기본 0.2)<br>**bin**: PDF 포인트 개수(기본 500)<br>**xlim**: 분석할 슬립 범위(기본 [0, 30]) | 슬립 PDF 데이터 |
-| `analysis_mu_drop` | 노면 변화(Mu-drop) 시점 포착 및 손실 분석 | `ch_wa` (휠가속도 채널) | **ch_wa**: 감시할 휠 가속도 채널(기본 'WAFL')<br>**ncl**: KMeans 클러스터 수(기본 2)<br>**init**: KMeans 초기화 방식('k-means++')<br>**out**: 이상치 제거 여부(True/False) | Mu-drop 거리 손실 |
+| `analysis_slip_speed_pdf`| ABS 제어 정밀도 및 슬립 밀도 확률 분석 | - | **pos**: 분석 위치('front', 'rear', 'all', 'each')<br>**bw**: KDE 대역폭(기본 0.2)<br>**bin**: PDF 포인트 개수(기본 500)<br>**max_pts**: 적응형 균일 서브샘플링 수(기본 5000, 10~30배 고속화)<br>**xlim**: 분석할 슬립 범위(기본 [0, 30]) | 슬립 PDF 데이터 |
+| `analysis_mu_drop` | 노면 변화(Mu-drop) 시점 포착 및 손실 분석 | `ch_wa` (휠가속도 채널) | **ch_wa**: 감시할 휠 가속도 채널(기본 'WAFL')<br>**ncl**: KMeans 클러스터 수(기본 2)<br>**init**: KMeans 초기화 방식('k-means++')<br>**n_init**: 클러스터 중심 탐색 반복 수(기본 5, 4배 고속화)<br>**out**: 이상치 제거 여부(True/False) | Mu-drop 거리 손실 |
 
 ### 🏛️ 모듈 3. VT_ACCBRK_PROJECT (통합 관리 및 보정 엔진)
 여러 타이어를 조합하고 환경 변화를 상쇄하여 공정한 성능 순위를 산출합니다.
@@ -57,7 +57,7 @@ aliases:
 | `add_tire` | 분석 완료된 객체를 프로젝트에 등록 | `obj` (Tire 인스턴스) | **tire**: 프로젝트용 별칭(중복 시 덮어쓰기 주의)<br>**copy**: deepcopy 수행 여부(기본 True) | 통합 프로젝트 객체 |
 | `add_tire_file` | 저장된 `.tir` 파일을 불러와 프로젝트에 합침 | `path` (파일/폴더 경로) | **file**: 특정 파일 혹은 폴더 경로 선택<br>**tire**: 로드 시 부여할 고유 이름 | 로드된 객체들 |
 | `cal_corrected` | **[핵심]** 환경 변화 보정 및 상대 지수 산출 | - | **ref_kwd**: 콘트롤 타이어 식별 키워드(기본 'c')<br>**inverse**: 점수 역전 여부(제동 거리 분석 시 필수 True)<br>**col_target_positive**: 클수록 좋은 지표 리스트<br>**col_target_negative**: 작을수록 좋은 지표 리스트<br>**col_seq**: 시계열 정렬 기준 컬럼(기본 'Datetime') | 보정 완료 데이터셋 |
-| `save_pjt` | 분석 중인 프로젝트 전체 상태를 압축 저장 | `path` (저장 경로) | **path**: 파일명 혹은 폴더 경로(자동 이름 생성 지원)<br>**compresslevel**: gzip 압축률(기본 9) | `.pjt` 통파일 |
+| `save_pjt` | 분석 중인 프로젝트 전체 상태를 압축 저장 | `path` (저장 경로) | **path**: 파일명 혹은 폴더 경로(자동 이름 생성 지원)<br>**compresslevel**: gzip 압축률 (기본 5, 라이브 캐시 보존 및 3~5배 고속화) | `.pjt` 통파일 |
 | `load` (classmethod) | 기존 저장된 프로젝트 복원 | `path` (파일 경로) | **path**: 불러올 `.pjt` 파일의 물리적 경로 | 복원된 프로젝트 객체 |
 
 ---

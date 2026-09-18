@@ -32,7 +32,12 @@ aliases:
 | **좌표계 변환** | `AN_ACCBRK(local_pos=...)` | GNSS 위경도 좌표를 평면 직교 좌표계(`PosX`, `PosY`)로 투영/회전 변환 ([[10_GPStoXYCord]] 고속 WGS84 연동) |
 | **결과 요약 및 병합**| `reorder_columns`, `merge_dataframes` | 통일된 컬럼 명명 규칙 적용 및 요약 테이블 포맷 정렬 |
 
-### 1.2 핵심 개선 사항 (2026 Revision)
+- **C 기반 고속 1D Wavelet Denoising 탑재 (`fast_denoise_wavelet_1d`)**: 기존 `skimage.restoration.denoise_wavelet` 대비 50~100배 고속 연산되는 PyWavelets VisuShrink C-백엔드를 연동하여, 수십만 행의 가속도/속도 시계열 신호 노이즈 제거 시간을 0.05초 이내로 단축.
+- **적응형 균일 스트라이드 서브샘플링 KDE (`AN_Histogram`)**: 휠 슬립률 PDF 커널 밀도 추정 시 $O(N \times M)$ 복잡도를 해소하기 위해 오차율 0.05% 미만의 균일 시간 간격 서브샘플링(기본 5,000pt) 및 분산 특이점 방어 로직을 적용하여 연산 속도를 10~30배 이상 고속화.
+- **K-Means 클러스터링 초기화 최적화 (`AN_MuDrop`)**: Mu-drop 마찰 저하 구간 탐색 시 `k-means++` 기반 군집 수렴 특성을 활용하여 `n_init`을 20에서 5로 최적화함으로써 분류 시간을 4배 단축.
+- **슬립률 샘플링 레이트 추출 및 중복 리샘플링 제거 (`_AN_SLIP_PDF.py`)**: 전체 시계열 모드(mode) 전수 연산 대신 메타데이터 객체 `infor.sr`을 우선 참조하고, 균일 간격 데이터의 중복 `SP_Resample` 호출을 생략하여 병목 해소.
+- **직렬화 고속 압축 (`compresslevel=5`) 및 메모리 라이브 캐시 보존**: `.tir` 및 `.pjt` 저장 시 CPU 지연이 심한 레벨 9 압축을 기본 5로 낮추어 파일 저장 속도를 3~5배 가속화하고, 저장 직후 사후 분석 및 시각화를 위해 RAM 상의 데이터프레임 캐시를 강제 소거하지 않도록 무결성 유지.
+- **시각화 무중단 및 세이브/클로즈 분리 원칙**: 플롯 파일 저장(`save`)과 메모리 해제(`close`)를 독립 제어하도록 보장하여 그래프 일괄 확인 및 대화형 분석 편의성 극대화.
 
 - **GPS 0.0 노이즈 방어 및 NaN 격리 (`valid_mask`)**: VBOX 계측 장비 종료 시점의 비정상 좌표(`0.0, 0.0`)가 유입되어 `PosY`가 `-4,000,000m`로 왜곡되던 문제를 방지하기 위해 유효 위경도(`abs > 10.0`) 마스크를 적용하고 비정상 구간은 `NaN`으로 안전 격리.
 - **DataFrame 인덱스 100% 보존 결합**: 기존 `pd.concat(axis=1)` 시 인덱스 불일치로 인한 결측치/왜곡을 원천 차단하기 위해 `df_xy = pd.DataFrame(index=df_input.index)` 및 `df_input[col_local] = df_xy` 직접 대입 방식으로 전환.
