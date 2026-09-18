@@ -83,6 +83,7 @@ graph TD
 * 🛠️ **[[12_VT_ACCBRK_PROJECT|VT_ACCBRK_PROJECT 통합 취합 및 성능 보정]]**: 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 엔진, 지연 로딩(`restore=False`)
 * 🏎️ **[[11_VT_ACCBRK_TIRE|VT_ACCBRK_TIRE 단일 타이어 동역학 분석]]**: Wavelet 가속도 복원, 구간 자동 탐지, 6대 전문 서브 분석 모듈
 * ⚙️ **[[20_VT_ACCBRK_SUB_ANALYZERS|VT_ACCBRK 7대 전문 서브 분석 모듈]]**: 대역별 가속, 구간 속도 분할, 슬립속도 PDF, Mu-Drop 노면 대응 등
+* 📐 **[[Cal_Control|Cal_Control 레거시 콘트롤 타이어 보정 모듈]]**: 시계열 선형 보간 기반 정지수/역수 지수 산출 및 하위 호환 보정기
 
 ---
 
@@ -92,6 +93,7 @@ graph TD
 * 📈 **[[30_PLOTTER_TIRE|단일 타이어 상세 시각화 플로터]]**: 슬립 PDF 분포 곡선, Mu-drop 시점 포착 시각화
 * 🔧 **[[22_Func_ACCBRK|공통 수치 연산 및 유틸리티 함수군]]**: 시계열 필터링, 데이터 추출 및 보조 연산
 * ⚡ **[[41_실차_제동_시계열_신호처리_및_고속_동역학_최적화_아키텍처|실차 제동 시계열 신호처리 및 고속 동역학 최적화 아키텍처]]**: C-백엔드 1D Wavelet, 적응형 KDE, Mu-Drop k-means++, 인메모리 캐시 보존 및 compresslevel=5 이론
+* 📢 **[[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처|실차 평가 시스템 엔터프라이즈 로깅 및 모니터링 아키텍처]]**: Print 배제 원칙, I/O 논블로킹, 계층형 LOGGER 네임스페이스 및 무중단 시각화 가이드
 
 ---
 
@@ -102,6 +104,19 @@ graph TD
 ---
 
 ## 📜 5. 버전 이력 및 주요 품질 혁신 내역 (Changelog & Quality Audit)
+
+### ⚡ v2.2 (2026-09-18) 엔터프라이즈 로깅 체계(`LOGGER`) 전역 도입 및 Print 함수 100% 제거
+1. **📢 `print()` 문 전면 퇴출 및 `unoUtil.logger.LOGGER` 일원화**:
+   * `VT_ACCBRK_TIRE.py`, 서브 분석기 6종(`an_acceleration.py`, `an_split_speed.py`, `an_slip_pdf.py`, `an_mu_drop.py`, `an_skewness.py`, `an_response.py`), 플로터 2종(`_PLOTTER_TIRE.py`, `_PLOTTER_PROJECT.py`), 레거시 보정 모듈 `Cal_Control.py`, YAML 드라이버 `yaml_test.py` 등 패키지 전역의 print 문 전수 교체 완료.
+   * Root logger `VT_ACCBRK` 기반 계층적 로거 네임스페이스 확립 (예: `VT_ACCBRK.Tire`, `VT_ACCBRK.PlotterProject`, `VT_ACCBRK.CalControl`, `VT_ACCBRK.SubAnalyzers` 등).
+   * 로그 레벨(`INFO`, `DEBUG`, `WARNING`, `ERROR`, `SUCCESS`) 세분화 및 콘솔 컬러/타임스탬프 포맷팅 표준화.
+2. **🛠️ `_PLOTTER_PROJECT.py` Line 1000 분할 가속도 인덱싱 버그 완벽 수정**:
+   * `arr_pos` 슬라이싱 및 범례 처리 로직 안정화.
+   * `__main__` 다중 시나리오(A~D) 자가 구동 테스트 전수 통과.
+3. **🔄 `Cal_Control.py` 레거시 보정 모듈 안정화 및 자가 검증 완료**:
+   * `LOGGER("CalControl")` 적용 및 단독 구동 시 제동거리/가속도 보정 및 Inverse 옵션 정상 산출 검증 완료.
+4. **🛡️ 시각화 무중단(Non-blocking) 원칙 전면 준수**:
+   * Matplotlib GUI 블로킹(`plt.show()`) 원천 배제, 파일 저장(`plt.savefig()`) 후 명시적 자원 해제(`plt.close(fig)`) 처리.
 
 ### ⚡ v2.1 (2026-09-18) 초고속 연산 최적화 및 메모리 보존 아키텍처 정립
 1. **🚀 적응형 균일 스트라이드 서브샘플링 KDE (`AN_Histogram`)**:

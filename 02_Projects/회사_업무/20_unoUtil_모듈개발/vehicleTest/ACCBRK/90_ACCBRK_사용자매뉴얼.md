@@ -109,6 +109,21 @@ aliases:
 
 ---
 
+## 📢 제3계층: 엔터프라이즈 로깅 및 진단 시스템 (Logging & Diagnostics)
+
+`VT_ACCBRK` 시스템은 프로세스 블로킹과 스트림 병목을 유발하는 표준 `print()` 호출을 100% 제거하고, 통합 진단 엔진인 `unoUtil.logger.LOGGER`를 전역 탑재하였습니다.
+
+* **네임스페이스 계층화**: 최상위 파이프라인(`VT_ACCBRK`)부터 개별 타이어(`VT_ACCBRK.Tire`), 프로젝트(`VT_ACCBRK.Project`), 시각화 플로터(`VT_ACCBRK.PlotterTire`, `VT_ACCBRK.PlotterProject`), 서브 분석기(`VT_ACCBRK.SubAnalyzers`), 레거시 보정기(`VT_ACCBRK.CalControl`)까지 명확한 Root 계층 구조를 갖습니다.
+* **로그 레벨 제어**:
+  - `DEBUG`: 파일 생성 경로, 상세 인덱스 매핑, 통계 표 출력.
+  - `INFO`: 구간 탐색, 보정 연산 시작/완료 등 주요 프로세스 라이프사이클.
+  - `SUCCESS`: 시나리오 완료, 저장 완료 알림.
+  - `WARNING`: 콘트롤 타이어 누락, 파라미터 폴백 경고.
+  - `ERROR`: 데이터 부재, 연산 불능 등 치명적 예외.
+* **시각화 무중단(Non-blocking) 원칙**: GUI 창을 멈추게 하는 `plt.show()` 호출을 일체 배제하고, `plt.savefig()` 후 `plt.close(fig)` 처리를 통해 배치 작업의 무중단 안정성을 보장합니다.
+
+---
+
 ## 💻 실무 밀착형 종합 예제 코드
 
 ```python
@@ -132,8 +147,8 @@ prj_braking.cal_corrected(ref_kwd='c', inverse=True, col_seq='Datetime')
 prj_braking.plot.compare_braking(save="./report", html=True)  # 비교표 저장
 prj_braking.plot.compare_slip_pdf(xlim=(0, 20), h=-0.6, save="./report", cmap='tab20')  # 슬립 비교
 
-# 4. 분석 결과 통파일 저장 (Gzip 레벨 9 압축)
-prj_braking.save_pjt("./final_result.pjt")
+# 4. 분석 결과 통파일 저장 (Gzip 레벨 5 초고속 압축 직렬화)
+prj_braking.save_pjt("./final_result.pjt", compresslevel=5)
 ```
 
 **Documented by your Coding Partner & Technical Writer, uno.**
