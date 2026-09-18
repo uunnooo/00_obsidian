@@ -132,17 +132,41 @@ def calc_performance(
 
 ## 4. 🧪 무결성 검증 및 단위 테스트
 
-패키지의 모든 리팩토링 결과는 자동화된 2단계 테스트를 통해 100% 통과되었습니다:
+패키지의 모든 리팩토링 결과는 자동화된 다계층 테스트 스위트와 전수 모듈 자가 구동을 통해 **100% 통과(PASS)**되었습니다.
+
+### 4.1. 모듈별 실제 기능 구동 검증 결과표
+
+| 검증 도메인 | 주요 테스트 대상 모듈 및 함수 | 검증 항목 | 판정 |
+| :--- | :--- | :--- | :---: |
+| **`vehicle`** | `analysis_test_data.py`<br>(`calc_performance`, `calc_compare`) | - 시계열 선형 보정 및 가상 컨트롤 기준값 생성<br>- 4대 지표 집계 및 타이어별 비교 리포트 산출 | **PASS** (Code 0) |
+| **`vehicle/ACCBRK`** | `cal_control.py`<br>(`calc_reference_corrected`) | - 다중 컨트롤 타이어 조각 선형 보간($\text{adj}$)<br>- Positive(감속도)/Negative(제동거리) 성능지수 연산 | **PASS** (Code 0) |
+| **`ai`** | `dynamic_model.py`, `fit_mf_ax.py`<br>(`tire_magic_formula`, `calculate_fx`) | - Magic Formula 타이어 횡력 수치 해석<br>- 최적화 알고리즘 기반 파라미터 추정 | **PASS** (Code 0) |
+| **`signal_process`** | `fft/single_track.py`, `fft/find_fft.py`<br>`post_process/resample.py` | - **Non-blocking 시각화** (GUI 프로세스 멈춤 원천 방지)<br>- 고주파 변곡점 자동 탐색 및 시계열 리샘플링 | **PASS** (Code 0) |
+| **`logger`** | `logger.py`, `styles.py`<br>(`LOGGER`, `get_core_logger`) | - ANSI 컬러 스트리밍 및 파일 로깅<br>- Windows 콘솔 유니코드 이모지 안전 인코딩 | **PASS** (Code 0) |
+| **`file_reader`** | `file_data_reader.py`<br>(`FileDataReader`) | - 이기종 계측 포맷(VBO, VBB, D7D, CSV) 파싱<br>- 전략 패턴 및 어댑터 기반 하위 호환 인스턴스화 | **PASS** (Code 0) |
+| **`statistics`** | `uncertainty/uncertainty.py`<br>(`Uncertainty`) | - ISO/IEC Guide 98-3 (GUM) 표준 측정불확도 연산<br>- 수치 미분 기반 감도 계수 산출 | **PASS** (Code 0) |
+
+### 4.2. 자동화 종합 테스트 결과
 
 ```bash
-# [테스트 1] 36개 레거시 임포트 경로 및 리다이렉트 무결성 테스트
+# [테스트 1] 36개 레거시 임포트 경로 및 MetaPathFinder 무결성 테스트
 python unoUtil/example/test_structure_integrity.py
->>> [TEST SUCCESS] unoUtil 무결성 및 하위 호환성 100% 완료! (PASS)
+>>> [TEST SUCCESS] unoUtil 구조 무결성 및 하위 호환성 100% 완료! (36/36 PASS, Code 0)
 
-# [테스트 2] 신규 PEP 8 표준 함수/파라미터/모듈 전수 단위 테스트
+# [테스트 2] 7대 신규 패키지 전수 단위 테스트
 python unoUtil/example/test_pep8_all.py
->>> [SUCCESS] unoUtil 전 패키지 PEP 8 표준화 & 하위 호환성 100% PASS!
+>>> [1] vehicle & ACCBRK: calc_performance & calc_reference_corrected 호환성 100% (PASS)
+>>> [2] ai: PEP 8 표준 함수/클래스 재노출 100% (PASS)
+>>> [3] signal_process: non-blocking 및 PEP 8 100% (PASS)
+>>> [4] logger: 표준 명칭 및 별칭 100% (PASS)
+>>> [5] database: 표준 명칭 및 별칭 100% (PASS)
+>>> [6] file_reader: 표준 명칭 및 별칭 100% (PASS)
+>>> [7] statistics & utils: 표준 명칭 및 별칭 100% (PASS)
+>>> ============================================================
+>>> [SUCCESS] unoUtil 전 패키지 PEP 8 표준화 & 하위 호환성 100% PASS! (Code 0)
+>>> ============================================================
 ```
+
 
 ---
 
