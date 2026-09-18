@@ -1,6 +1,6 @@
 # 🏛️ unoUtil v2.0 패키지 전체 아키텍처 및 구조 명세서
 
-본 문서는 `unoUtil` 프레임워크의 도메인 응집도 극대화, 파이썬 공식 표준(**PEP 8**) 준수, 대용량 데이터의 **`test_data/` 중앙 통합 경량화(90% 다이어트)**, 구형 코드의 **루트 `_archive/` 영구 보존**, 그리고 기존 실무 코드의 100% 무중단 구동을 보장하는 **하위 호환성 브릿지**를 총망라한 종합 구조 명세서입니다.
+본 문서는 `unoUtil` 프레임워크의 도메인 응집도 극대화, 파이썬 공식 표준(**PEP 8**) 준수, 대용량 데이터의 **`test_data/` 중앙 통합 경량화(90% 다이어트)**, 구형 코드의 **루트 `_archive/` 영구 보존**, **8대 함수 접두사 및 공통 변수명 사전** 제정, 그리고 기존 실무 코드의 100% 무중단 구동을 보장하는 **하위 호환성 브릿지**를 총망라한 종합 구조 명세서입니다.
 
 > [!IMPORTANT]
 > **진행 원칙**: 모든 세부 수정 계획이 최종 확정될 때까지 실제 코드/파일 수정은 **보류(Hold)**되며, 사용자 검토를 거쳐 최종적으로 "실행 해줘" 단계에서 일괄 적용됩니다.
@@ -24,14 +24,15 @@ flowchart TD
         SP["📈 signal_process/ (fft, curve_fit, post_process 4대 전처리)"]
         ST["📊 statistics/ (순수 통계 & 측정불확도 uncertainty/)"]
         GR["🎨 graphics/ (시각화 3대 서브폴더: plotters, controls, web)"]
-        UT["🛠️ utils/ (공통 유틸리티 & 로거)"]
+        UT["🛠️ utils/ (공통 유틸리티 통합 & logger/ 완성)"]
         AI["🤖 ai/ (최적화 모델 & 피팅)"]
         DB["🗄️ database/ (DW / PLM 연동)"]
     end
 
-    subgraph Safety_Layer [하위 호환성 및 상시 경고 안전망]
-        RDF["⚠️ readDataFile (레거시)"] -->|FutureWarning 상시 출력 후 위임| FR
-        OLD["구버전 임포트 경로 (__init__.py)"] -->|무수정 100% 정상 작동| Core_Domains
+    subgraph Standard_Conventions [표준 네이밍 & 인터페이스 헌장]
+        VERB["🎯 8대 함수 접두사 (load_, read_, save_, calc_, get_, find_, plot_, set_)"]
+        KWARG["🎛️ 공통 키워드 인자 (print, plot, save, window, method, limit)"]
+        VAR["📖 동일 목적 = 동일 이름 (data, work_data, result, fig, ax)"]
     end
 ```
 
@@ -111,6 +112,7 @@ D:\uno\Python\Projects\unoUtil\             # 🏠 프로젝트 최상위 루트
 │   │
 │   ├── 📊 statistics/                      # ⭐ [순수 통계 및 측정불확도 패키지]
 │   │   ├── __init__.py
+│   │   ├── summary.py                      # ⭐ 10대 통계 요약 (get_statistics_df / 구 _DataFrame_.py)
 │   │   └── uncertainty/                    # ── 측정불확도 전용 서브패키지
 │   │       ├── __init__.py
 │   │       ├── uncertainty.py              # ISO GUM 기반 측정불확도 산정 엔진 (Uncertainty)
@@ -134,20 +136,19 @@ D:\uno\Python\Projects\unoUtil\             # 🏠 프로젝트 최상위 루트
 │   │       ├── __init__.py
 │   │       └── plotly_tools.py             # Plotly 컬러맵 생성 및 HTML 변환
 │   │
-│   ├── 🛠️ utils/                           # [사내 공통 유틸리티 (구 convenienceFunction)]
-│   │   ├── __init__.py
-│   │   ├── excel.py                        # 엑셀 시트 생성 및 차트 삽입
-│   │   ├── files.py                        # 경로 검증, 폴더 자동 생성, 파일 탐색
-│   │   ├── window_msg.py                   # GUI 팝업 메시지 박스
-│   │   ├── dataframe_utils.py              # DataFrame 보조 연산
-│   │   ├── math_utils.py                   # 기하/수학 연산 유틸
+│   ├── 🛠️ utils/                           # ⭐ [사내 공통 유틸리티 통합 (구 convenienceFunction)]
+│   │   ├── __init__.py                     # check_path, LOGGER, Excel 등 노출
+│   │   ├── excel.py                        # 엑셀 시트 생성 및 차트 삽입 (Excel)
+│   │   ├── files.py                        # 경로 검증, 폴더 자동 생성, 파일 탐색 (Files)
+│   │   ├── dataframe_utils.py              # ⭐ DF 보조 연산 통합 (astype_float, agg_mean, calc_ratio)
 │   │   ├── console_style.py                # 터미널 컬러/스타일링
-│   │   ├── weather_tring.py                # 기상대 데이터 동기화 리포터
-│   │   └── logger/                         # ── 싱글톤 멀티 스트림 로거
+│   │   ├── weather_tring.py                # 기상대 데이터 동기화 리포터 (MakeDFWeatherTring)
+│   │   └── logger/                         # ── ⭐ 싱글톤 멀티 스트림 로거 완성
+│   │       ├── __init__.py                 # LOGGER, show_window_error 노출 (구 WindowMsg 흡수)
 │   │       ├── logger.py                   # LOGGER 싱글톤 엔진
 │   │       ├── progress_bar.py             # 진행도 표시 바
 │   │       ├── styles.py                   # 컬러 포맷터
-│   │       └── window_handler.py           # GUI 텍스트 위젯 연동
+│   │       └── window_handler.py           # GUI 텍스트 위젯 연동 및 팝업 에러
 │   │
 │   ├── 🤖 ai/                              # [머신러닝 & 최적화 (구 unoAI)]
 │   │   ├── __init__.py
@@ -184,53 +185,47 @@ D:\uno\Python\Projects\unoUtil\             # 🏠 프로젝트 최상위 루트
 └── 🗄️ _archive/                           # [과거 코드 영구 보존소] (탐색기에서 언제든 더블클릭 열람)
     ├── readDataFile_backup/               # 구형 파일 원본 일체 보관 (DLL, vbb, 원본 py)
     ├── gps_legacy_backup/                 # 구형 함수형 GPS 원본 보관 (_GPStoXYCord_.py, .md)
-    └── graphics_legacy_backup/            # ⭐ 구형 플로터 원본 보관 (_PairPlotCorr..., _plotter_raw)
+    ├── graphics_legacy_backup/            # 구형 플로터 원본 보관 (_PairPlotCorr..., _plotter_raw)
+    └── utils_legacy_backup/               # 구형 유틸 원본 보관 (MakeDFWeatherTring_raw.py 등)
 ```
 
 ---
 
-## 🗺️ 3. 패키지별 상세 Before & After 명세서
+## 📖 3. 공식 표준 네이밍 및 인터페이스 규격
 
-### 🏎️ 3.1 `vehicle/` (실차 시험 및 동역학 분석)
-* **주요 변경**: 클래스명 언더바 완전 배제 + `VT` 대문자 공식화 + `BaseMemory` 기반 클래스 승격 분리
+### 3.1 8대 함수 접두사 (Action Verb)
+| 접두사 | 대상 및 동작 목적 | 대표 함수 예시 |
+| :--- | :--- | :--- |
+| **`load_`** | 파일/DB에서 메모리로 통째 적재 | `load_project()`, `load_plm_spec()` |
+| **`read_`** | 계측기 원시 파일(VBO, CSV 등) 파싱 | `read_file()`, `read_vbo()` |
+| **`save_`** | 메모리 데이터/이미지를 디스크에 저장 | `save_figure()`, `save_excel()` |
+| **`calc_`** | 물리 공식, 수치, 통계량 계산 | `calc_performance()`, `calc_ratio()` |
+| **`get_`** | 내부 정보/속성/결과 추출 | `get_statistics_df()`, `get_color_generator()` |
+| **`find_`** | 조건에 맞는 구간/인덱스 탐색 | `find_continuous_interval()`, `find_peaks()` |
+| **`plot_`** | 차트 및 도화지 시각화 드로잉 | `plot_scatter()`, `plot_3d_surface()` |
+| **`set_`** | 환경, 모드, 스타일 설정 | `set_cursor_mode()`, `set_korean_font()` |
 
-| 기존 파일명 (Before) | 최종 파일명 (After) | 확정 클래스명 (CapWords) | 구버전 별칭 (Alias) |
-| :--- | :--- | :--- | :--- |
-| `VehicleDynamic.py` | `vehicle_dynamic.py` | `class VehicleDynamic:` | - |
-| `_AnalysisTestData_.py` | `analysis_test_data.py` | `class AnalysisTestData:` | - |
-| `_HndlTest_.py` | `handling_test.py` | `class HandlingTest:` | - |
-| `_ParsingPattern_.py` | `parsing_pattern.py` | `class ParsingPattern:`, `class Signal:` | `par.Signal` |
-| `_TEST_INFOR_RES_.py` | `test_info_res.py` | `class TestInfoRes:` | - |
-| `_BRKTest_.py` | `brk_test.py` | 구버전 호출 위임 브릿지 | - |
-| `ACCBRK/VT_ACCBRK.py` | `acc_brk/vt_acc_brk.py` | **`class VTAccBrk:`** | `VT_ACCBRK = VTAccBrk` |
-| `ACCBRK/VT_ACCBRK_TIRE.py` | `acc_brk/vt_acc_brk_tire.py` | **`class VTAccBrkTire:`** | `VT_ACCBRK_TIRE = VTAccBrkTire` |
-| `ACCBRK/VT_ACCBRK_PROJECT.py` | `acc_brk/vt_acc_brk_project.py`| **`class VTAccBrkProject:`** | `VT_ACCBRK_PROJECT = VTAccBrkProject` |
-| `ACCBRK/_CORRECT_.py` | `acc_brk/correct.py` | `class Correct:` | `_CORRECT_ = Correct` |
-| `ACCBRK/_Func_ACCBRK_.py` | `acc_brk/func_acc_brk.py` | 물리/수학 연산 유틸 | `_Func_ACCBRK_` |
-| `ACCBRK/_PLOTTER_PROJECT.py` | `acc_brk/plotter_project.py` | `class PlotterProject:` | `_PLOTTER_PROJECT` |
-| `ACCBRK/_PLOTTER_TIRE.py` | `acc_brk/plotter_tire.py` | `class PlotterTire:` | `_PLOTTER_TIRE` |
-| **`ACCBRK/_AN_MEMORY.py`** | **`acc_brk/base_memory.py`** | **`class BaseMemory:`** *(기반클래스)* | `AN_MEMORY = BaseMemory` |
-| `ACCBRK/_AN_ACCELERATION.py` | `acc_brk/analyzers/an_acceleration.py` | `class AnAcceleration:` | `_AN_ACCELERATION` |
-| `ACCBRK/_AN_MU_DROP.py` | `acc_brk/analyzers/an_mu_drop.py` | `class AnMuDrop:` | `_AN_MU_DROP` |
-| `ACCBRK/_AN_RESPONSE.py` | `acc_brk/analyzers/an_response.py` | `class AnResponse:` | `_AN_RESPONSE` |
-| `ACCBRK/_AN_SLIP_MODE_SKEWNESS.py`| `acc_brk/analyzers/an_skewness.py` | `class AnSlipModeSkewness:` | `_AN_SLIP_MODE_SKEWNESS` |
-| `ACCBRK/_AN_SLIP_PDF.py` | `acc_brk/analyzers/an_slip_pdf.py` | `class AnSlipPdf:` | `_AN_SLIP_PDF` |
-| `ACCBRK/_AN_SPLIT_SPEED.py` | `acc_brk/analyzers/an_split_speed.py` | `class AnSplitSpeed:` | `_AN_SPLIT_SPEED` |
+### 3.2 공통 키워드 인자 사전 (Common Kwargs)
+* **`print`** (`bool`) : 콘솔 로그 출력 여부 (기본값 `False`)
+* **`plot`** (`bool`) : 시각화 그래프 생성 여부 (기본값 `True`)
+* **`save`** (`str` / `bool`) : 파일 저장 경로 (또는 저장 플래그)
+* **`close`** (`bool`) : 시각화 무중단 원칙을 위한 창 닫기 (`plt.close(fig)`)
+* **`layout`** (`str`) : Matplotlib 레이아웃 방식 (`'constrained'`, `'tight'`, `None`)
+* **`pretty`** (`bool`) : 고품질 폰트/스타일링 적용 여부
+* **`window`** (`int`) : 이동평균/롤링 윈도우 크기
+* **`method`** (`str`) : 알고리즘 방식 (`'linear'`, `'eif'` 등)
+* **`order`** (`int`) : 필터/다항식 연산 차수
+* **`limit`** (`int`) : DB 쿼리 조회 건수 제한
 
----
-
-### 🎨 3.2 `graphics/` (시각화 및 화면제어 서브폴더 분할)
-* **주요 변경**: 그리는 쪽(`plotters/`)과 제어하는 쪽(`controls/`), 웹 연동(`web/`)으로 서브폴더 3분할
-
-| 서브 폴더 | 최종 파일명 | 주요 클래스 및 함수 | 구버전 별칭 (100% 호환) |
-| :--- | :--- | :--- | :--- |
-| **`plotters/`** | `plotter.py` | `class Plotter:` (scatter, box, pdf 등) | `_Plotter_.Plotter` |
-| | `formatter.py` | `format_fig()`, `set_korean_font()`, `check_ax()` | `format_fig`, `save_figure` |
-| | `text_offset.py` | `text_offset()`, `annotate_offset()` | `TextOffset.py` |
-| **`controls/`** | `cursor_mode.py` | `set_cursor_mode()` (십자선 커서 제어) | `SetCursorMode` |
-| | `range_selector.py`| `class RangeSelector:` (마우스 2점 구간 선택기) | `SelRangeMouseClick` |
-| **`web/`** | `plotly_tools.py` | `make_cmp_plotly()` (Plotly 컬러맵 생성) | `_plotly_.py` |
-| **`_archive/`** | `graphics_legacy_backup/` | `_PairPlotCorrWithScatter_.py`, `_plotter_raw.py` 보존 | - |
+### 3.3 동일 목적 = 동일 이름 (공통 변수명 사전)
+* **`data`** : 원본 입력 데이터 (`data: pd.DataFrame`)
+* **`work_data`** : 함수 내부에서 가공/연산하는 복사본 데이터
+* **`result`** : 최종 반환 결과 객체
+* **`columns`** : 연산 대상 컬럼명 목록 (`list[str]`)
+* **`target_path`** : 분석/파싱 대상 경로 (`Path` / `str`)
+* **`save_path`** : 저장될 결과물 파일 경로
+* **`fig`**, **`ax`** (복수 시 **`axes`**) : Matplotlib 시각화 객체
+* **`threshold`** : 임계값/기준치 수치
 
 ---
 
