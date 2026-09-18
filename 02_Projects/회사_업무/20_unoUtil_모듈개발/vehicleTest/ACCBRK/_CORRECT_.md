@@ -1,3 +1,24 @@
+---
+id: "work_20260910_CORRECT_manual"
+title: "CORRECT & Cal_Control 성능 보정 모듈 상세 엔지니어링 매뉴얼"
+type: resource
+category_main: 회사_업무
+category_sub: unoUtil
+date: 2026-09-18
+status: 완료
+tags:
+  - 회사_업무
+  - unoUtil
+  - 매뉴얼
+  - CORRECT
+  - 성능보정
+project_link: "[[00_VT_ACCBRK_대시보드]]"
+---
+
+> [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층
+> - **상위 허브**: [[00_VT_ACCBRK_대시보드]], [[VT_ACCBRK_PROJECT]]
+> - **영구 도메인 이론**: [[43_차세대_실차_가속제동_통합_컨테이너_및_환경보정_아키텍처]] (가상 과녁 선형 보간 및 환경 팩터 보정 모델), [[40_제동_성능_자동분석_및_기상_공간QC_보정_시스템]]
+
 # CORRECT & Cal_Control 성능 보정 모듈 상세 엔지니어링 매뉴얼
 
 **모듈 파일**: [`_CORRECT_.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicleTest/ACCBRK/_CORRECT_.py), [`Cal_Control.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicleTest/ACCBRK/Cal_Control.py)  

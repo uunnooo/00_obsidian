@@ -201,21 +201,28 @@ name, df, save_date, sample_rate = reader.to_legacy_tuple()
 
 ### 4.4. [Case 4] 디렉토리 일괄 스캔 및 실시간 프로그레스 바 (Batch Scan)
 ```python
-from unoUtil.fileDataReader import FileDataReader
+from unoUtil.file_reader import FileDataReader
 
-# 특정 폴더 내의 로그 파일들을 일괄 수집 (순수 파이썬 프로그레스 바 자동 동작)
+# 특정 폴더 내의 로그 파일들을 일괄 수집 (프로그레스 바 기본 활성화)
 # 콘솔 출력: 계측 파일 일괄 로딩: 100.0% |█████████████████████████| 12/12 [00:03<00:00, 3.8file/s]
 readers = FileDataReader.scan_dir(
     dir_path="D:/LogFolder",
     extensions=[".vbo", ".vbb", ".d7d"],
     recursive=False,
     chname=True,
-    date="auto"
+    date="auto",
+    progress_bar=True  # [NEW ⭐] 실시간 진행률 게이지 바 활성화 (pbar=True 별칭 지원, 침묵 모드는 False)
 )
 
 for r in readers:
     print(f"[{r.file_ext}] {r.file_name:20s} -> Shape: {r.shape}, Hz: {r.sample_rate}")
 ```
+
+> [!TIP] **전용 프로그레스 바 독립 검증 예제 스크립트**  
+> `scan_dir()`의 프로그레스 바 렌더링, 로그 발생 시 게이지 보존 메커니즘(Anti-Break), 침묵 모드(Silent)를 직접 눈으로 확인하려면 프로젝트 루트에서 아래 예제를 실행하세요:  
+> ```bash
+> python unoUtil/example/example_scan_dir_progressbar.py
+> ```
 
 ---
 

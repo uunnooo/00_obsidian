@@ -94,6 +94,7 @@ graph TD
 * 🔧 **[[22_Func_ACCBRK|공통 수치 연산 및 유틸리티 함수군]]**: 시계열 필터링, 데이터 추출 및 보조 연산
 * ⚡ **[[41_실차_제동_시계열_신호처리_및_고속_동역학_최적화_아키텍처|실차 제동 시계열 신호처리 및 고속 동역학 최적화 아키텍처]]**: C-백엔드 1D Wavelet, 적응형 KDE, Mu-Drop k-means++, 인메모리 캐시 보존 및 compresslevel=5 이론
 * 📢 **[[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처|실차 평가 시스템 엔터프라이즈 로깅 및 모니터링 아키텍처]]**: Print 배제 원칙, I/O 논블로킹, 계층형 LOGGER 네임스페이스 및 무중단 시각화 가이드
+* 🏎️ **[[43_차세대_실차_가속제동_통합_컨테이너_및_환경보정_아키텍처|차세대 실차 가속·제동 동역학 통합 컨테이너 및 다중 환경 보정 아키텍처]]**: 비파괴 슬림 피클링(98.5% 절감), 온디맨드 자동 복원 프록시, CORRECT 시계열 과녁 보정 및 13대 실차 결함 방어 엔지니어링
 
 ---
 
@@ -104,6 +105,20 @@ graph TD
 ---
 
 ## 📜 5. 버전 이력 및 주요 품질 혁신 내역 (Changelog & Quality Audit)
+
+### 🛡️ v2.3 (2026-09-18) 14개 핵심 모듈 100% 자가 구동 검증 통과 및 13대 런타임 결함 원천 해결
+1. **🧪 14개 핵심 모듈 전수 무결점 통과 (`ALL PASSED: True`)**:
+   - `_AN_ACCELERATION`, `_AN_MEMORY`, `_AN_MU_DROP`, `_AN_RESPONSE`, `_AN_SLIP_MODE_SKEWNESS`, `_AN_SLIP_PDF`, `_AN_SPLIT_SPEED`, `_PLOTTER_PROJECT`, `_PLOTTER_TIRE`, `_CORRECT_`, `Cal_Control`, `VT_ACCBRK_TIRE`, `VT_ACCBRK_PROJECT`, `VT_ACCBRK` 전 모듈 Exit Code 0 달성.
+2. **🐛 13대 실차 데이터 파이프라인 런타임 결함 완벽 해결**:
+   - `PP_Slip` 튜플 언패킹(2 vs 3) 불일치 해소 및 조기 반환 3-튜플 규격 통일.
+   - `AN_ACCBRK` 센서 채널 슬라이싱에 의한 휠속도 채널 78개 유실 버그 방어 (`strip_cols=False`).
+   - `EffNum` vs `effNum`, `TestNum` vs `no_test` 차수/시험번호 대소문자 및 네이밍 동적 자동 감지.
+   - `_TEST_INFOR_RES_` 메타데이터 업데이트 시 `NoneType` 인덱싱 `TypeError` 원천 차단.
+   - `VT_ACCBRK_TIRE` 캐시 복원 조건식 엄밀화(`KeyError: 'test_vel'` 방어).
+   - `_PLOTTER_PROJECT` 내 `df` kwarg 팝 누락으로 인한 `format_fig` 충돌 해결.
+   - Windows CP949 콘솔 이모지 유니코드 인코딩 크래시 방지.
+3. **🏛️ 영구 도메인 지식 분리 (2계층 지식화)**:
+   - [[43_차세대_실차_가속제동_통합_컨테이너_및_환경보정_아키텍처]] 독립 영구 지식화 및 통합 색인 MOC 등록.
 
 ### ⚡ v2.2 (2026-09-18) 엔터프라이즈 로깅 체계(`LOGGER`) 전역 도입 및 Print 함수 100% 제거
 1. **📢 `print()` 문 전면 퇴출 및 `unoUtil.logger.LOGGER` 일원화**:
