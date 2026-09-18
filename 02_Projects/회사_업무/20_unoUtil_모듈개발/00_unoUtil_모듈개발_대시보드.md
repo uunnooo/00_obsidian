@@ -30,35 +30,36 @@ aliases:
 
 ---
 
-## 📦 패키지 서브모듈 구조 및 현황
+## 📦 패키지 서브모듈 구조 및 현황 (v2.0 Clean Architecture)
 
 ```text
 📂 unoUtil/
-├── 🏎️ vehicleTest/             # 실차 시험 종합 분석 패키지 (Active)
+├── 🏎️ vehicle_test/            # 실차 시험 종합 분석 패키지 (Active, 구 vehicleTest)
 │   └── 🏁 ACCBRK/             # 실차 가감속 / 제동 성능 정밀 분석 엔진
-│       ├── 00_VT_ACCBRK_대시보드.md
-│       ├── 10_VT_ACCBRK.md (통합 파이프라인)
-│       ├── 11_VT_ACCBRK_TIRE.md (단일 타이어 분석)
-│       ├── 12_VT_ACCBRK_PROJECT.md (취합 및 보정)
-│       ├── 20_VT_ACCBRK_SUB_ANALYZERS.md (7대 전문 서브 분석기)
-│       ├── 21_CORRECT.md (환경 및 콘트롤 성능 보정)
-│       ├── 22_Func_ACCBRK.md (공통 연산 유틸리티)
-│       ├── 30_PLOTTER_TIRE.md / 31_PLOTTER_PROJECT.md (시각화 플로터)
-│       └── 90_ACCBRK_사용자매뉴얼.md (실무 사용자 매뉴얼)
-├── 🛰️ gpsProcessing/          # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active)
-│   ├── 00_gpsProcessing_대시보드.md (통합 허브 & MOC)
-│   └── 10_GPStoXYCord.md (WGS84 타원체 벡터화 투영 엔진)
-├── 🚀 fileDataReader/          # 차세대 객체지향 이종 계측 데이터 통합 리더 (Active ⭐ 완전 독립)
-│   ├── FileDataReader.md (VBO, VBB, D7D, TXT/CSV 통합 파서 & 플루언트 파이프라인)
-│   ├── 📂 vbbTopython/        # VBB 바이너리 초고속 파서 & 전원차단 복구 엔진 내재화
-│   │   └── VBBReader.md
-│   └── 📂 DWDataReader_v5_0_8/ # Dewesoft D7D C-DLL 디코더 & 비동기 정합 엔진 내재화
-│       └── dwdReader.md
-├── 💾 readDataFile/            # 계측기 원본 데이터 로더 (⚠️ 폐기 예정 / Deprecated)
-│   ├── ReadDataFile.md (모놀리식 ReadDataFile 레거시 레퍼런스)
-│   └── 📂 vbbTopython/
-│       └── VBBReader.md (레거시 보존)
-└── 🔧 (확장 예정 모듈)         # convenienceFunction, unoAI, Lateral 등
+│       ├── base_memory.py     # BaseMemory (구 _AN_MEMORY_)
+│       └── 📂 analyzers/      # 6대 전문 물리 분석 엔진
+├── 🛰️ gps/                     # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active, 구 gpsProcessing)
+│   └── gps_to_xy.py          # WGS84 타원체 벡터화 투영 엔진 (GPStoXYCord)
+├── 🚀 file_reader/             # 차세대 객체지향 이종 계측 데이터 통합 리더 (Active, 구 fileDataReader)
+│   ├── FileDataReader.py      # 플루언트 파이프라인
+│   └── 📂 parsers/            # base, vbo, vbb, dwd, text 분리 파서
+├── 📶 signal_process/          # 신호처리 종합 패키지 (Active)
+│   ├── 📂 post_process/       # filters, resample, scaler, outliers (구 _UnoPP_)
+│   ├── 📂 curve_fit/          # 다항식/지수 피팅
+│   └── 📂 fft/                # 주파수 스펙트럼 분석
+├── 🎨 graphics/                # 실차 시각화 및 상호작용 패키지 (Active, 구 graphicTools)
+│   ├── 📂 plotters/           # Plotter, text_offset, surface_3d
+│   ├── 📂 controls/           # cursor_mode, range_selector
+│   └── 📂 web/                # plotly_tools
+├── 📊 statistics/              # 통계 분석 및 측정불확도 패키지 (Active)
+│   ├── summary.py             # 10대 요약 기술통계 (get_statistics_df)
+│   └── 📂 uncertainty/        # GUM / ISO 98-3 정밀 측정불확도
+├── 🛠️ utils/                   # 사내 통합 공통 유틸리티 (Active, 구 convenienceFunction)
+│   ├── files.py / excel.py / dataframe_utils.py / console_style.py / weather.py
+├── 📝 logger/                  # GUI 창/콘솔 일체형 고성능 로깅 시스템
+├── 🤖 ai/                      # 머신러닝/딥러닝 동역학 모델링 (구 unoAI)
+├── 🗄️ db/                      # 시험 데이터베이스 연동 (구 unoDB)
+└── 💾 readDataFile/            # (⚠️ 폐기 예정 / Deprecated - FileDataReader로 대체)
 ```
 
 ---
@@ -97,16 +98,38 @@ aliases:
 ### 💾 1.4 readDataFile (레거시 데이터 로더 보존 및 향후 폐기 예정 영역)
 * 💾 **[[ReadDataFile|ReadDataFile (모놀리식 레거시 데이터 로더)]]**
   * **상태**: ⚠️ 레거시 유지 관리 및 향후 완전 삭제 예정 (Deprecated)
-  * **안전망 조치**: `unoUtil/__init__.py`에서 `try...except ImportError`로 분리되어 향후 폴더가 삭제되어도 전체 패키지 무중단 구동 보장
   * 모든 신규 분석 및 배치 파이프라인은 [[FileDataReader]]로 완전 대체 완료
 
+### 📶 1.5 signal_process (신호 후처리, 커브피팅 및 주파수 분석)
+* 📶 **[[00_post_process_대시보드|post_process (신호 후처리 패키지 대시보드)]]**
+  * **[[filters|filters (Zero-Phase 이동평균 필터)]]**: 위상 지연 없는 양방향 필터(`filtfilt`) 및 SOS 고속 필터
+  * **[[resample|resample (비수치 보존 리샘플링)]]**: 이종 센서 비동기 정합 및 메타데이터 무손실 보존
+  * **[[outliers|outliers (다변량 이상치 정제)]]**: Percentile, Z-score, iForest, Extended IF 및 유효 제동 구간 색출
+  * **[[scaler|scaler (데이터 정규화)]]**: MinMax, Standard, Robust 스케일링
+  * **영구 도메인 지식 연계**: [[25_실차_신호처리_및_시계열_데이터_정제_공학]]
+
+### 🎨 1.6 graphics (실차 시각화 및 상호작용 인터랙션)
+* 🎨 **[[00_graphics_대시보드|graphics (시각화 패키지 대시보드)]]**
+  * **[[plotters/plotter|plotters (렌더링 플로터)]]**: Non-blocking 시각화 엔진, 텍스트 오프셋, 3D 서피스
+  * **[[controls/cursor_mode|controls (상호작용 제어기)]]**: 십자선 커서 모드, 마우스 드래그 관심구간(ROI) 추출
+  * **web**: 브라우저 기반 대화형 Plotly 차트
+  * **영구 도메인 지식 연계**: [[26_대규모_파이썬_패키지_모듈화_및_무중단_하위호환_아키텍처#4-시각화-무중단non-blocking-엔지니어링-표준]]
+
+### 📊 1.7 statistics (통계 분석 및 측정불확도)
+* 📊 **[[summary|summary (10대 요약 기술통계량)]]**: `get_statistics_df` (`get_statics_df`)
+* 🎯 **uncertainty**: GUM / ISO 98-3 가이드라인 기반 합성표준불확도 및 확장불확도 평가
+
+### 🛠️ 1.8 utils (사내 통합 공통 유틸리티)
+* 🛠️ **[[00_utils_대시보드|utils (유틸리티 패키지 대시보드)]]**
+  * **[[files|files (경로 점검 및 파일 탐색)]]**, **[[dataframe_utils|dataframe_utils (DF 헬퍼 & 비율 연산)]]**, **excel**, **weather**
 
 ---
 
 ## 📐 2. 개발 및 엔지니어링 표준
 
 * 📘 **[[Gemini_Python_코드_생성_규칙|Python 코드 품질 및 작성 가이드라인]]**
-  * Type Hinting 전수 적용
-  * Google Style Docstring 표준
+* 🏗️ **[[26_대규모_파이썬_패키지_모듈화_및_무중단_하위호환_아키텍처|대규모 파이썬 패키지 모듈화 및 무중단 하위호환 아키텍처]]**
+  * Type Hinting 전수 적용 및 8대 동사 접두사 / 4대 불변 키워드 인자 표준화
+  * Google Style Docstring 표준 및 Non-blocking 시각화 (`plt.close(fig)`) 필수
   * `# region Test` 기반 단위 검증 코드 필수 탑재
   * 옵시디언 기술 문서 실시간 이중 동기화 프로토콜 준수
