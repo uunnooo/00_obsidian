@@ -1,4 +1,16 @@
-# 📖 VBBReader: VBOX 바이너리(VBB) 고속 무손실 파싱 및 전원 차단 복구 엔진
+---
+id: "vbb_reader"
+title: "vbb_reader VBOX 바이너리(VBB) 고속 무손실 파싱 및 전원 차단 복구 엔진"
+type: resource
+category_main: 회사_업무
+category_sub: unoUtil
+aliases:
+  - "VBBReader"
+  - "vbb_reader"
+  - "vbb_parser"
+---
+
+# 📖 VBBReader: VBOX 바이너리(VBB) 고속 무손실 파싱 및 전원 차단 복구 엔진 (`vbb_reader.py`)
 
 ## 1. 📌 개요
 `VBBReader`는 영국 Racelogic 사의 **VBOX 계측기에서 생성되는 독점 바이너리 포맷인 `.vbb` 파일을 파싱하여 unoUtil 표준 데이터프레임으로 변환하는 핵심 엔진**입니다.

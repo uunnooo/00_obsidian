@@ -19,6 +19,8 @@ aliases:
   - _GPStoXYCord_
   - GPStoXYCord
   - GPStoDistance2
+  - gps_to_xy
+  - 10_gps_to_xy
 ---
 
 # 🛰️ GPStoXYCord: GPS 평면 직교 좌표계 투영 및 WGS84 벡터화 가속 엔진

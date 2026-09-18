@@ -1,9 +1,12 @@
-﻿---
+---
 title: "30_PLOTTER_TIRE 단일 타이어 시각화 플로터"
 aliases:
   - "_PLOTTER_TIRE"
   - "PLOTTER_TIRE"
   - "30_PLOTTER_TIRE"
+  - "plotter_tire"
+  - "PlotterTire"
+  - "30_plotter_tire"
 ---
 
 # 🏛️ VT_ACCBRK_TIRE 시스템 아키텍처 및 핵심 알고리즘 가이드

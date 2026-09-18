@@ -1,4 +1,17 @@
-# 🔬 Dewesoft D7D C-DLL 연동 및 비동기 정합 엔진: `dwdReader`
+---
+id: "dwd_reader"
+title: "dwd_reader Dewesoft D7D C-DLL 연동 및 비동기 정합 엔진"
+type: resource
+category_main: 회사_업무
+category_sub: unoUtil
+aliases:
+  - "dwdReader"
+  - "DWDReader"
+  - "dwd_reader"
+  - "dwd_parser"
+---
+
+# 🔬 Dewesoft D7D C-DLL 연동 및 비동기 정합 엔진: `dwd_reader` (구 `dwdReader`)
 
 본 문서는 Dewesoft 사의 고속 계측 포맷인 `.d7d` 바이너리 파일을 순수 Python 환경에서 네이티브 C-DLL(`DWDataReaderLib64.dll`)을 통해 초고속으로 디코딩하고, 동기(Sync)/비동기(Async CAN/GPS) 채널 간 시간축을 정밀하게 격자화(Grid-Alignment)하는 `dwdReader` 엔진의 내부 아키텍처 및 상세 API 레퍼런스입니다.
 

@@ -1,4 +1,16 @@
-# 📚 VCTA 타이어 성능 분석 모듈 문서 (`_AnalysisTestData_.py`)
+---
+id: "analysis_test_data"
+title: "analysis_test_data 타이어 성능 분석 유틸리티"
+type: resource
+category_main: 회사_업무
+category_sub: unoUtil
+aliases:
+  - "_AnalysisTestData_"
+  - "AnalysisTestData"
+  - "analysis_test_data"
+---
+
+# 📚 VCTA 타이어 성능 분석 모듈 문서 (`analysis_test_data.py`)
 
 이 모듈은 타이어 성능 시험 데이터의 **선형 보정, 통계 분석 및 리포트 생성**을 위한 전문적인 유틸리티 함수들을 제공합니다. `pandas`, `numpy`를 활용하여 데이터의 신뢰성을 확보하고, 컨트롤 타이어 기반의 성능 지수(Index)를 자동으로 산출합니다.
 

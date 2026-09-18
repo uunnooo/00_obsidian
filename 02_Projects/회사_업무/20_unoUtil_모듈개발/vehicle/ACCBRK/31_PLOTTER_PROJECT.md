@@ -1,9 +1,12 @@
-﻿---
+---
 title: "31_PLOTTER_PROJECT 프로젝트 통합 시각화 플로터"
 aliases:
   - "_PLOTTER_PROJECT"
   - "PLOTTER_PROJECT"
   - "31_PLOTTER_PROJECT"
+  - "plotter_project"
+  - "PlotterProject"
+  - "31_plotter_project"
 ---
 
 #### 4단 백틱 규칙에 따라 문서 전체를 하나의 블록으로 제공합니다.

@@ -1,4 +1,17 @@
-# 🚀 FileDataReader 기술 매뉴얼 및 사용자 가이드
+---
+id: "file_data_reader"
+title: "10_file_data_reader 이종 계측 데이터 객체지향 통합 리더"
+type: resource
+category_main: 회사_업무
+category_sub: unoUtil
+aliases:
+  - "FileDataReader"
+  - "file_data_reader"
+  - "10_file_data_reader"
+  - "10_FileDataReader"
+---
+
+# 🚀 FileDataReader 기술 매뉴얼 및 사용자 가이드 (`file_data_reader.py`)
 
 > **소속 모듈**: `unoUtil.fileDataReader.FileDataReader`  
 > **상태**: 릴리즈 완료 (Active)  

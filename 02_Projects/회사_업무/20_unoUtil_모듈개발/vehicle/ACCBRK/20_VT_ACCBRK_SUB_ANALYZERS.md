@@ -1,4 +1,4 @@
-﻿---
+---
 id: "work_20260910_VT_ACCBRK_SUB_ANALYZERS"
 title: "20_VT_ACCBRK_SUB_ANALYZERS 7대 전문 서브 분석기 모듈"
 type: resource
@@ -15,6 +15,9 @@ project_link: "[[unoUtil]]"
 aliases:
   - "VT_ACCBRK_SUB_ANALYZERS"
   - "20_VT_ACCBRK_SUB_ANALYZERS"
+  - "vt_acc_brk_sub_analyzers"
+  - "analyzers"
+  - "20_vt_acc_brk_sub_analyzers"
 ---
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층

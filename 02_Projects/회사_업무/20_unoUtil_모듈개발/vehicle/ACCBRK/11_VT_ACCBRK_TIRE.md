@@ -15,6 +15,9 @@ project_link: "[[unoUtil]]"
 aliases:
   - "VT_ACCBRK_TIRE"
   - "11_VT_ACCBRK_TIRE"
+  - "vt_acc_brk_tire"
+  - "VTAccBrkTire"
+  - "11_vt_acc_brk_tire"
 ---
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층

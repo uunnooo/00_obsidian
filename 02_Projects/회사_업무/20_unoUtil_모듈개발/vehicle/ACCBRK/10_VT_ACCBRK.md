@@ -15,6 +15,10 @@ project_link: "[[unoUtil]]"
 aliases:
   - "VT_ACCBRK"
   - "10_VT_ACCBRK"
+  - "vt_acc_brk"
+  - "VTAccBrk"
+  - "ACCBRK"
+  - "10_vt_acc_brk"
 ---
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층

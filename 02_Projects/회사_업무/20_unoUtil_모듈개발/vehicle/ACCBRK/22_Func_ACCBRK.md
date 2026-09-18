@@ -4,6 +4,8 @@ aliases:
   - "_Func_ACCBRK_"
   - "Func_ACCBRK"
   - "22_Func_ACCBRK"
+  - "func_acc_brk"
+  - "22_func_acc_brk"
 ---
 
 # ACCBRK 기반 유틸리티 및 전용 분석/시각화 모듈 엔지니어링 매뉴얼

@@ -39,30 +39,30 @@ aliases:
 ```mermaid
 graph TD
     subgraph "최상위 자동화 배치 파이프라인 (Master Pipeline)"
-        VT[VT_ACCBRK.py]
+        VT["vt_acc_brk.py (VTAccBrk)"]
     end
 
     subgraph "핵심 비즈니스 분석 엔진 (Core Classes)"
-        PJT[VT_ACCBRK_PROJECT.py]
-        TIRE[VT_ACCBRK_TIRE.py]
-        CORR[_CORRECT_.py]
+        PJT["vt_acc_brk_project.py (VTAccBrkProject)"]
+        TIRE["vt_acc_brk_tire.py (VTAccBrkTire)"]
+        CORR["correct.py (Correct)"]
     end
 
-    subgraph "7대 특화 물리 분석기 (Sub-Analyzers)"
-        AN1[_AN_MEMORY.py]
-        AN2[_AN_ACCELERATION.py]
-        AN3[_AN_SPLIT_SPEED.py]
-        AN4[_AN_SLIP_PDF.py]
-        AN5[_AN_MU_DROP.py]
-        AN6[_AN_SLIP_MODE_SKEWNESS.py]
-        AN7[_AN_RESPONSE.py]
+    subgraph "6대 전문 물리 분석기 (Sub-Analyzers)"
+        MEM["base_memory.py (BaseMemory)"]
+        AN1["an_acceleration.py"]
+        AN2["an_split_speed.py"]
+        AN3["an_slip_pdf.py"]
+        AN4["an_mu_drop.py"]
+        AN5["an_skewness.py"]
+        AN6["an_response.py"]
     end
 
     subgraph "시각화 및 리포팅 유틸리티 (Visualization & Reporting)"
-        FUNC[_Func_ACCBRK_.py]
-        PLT1[_PLOTTER_TIRE.py]
-        PLT2[_PLOTTER_PROJECT.py]
-        EXCEL[Excel.py]
+        FUNC["func_acc_brk.py"]
+        PLT1["plotter_tire.py (PlotterTire)"]
+        PLT2["plotter_project.py (PlotterProject)"]
+        EXCEL["excel.py (Excel)"]
     end
 
     VT --> PJT
@@ -70,7 +70,7 @@ graph TD
     VT --> CORR
     PJT --> CORR
     PJT --> PLT2
-    TIRE --> AN1 & AN2 & AN3 & AN4 & AN5 & AN6 & AN7
+    TIRE --> MEM & AN1 & AN2 & AN3 & AN4 & AN5 & AN6
     TIRE --> PLT1
     TIRE --> FUNC
     PLT1 & PLT2 --> EXCEL
@@ -82,13 +82,12 @@ graph TD
 * 🚀 **[[10_VT_ACCBRK|VT_ACCBRK 마스터 자동화 파이프라인]]**: 전체 평가 세션 원클릭 분석 및 YAML 설정 마스터 기술 백서
 * 🛠️ **[[12_VT_ACCBRK_PROJECT|VT_ACCBRK_PROJECT 통합 취합 및 성능 보정]]**: 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 엔진, 지연 로딩(`restore=False`)
 * 🏎️ **[[11_VT_ACCBRK_TIRE|VT_ACCBRK_TIRE 단일 타이어 동역학 분석]]**: Wavelet 가속도 복원, 구간 자동 탐지, 6대 전문 서브 분석 모듈
-* ⚙️ **[[20_VT_ACCBRK_SUB_ANALYZERS|VT_ACCBRK 7대 전문 서브 분석 모듈]]**: 대역별 가속, 구간 속도 분할, 슬립속도 PDF, Mu-Drop 노면 대응 등
-* 📐 **[[Cal_Control|Cal_Control 레거시 콘트롤 타이어 보정 모듈]]**: 시계열 선형 보간 기반 정지수/역수 지수 산출 및 하위 호환 보정기
+* ⚙️ **[[20_VT_ACCBRK_SUB_ANALYZERS|VT_ACCBRK 6대 전문 물리 분석기]]**: 대역별 가속, 구간 속도 분할, 슬립속도 PDF, Mu-Drop 노면 대응, 왜도, 응답성 등
+* 📐 **[[21_CORRECT|환경 및 콘트롤 타이어 보정 알고리즘 (correct.py)]]**: 시계열 선형 보간 기반 정지수/역수 지수 산출 및 상대 성능 지수(Index) 정규화 (구 Cal_Control 완전 통합)
 
 ---
 
 ## 🎨 3. 알고리즘 & 시각화 플로터
-* 📐 **[[21_CORRECT|환경 및 콘트롤 타이어 보정 알고리즘]]**: 시계열 환경 변화 상쇄 및 상대 성능 지수(Index) 정규화
 * 📊 **[[31_PLOTTER_PROJECT|통합 프로젝트 시각화 플로터]]**: 콘트롤 타이어 시계열 변화, 타이어 간 비교 차트 생성
 * 📈 **[[30_PLOTTER_TIRE|단일 타이어 상세 시각화 플로터]]**: 슬립 PDF 분포 곡선, Mu-drop 시점 포착 시각화
 * 🔧 **[[22_Func_ACCBRK|공통 수치 연산 및 유틸리티 함수군]]**: 시계열 필터링, 데이터 추출 및 보조 연산

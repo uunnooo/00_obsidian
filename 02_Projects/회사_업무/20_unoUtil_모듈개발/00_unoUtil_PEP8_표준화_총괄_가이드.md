@@ -128,6 +128,15 @@ def calc_performance(
     ...
 ```
 
+### 3.3. 레거시 패키지 프록시 브릿지 (`convenienceFunction` & `_Analysis3D_`)
+사내 다수의 레거시 분석 스크립트에서 사용 중인 `unoUtil.convenienceFunction._Analysis3D_`를 지원하기 위해 다음과 같은 3중 브릿지를 구축했습니다:
+1. **패키지 레벨 동적 프록시 (`unoUtil/convenienceFunction/__init__.py`)**:
+   - `unoUtil.utils` 전체를 노출하고 `surface_3d`를 `_Analysis3D_`로 등록.
+2. **단독 모듈 프록시 (`unoUtil/convenienceFunction/_Analysis3D_.py`)**:
+   - `make_3dSurfaceGridArray`, `plot_3dSurfaceGridArray`를 `from unoUtil.graphics.plotters.surface_3d import ...`로 재노출.
+3. **인터프리터 가상 바인딩 (`unoUtil/__init__.py`)**:
+   - `sys.modules['unoUtil.convenienceFunction._Analysis3D_'] = surface_3d`를 즉시 주입하여 `import unoUtil.convenienceFunction._Analysis3D_` 호출 시에도 0-오류로 통과.
+
 ---
 
 ## 4. 🧪 무결성 검증 및 단위 테스트

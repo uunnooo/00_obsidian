@@ -15,6 +15,7 @@ tags:
 aliases:
   - "2026_Snow_Surface_Characteristics"
   - "00_2026_Snow_Surface_Characteristics_대시보드"
+  - "2026-09-18_스노우노면_일지개편_및_세션보간파이프라인_작업보고"
 ---
 
 # 💼 2026 Snow Surface Characteristics (스노우 노면 특성 분석)
@@ -38,7 +39,7 @@ aliases:
 
 ---
 
-## 2. 노면 정비(Preparing) 기반 세션 분류 및 보간 파이프라인 (2026-09-18 구축)
+## 2. 노면 정비(Preparing) 기반 세션 분류 및 고속 벡터화 파이프라인 (2026-09-18 구축)
 
 > [!TIP] 💡 트랙터 정비(Preparing)에 따른 물리적 리셋 체계
 > * **Preparing 2번 (오전 1회 + 점심 1회):** 점심시간 트랙터가 노면을 갈아엎고 재평탄화(Reset)하므로 오전 다져진 빙판과 오후 부드러운 노면 사이의 시간 연속성이 단절됨 ➔ **`오전`**, **`오후`** 2개 세션 분리.
@@ -46,6 +47,11 @@ aliases:
 > * **Preparing 없음 / 혹한 1회 주행:** 노면 정비 없음 ➔ **`종일`** 단일 세션.
 > * **데이터셋 적용:** `df_surface.csv` 및 `df_surface.pkl`에 `Cond` (`오전`/`오후`/`종일`), `Cond_ID` (`YYYY-MM-DD_세션`), `Preparing` 컬럼 1,105건 전수 부여 완료 (`a_make_SnowSurfaceCharacteristic_DF.py`).
 > * **보간 실행 가이드:** `groupby('Cond_ID')` 단위로 분리하여 노면 리셋 전/후가 섞이지 않도록 시계열 보간 수행.
+
+> [!NOTE] ⚡ 제동 1회 단위(1-Run) 고속 벡터화 집계 파이프라인 (`a_make_SnowAccBrkTest_DF.py`)
+> * **5중 중첩 루프 병목 제거**: 기존 `Date` ➔ `ReqNo` ➔ `TestOrder` ➔ `TestTireSet` ➔ `TestNum` 순차 순회 방식을 일자별 1단계 슬라이싱(`unique_dates`) 후 4대 복합키 단 1회 벡터화 `df_day.groupby(group_keys).agg(**agg_rules)`로 전면 개편.
+> * **메모리 방어 및 속도 향상**: 대용량 DataFrame 전체 복제에 의한 `MemoryError`를 원천 차단하고 집계 소요 시간을 초 단위로 단축.
+> * **안전망 구축**: `time_span` 기반 `AccTime` 벡터화 병합, `df_brk.pkl` 중간 대표값 캐시 저장 및 `len(list_tmp_df) > 0` 가드 로직 탑재.
 
 ---
 

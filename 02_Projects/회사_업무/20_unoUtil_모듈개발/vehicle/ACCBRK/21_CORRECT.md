@@ -1,16 +1,21 @@
-﻿---
+---
 title: "21_CORRECT 환경 및 콘트롤 성능 보정 모듈"
 aliases:
   - "_CORRECT_"
   - "CORRECT"
   - "21_CORRECT"
+  - "correct"
+  - "Correct"
+  - "Cal_Control"
+  - "cal_control"
+  - "21_correct"
 ---
 
 # CORRECT & Cal_Control 성능 보정 모듈 상세 엔지니어링 매뉴얼
 
-**모듈 파일**: [`_CORRECT_.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicleTest/ACCBRK/_CORRECT_.py), [`Cal_Control.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicleTest/ACCBRK/Cal_Control.py)  
-**주요 클래스 및 함수**: `CORRECT`, `cal_reference_corrected`, `find_reference_tire`, `reorder_columns`  
-**연계 모듈**: [`VT_ACCBRK_PROJECT.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicleTest/ACCBRK/VT_ACCBRK_PROJECT.py), [`VT_ACCBRK.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicleTest/ACCBRK/VT_ACCBRK.py)  
+**모듈 파일**: `unoUtil.vehicle.acc_brk.correct.py` (구 `_CORRECT_.py`, `Cal_Control.py`)  
+**주요 클래스 및 함수**: `Correct` (구 `CORRECT`), `calc_reference_corrected` (구 `cal_reference_corrected`), `find_reference_tire`, `calc_control_factors`  
+**연계 모듈**: `vt_acc_brk_project.py`, `vt_acc_brk.py`  
 **버전**: 2026 Revision (통합 객체지향 보정 엔진 및 환경 인자 하이브리드 지원)
 
 ---
