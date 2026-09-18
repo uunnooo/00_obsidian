@@ -38,12 +38,27 @@ aliases:
 
 ---
 
+## 2. 노면 정비(Preparing) 기반 세션 분류 및 보간 파이프라인 (2026-09-18 구축)
+
+> [!TIP] 💡 트랙터 정비(Preparing)에 따른 물리적 리셋 체계
+> * **Preparing 2번 (오전 1회 + 점심 1회):** 점심시간 트랙터가 노면을 갈아엎고 재평탄화(Reset)하므로 오전 다져진 빙판과 오후 부드러운 노면 사이의 시간 연속성이 단절됨 ➔ **`오전`**, **`오후`** 2개 세션 분리.
+> * **Preparing 1번 (아침 1회만):** 점심 재정비 없이 종일 연속 주행하여 노면 다져짐이 하루 종일 누적 지속됨 ➔ **`종일`** 단일 세션.
+> * **Preparing 없음 / 혹한 1회 주행:** 노면 정비 없음 ➔ **`종일`** 단일 세션.
+> * **데이터셋 적용:** `df_surface.csv` 및 `df_surface.pkl`에 `Cond` (`오전`/`오후`/`종일`), `Cond_ID` (`YYYY-MM-DD_세션`), `Preparing` 컬럼 1,105건 전수 부여 완료 (`a_make_SnowSurfaceCharacteristic_DF.py`).
+> * **보간 실행 가이드:** `groupby('Cond_ID')` 단위로 분리하여 노면 리셋 전/후가 섞이지 않도록 시계열 보간 수행.
+
+---
+
 ## 🔗 연관 세부 프로젝트 및 핵심 알고리즘
 
+* 📋 **[[30_SnowSurface_DailyNote|SnowSurface DailyNote (통합 노면일지)]]**
+  * **[테이블 1]** 일자별 환경 조건 및 노면 총괄 마스터 (20행: Preparing 횟수, 강설 타임라인, 노면 총평)
+  * **[테이블 2]** 세션별 제동 성능 및 노면 센서 수치 마스터 (57행: Line 1~3, SRTT, 전체평균, 편차, 눌림량, 기온 콤팩트 피벗)
+  * **[테이블 3]** 세션별 주행 관측 및 엔지니어링 메모 마스터 (28행: 시간대별 가속감, 미끄러움, 잔설, 센서 세팅 메모)
 * 🚀 **[[20_SnowBrakingPerformance_통합모듈_매뉴얼|SnowBrakingPerformance 통합 모듈 매뉴얼]]**
   * 노면 데이터/제동 평가(ACCBRK) 누적 등록, 3D 디지털 트윈, 차분 ML 보정 및 스펙 영향도 분석 마스터 클래스
 * ❄️ **[[31_스노우_노면_디지털트윈_및_제동성능_보정_위키|스노우 노면 디지털 트윈 및 제동 성능 환경 보정 종합 위키]]**
-  * 1-Run 집계(`a_make_SnowAccBrkTest_DF.py`), 시공간 보간(`Session-Based Digital Twin`), 차분 머신러닝 노면 Decoupling 및 웹 대시보드
+  * 1-Run 집계(`a_make_SnowAccBrkTest_DF.py`), 노면 세션(`Cond_ID`) 파이프라인(`a_make_SnowSurfaceCharacteristic_DF.py`), 차분 머신러닝 노면 Decoupling 및 웹 대시보드
 * 📊 **[[10_노면특성_계측데이터_분석|노면특성 계측데이터 분석]]**
   * 다채널 센서 계측 로우데이터 기반 노면 특성 데이터베이스 구축
 * 🧠 **[[30_Snow_제동성능보정_알고리즘|Snow제동성능보정 알고리즘 (Resources)]]**
