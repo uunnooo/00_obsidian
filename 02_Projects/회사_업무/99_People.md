@@ -1,4 +1,4 @@
-﻿---
+---
 id: "work_people_master"
 title: "협업 구성원 및 담당자 (99_People)"
 type: resource
