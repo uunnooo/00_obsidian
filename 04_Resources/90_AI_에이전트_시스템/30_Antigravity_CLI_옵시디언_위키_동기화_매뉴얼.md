@@ -1,4 +1,4 @@
-﻿---
+---
 id: "antigravity_wiki_sync_manual"
 title: "30_Antigravity CLI 옵시디언 위키 동기화 매뉴얼"
 type: resource
