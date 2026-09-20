@@ -1,16 +1,4 @@
----
-id: "analysis_test_data"
-title: "analysis_test_data 타이어 성능 분석 유틸리티"
-type: resource
-category_main: 회사_업무
-category_sub: unoUtil
-aliases:
-  - "_AnalysisTestData_"
-  - "AnalysisTestData"
-  - "analysis_test_data"
----
-
-# 📚 VCTA 타이어 성능 분석 모듈 문서 (`analysis_test_data.py`)
+# 📚 VCTA 타이어 성능 분석 모듈 문서 (`_AnalysisTestData_.py`)
 
 이 모듈은 타이어 성능 시험 데이터의 **선형 보정, 통계 분석 및 리포트 생성**을 위한 전문적인 유틸리티 함수들을 제공합니다. `pandas`, `numpy`를 활용하여 데이터의 신뢰성을 확보하고, 컨트롤 타이어 기반의 성능 지수(Index)를 자동으로 산출합니다.
 
@@ -117,4 +105,4 @@ aliases:
 * 📚 **영구 도메인 지식**: [[27_실차_제동가감속_성능지수_수학적모델_및_시계열_선형보정_이론|27_실차 제동·가감속 성능지수 수학적 모델 및 시계열 선형 보정 이론]]
 * 🏛️ **표준화 총괄 가이드**: [[00_unoUtil_PEP8_표준화_총괄_가이드|unoUtil PEP 8 표준화 총괄 가이드]]
 * 📐 **컨트롤 타이어 선형 보정 모듈**: [[cal_control|cal_control 모듈 매뉴얼]]
-* 🏎️ **가감속/제동 종합 분석 프레임워크**: [[vt_acc_brk|vt_acc_brk 모듈 매뉴얼]]
+* 🏎️ **가감속/제동 종합 분석 프레임워크**: [[vt_acc_brk|vt_acc_brk 모듈 매뉴얼]]

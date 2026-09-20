@@ -1,9 +1,9 @@
 ---
 id: "Uncertainty_manual_20260914"
 title: "측정불확도 자동 평가 모듈 (UNCERTAINTY) 상세 사용자 매뉴얼"
-type: project
+type: resource
 category_main: 회사_업무
-category_sub: unoUtil_모듈개발
+category_sub: 개발매뉴얼
 date: 2026-09-14
 status: 완료
 tags:
@@ -11,12 +11,7 @@ tags:
   - unoUtil
   - 매뉴얼
   - 불확도
-  - statistics
-project_link: "[[00_unoUtil_모듈개발_대시보드]]"
-aliases:
-  - uncertainty
-  - uno_uncertainty
-  - FlexibleUncertaintyEvaluator
+project_link: "[[unoUtil]]"
 ---
 
 # **측정불확도 자동 평가 모듈 (`uno_uncertainty.py`) 상세 사용자 매뉴얼 (v3.0)**
@@ -157,10 +152,4 @@ slip_evaluator.plot_uncertainty_buildup()
 
 ---
 
-## 📚 영구 도메인 지식 레퍼런스 (Knowledge Extraction Links)
-
-* 📐 **측정 불확도 통합 색인 (MOC)**: [[00_측정_불확도_공학_통합_색인]]
-* 📖 **완벽 이론 및 수학적 유도 가이드**: [[10_측정불확도_완벽_이론_및_수학적_유도_가이드]]
-* 📘 **실무 평가 마스터 가이드 & 통계 핸드북**: [[11_타이어_RR_측정_불확도_평가_마스터_가이드_및_통계_핸드북]]
-* 📊 **타이어 RR 불확도 산출 실무 보고서**: [[20_타이어_회전저항_RR_측정_불확도_산출_기술_보고서]]
-* 🛠️ **자동 평가 엔진 아키텍처 상세**: [[30_측정불확도_자동_평가_엔진_아키텍처_및_사용_가이드]]
+이제 이 모든 내용을 담은 Canvas를 생성하겠습니다.

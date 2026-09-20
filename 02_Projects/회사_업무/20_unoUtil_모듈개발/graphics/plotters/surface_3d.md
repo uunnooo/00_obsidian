@@ -1,102 +1,83 @@
----
-id: "graphics_plotters_surface_3d"
-title: "surface_3d (3D 노면/타이어 곡면 그리드 생성 및 시각화)"
-type: project
-category_main: 회사_업무
-category_sub: unoUtil
-topic: surface_3d
-date: 2026-09-18
-status: 완료
-tags:
-  - 회사_업무
-  - unoUtil
-  - graphics
-  - plotters
-  - surface_3d
-  - 3D시각화
-aliases:
-  - "_Analysis3D_"
-  - "Analysis3D"
-  - "surface_3d"
-  - "unoUtil.convenienceFunction._Analysis3D_"
----
+# 🧭 surface_3d 3차원 노면 및 타이어 곡면 그리드 시각화 매뉴얼 (surface_3d.md)
 
-# 🌐 surface_3d (3D 노면/타이어 곡면 그리드 생성 및 시각화)
+## 📌 1. 개요 및 목적 (Overview)
+`surface_3d` 모듈은 타이어 노면 접지압, 실차 노면 변형 거동 및 3차원 계측 그리드 데이터를 3D 공간 위에 입체적으로 표현하기 위한 **3차원 표면 격자 그리드 생성, 시각화 및 다중 선형 회귀 분석(Regression3D) 엔진**을 구현합니다.
 
-> [!ABSTRACT] 📐 모듈 개요
-> 흩어져 있는 1차원 $x, y, z$ 계측 포인트(예: 눈 깊이 변동량, 노면 온도, 제동거리/성능)를 다변량 보간 및 머신러닝 회귀를 통해 **정규 2D 격자(Grid)로 보간**하고, 3차원 입체 곡면(Surface Plot) 및 등고선(Contour)으로 렌더링하는 시각화 모듈입니다.  
-> 과거 `unoUtil.convenienceFunction._Analysis3D_` 모듈이 본 위치로 정식 이관되었으며, **무중단 하위 호환성(Zero Breaking Change) 브릿지**가 완비되어 있습니다.
+복잡한 다변량 센서 데이터를 2차원 평면에만 그리면 실제 계측 필드에서의 운동역학적 왜곡과 센서 눌림량의 공간적 상호작용을 한눈에 식별하기 어렵습니다. 
+본 모듈은 임의로 수집된 X, Y, Z 데이터를 수치 격자망으로 정형화하는 격자 보간 알고리즘(`make_3dSurfaceGridArray`)을 탑재하였으며, Matplotlib 3D mplot3d 엔진을 활용한 고성능 와이어프레임 표면 시각화를 무중단으로 생성해 냅니다.
 
 ---
 
-## 🏛️ 1. 패키지 위치 및 임포트 규격
+## 🛠️ 2. 핵심 API 명세 (API Specifications)
 
-### 최신 표준 임포트 (PEP 8 권장)
+### 2.1. 글로벌 3D 시각화 함수 명세
+
+| 함수명 | 입력 파라미터 | 설명 |
+| :--- | :---: | :--- |
+| `make_3dSurfaceGridArray(x, y, z)` | `x`, `y`, `z` | 불규칙하게 흐트러져 있는 1차원 데이터 군을 2차원 Meshgrid 평면 격자 구조로 자동 보간 및 정형화하여 그리드 배열 반환 |
+| `plot_3dSurfaceGridArray(x, y, z, **kwargs)` | `x`, `y`, `z`, `**kwargs` | 격자 보간된 배열을 기반으로 Matplotlib 3D 축 위에 렌더링하고, 무중단 규칙에 따라 save/close를 수동 처리하여 피규어 반환 |
+| `Regression3D(X1, X2, y)` | `X1`, `X2`, `y` | 3차원 평면 격자 데이터에 대한 다중 선형 회귀 평면 추정 및 회귀식 계수 산출 |
+
+---
+
+## 📋 3. 입력 파라미터 상세 정의 (Arguments)
+
+1. **`x` / `y` / `z` (`np.ndarray` / `pd.Series` - 필수)**:
+   - 3D 격자 축을 구성할 독립변수 2개(`x`, `y`)와 종속 수치변수 1개(`z` - 예: 접지압, 노면 눌림량)의 1차원 배열군입니다.
+2. **`**kwargs` (선택 - 시각화 무중단 공통 인자)**:
+   - `plot` (`bool` - 기본값 `True`): 시각화 3D 창 생성 여부.
+   - `save` (`Union[bool, str, Path]` - 기본값 `False`): 다형성 이미지 저장 경로 제어 플래그.
+   - `close` (`bool` - 기본값 `True`): 생성 후 백그라운드에서 메모리 해제 및 프로세스 블로킹 차단 여부.
+
+---
+
+## 💻 4. 실무 활용 예제 (Multi-case Examples)
+
+### 4.1. [시나리오 1] 타이어 접지 형상 데이터의 3D 표면 격자망(Meshgrid) 연산 및 추출
 ```python
-from unoUtil.graphics.plotters.surface_3d import make_3dSurfaceGridArray, plot_3dSurfaceGridArray
-# 또는 패키지 레벨
-from unoUtil.graphics import surface_3d
+import numpy as np
+from unoUtil.graphics.plotters.surface_3d import make_3dSurfaceGridArray
+
+# 타이어 접지 폭(X) 및 접지 장(Y), 그리고 압력 센서 수치(Z) 모의 데이터
+x_press = np.linspace(-50, 50, 100)
+y_press = np.linspace(-100, 100, 100)
+X, Y = np.meshgrid(x_press, y_press)
+Z = 3.5 * np.exp(-((X/30)**2 + (Y/60)**2))  # 가우스 분포 압력 프로파일
+
+# 3차원 표면 격자 데이터 정형화 실행
+X_grid, Y_grid, Z_grid = make_3dSurfaceGridArray(X.flatten(), Y.flatten(), Z.flatten())
+
+print(f"📐 3D 격자망 빌드 완료! Grid Shape: {Z_grid.shape}")
 ```
 
-### 레거시 호환 임포트 (동적 브릿지 자동 라우팅)
+### 4.2. [시나리오 2] Non-blocking 3D 시각화 및 디폴트 자동 저장 (plot_3dSurfaceGridArray)
 ```python
-# 구버전 코드가 그대로 동작함 (sys.modules 프록시 매핑)
-from unoUtil.convenienceFunction._Analysis3D_ import make_3dSurfaceGridArray, plot_3dSurfaceGridArray
-import unoUtil.convenienceFunction._Analysis3D_ as Analysis3D
+from unoUtil.graphics.plotters.surface_3d import plot_3dSurfaceGridArray
+
+# 3D 와이어프레임 렌더링 기동 및 무중단 자동 저장 설정
+fig, ax = plot_3dSurfaceGridArray(
+    x=X.flatten(),
+    y=Y.flatten(),
+    z=Z.flatten(),
+    plot=True,
+    save=True,      # default 이미지 디렉터리로 저장 자동 분기
+    close=True      # RAM 해제 및 백그라운드 무인 실행 보장 (show 비활성화)
+)
+
+print("💾 3D 노면 격자 피규어 생성 및 무중단 저장 절차가 완료되었습니다.")
 ```
 
----
+### 4.3. [시나리오 3] Regression3D 함수를 활용한 접지압 선형 회귀 평면 추정
+```python
+from unoUtil.graphics.plotters.surface_3d import Regression3D
 
-## ⚙️ 2. 핵심 함수 API 명세
+# 노지 접지 계측 데이터에 선형 경사면 모델 적용
+X1_data = np.random.rand(100)
+X2_data = np.random.rand(100)
+y_noise = 2.0 * X1_data + 3.0 * X2_data + 1.0 + np.random.normal(0, 0.1, 100)
 
-### `make_3dSurfaceGridArray(x, y, z, **kwargs)`
-1차원 $x, y, z$ 좌표 시계열을 입력받아 지정된 해상도의 정규 2D 그리드 및 $z$ 곡면 행렬을 산출하고 3D 시각화를 수행합니다.
+# 회귀 모델 평면 분석 실행
+intercept, coef_1, coef_2 = Regression3D(X1_data, X2_data, y_noise)
 
-#### 주요 입력 파라미터 (Args)
-| 파라미터명 | 타입 | 기본값 | 설명 및 활용 |
-| :--- | :---: | :---: | :--- |
-| `x`, `y`, `z` | `Series` / `array` | 필수 | 1차원 독립 변수 $x$, $y$ 및 종속 관측 변수 $z$ |
-| `method` | `str` | `'linear'` | 2D 보간 알고리즘 (`'linear'`, `'cubic'`, `'nearest'`, `'knn'`, `'rf'`, `'rbf'`, `'mlp'`) |
-| `interval` | `float` | `0.01` | 격자 생성 기본 간격 |
-| `xInterval`, `yInterval` | `float` | `interval` | $x, y$ 축 개별 격자 해상도 |
-| `xSpace`, `ySpace` | `int` | `False` | `linspace` 개수 기반 균등 격자 분할 시 지정 |
-| `norm` | `str` | `'per'` | $z$축 정규화 방식 (`'per'` = 평균 대비 %, `'index'` = 인덱스화, `'minmax'` = MinMax 스케일링, `False` = 원시값) |
-| `std` | `bool` | `False` | 입력 $x, y, z$를 0~1 표준 스케일링 적용 여부 |
-| `view` | `list` | `[50, -91]` | 3D 차트 기본 뷰 각도 `[elev, azim]` (고도각, 방위각) |
-| `plot` | `bool` | `True` | 시각화 렌더링 수행 여부 |
-| `cmap` | `str` | `'viridis'` | Matplotlib 컬러맵 (`'viridis'`, `'jet'`, `'bwr'`, `'summer'`) |
-| `contour` / `con` | `bool` | `True` | 3D 곡면 하단 바닥면에 2D 등고선(Contour) 투영 여부 |
-| `dot` | `bool` | `True` | 원시 계측 관측점(Scatter Dot) 중첩 표시 여부 |
-
-#### 반환값 (Returns)
-* 생성된 격자 좌표 배열 `xi`, `yi`, 보간된 표면 높이 배열 `zi`, 렌더링된 Matplotlib `fig, ax` 객체 등을 포함한 결과 딕셔너리.
-
----
-
-### `plot_3dSurfaceGridArray(x, y, z, **kwargs)`
-격자 배열이 이미 준비되어 있거나 래핑된 조건에서 3차원 Surface 및 Wireframe 차트를 렌더링하는 전용 플로터입니다.
-
----
-
-## 🛡️ 3. 하위 호환성 (Zero Breaking Change) 아키텍처
-
-1. **프록시 모듈 브릿지 (`unoUtil/convenienceFunction/_Analysis3D_.py`)**:
-   - 신규 `surface_3d.py`의 핵심 함수를 `__all__`로 재노출하여 레거시 스크립트의 `import` 구문을 무중단 지원.
-2. **패키지 레벨 가상 바인딩 (`unoUtil/__init__.py`)**:
-   ```python
-   try:
-       from unoUtil.graphics.plotters import surface_3d
-       sys.modules['unoUtil.convenienceFunction._Analysis3D_'] = surface_3d
-       sys.modules['unoUtil.utils._Analysis3D_'] = surface_3d
-       setattr(utils, '_Analysis3D_', surface_3d)
-   except Exception:
-       pass
-   ```
-   - 인터프리터 메모리 상에 `unoUtil.convenienceFunction._Analysis3D_` 네임스페이스를 동적 등록하여 하위 호환 100% 보장.
-
----
-
-## 🔗 연계 시스템 및 위키 문서
-* 🎨 **[[graphics/00_graphics_대시보드|graphics 패키지 통합 대시보드]]**
-* 🏛️ **[[00_unoUtil_PEP8_표준화_총괄_가이드|unoUtil v2.0 PEP 8 표준화 총괄 가이드]]**
-* ❄️ **[[31_스노우_노면_디지털트윈_및_제동성능_보정_위키|스노우 노면 디지털 트윈 및 제동성능 보정 위키]]**
+print(f"📈 3차원 추정 평면 수식: Z = {coef_1:.2f} * X1 + {coef_2:.2f} * X2 + {intercept:.2f}")
+```
