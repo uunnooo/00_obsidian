@@ -14,12 +14,6 @@ tags:
   - 대시보드
   - MOC
 project_link: "[[unoUtil]]"
-aliases:
-  - "00_post_process_대시보드"
-  - "post_process_대시보드"
-  - "_UnoPP_"
-  - "UnoPP"
-  - "uno_pp"
 ---
 
 # 📶 post_process (신호 후처리 및 정제 패키지) 대시보드

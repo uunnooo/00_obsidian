@@ -1,6 +1,6 @@
 ---
 id: "work_20260910_VT_ACCBRK_PROJECT_manual"
-title: "12_VT_ACCBRK_PROJECT 프로젝트 단위 취합 및 보정 엔진"
+title: "VT_ACCBRK_PROJECT 통합 취합 및 성능 보정 매뉴얼"
 type: resource
 category_main: 회사_업무
 category_sub: unoUtil
@@ -12,23 +12,17 @@ tags:
   - 매뉴얼
   - VT_ACCBRK_PROJECT
 project_link: "[[unoUtil]]"
-aliases:
-  - "VT_ACCBRK_PROJECT"
-  - "12_VT_ACCBRK_PROJECT"
-  - "vt_acc_brk_project"
-  - "VTAccBrkProject"
-  - "12_vt_acc_brk_project"
 ---
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층
-> - **상위 제어기**: [[10_VT_ACCBRK]] (전체 자동화 파이프라인 마스터)
+> - **상위 제어기**: [[VT_ACCBRK]] (전체 자동화 파이프라인 마스터)
 > - **전역 허브**: [[unoUtil]] (사내 도구 통합 색인)
-> - **영구 도메인 이론**: [[41_실차_제동_시계열_신호처리_및_고속_동역학_최적화_아키텍처]] (Wavelet, KDE, 캐시 최적화), [[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처]] (로거 표준 및 무중단 시각화)
+> - **영구 도메인 이론**: [[41_실차_제동_시계열_신호처리_및_고속_동역학_최적화_아키텍처]] (Wavelet, KDE, 캐시 최적화), [[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처]] (로거 표준 및 무중단 시각화), [[43_차세대_실차_가속제동_통합_컨테이너_및_환경보정_아키텍처]] (비파괴 슬림 피클링, 온디맨드 복원, CORRECT)
 > - **하위 관리 객체**:
->   - [[11_VT_ACCBRK_TIRE]]: 개별 타이어 데이터 컨테이너
->   - [[21_CORRECT]]: 콘트롤 타이어 시계열 선형 보간 알고리즘
+>   - [[VT_ACCBRK_TIRE]]: 개별 타이어 데이터 컨테이너
+>   - [[_CORRECT_]]: 콘트롤 타이어 시계열 선형 보간 알고리즘
 >   - [[Cal_Control]]: 레거시 콘트롤 타이어 보정 모듈 (하위 호환)
->   - [[31_PLOTTER_PROJECT]]: 프로젝트 단위 비교 차트 플로터
+>   - [[_PLOTTER_PROJECT]]: 프로젝트 단위 비교 차트 플로터
 
 # 🛠️ VT_ACCBRK_PROJECT: 통합 성능 보정 및 비교 분석 엔진
 
@@ -218,9 +212,6 @@ pjt_suv_project.plt(
     html=True, 
     close=True
 )
-
-# 5. 초고속 실무 압축 백업 (compresslevel=5, RAM 라이브 캐시 보존)
-pjt_suv_project.save_pjt(path="./SUV_Tire_Comparison.pjt")
 
 print("🎉 비교 프로젝트 보정, 데이터 요약, 엑셀 그래프 저장이 모두 성공적으로 처리되었습니다!")
 ```

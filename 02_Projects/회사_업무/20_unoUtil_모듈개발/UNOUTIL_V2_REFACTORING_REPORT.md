@@ -25,7 +25,7 @@
 ```mermaid
 flowchart TD
     unoUtil["unoUtil v2.0"] --> FR["file_reader<br/>(계측 데이터 고속 파서)"]
-    unoUtil --> VT["vehicle_test (ACCBRK)<br/>(가/감속·타이어 동역학)"]
+    unoUtil --> VT["vehicle (acc_brk)<br/>(가/감속·타이어 동역학)"]
     unoUtil --> GPS["gps<br/>(WGS84 직교투영·트랙정렬)"]
     unoUtil --> SP["signal_process<br/>(필터·리샘플링·이상치·FFT)"]
     unoUtil --> GRAPH["graphics<br/>(플로터·컨트롤·웹 연동)"]
@@ -57,6 +57,8 @@ flowchart TD
 | **계획 8** | **graphics 3대 서브폴더** | `graphics/` 하위 `plotters/`, `controls/`, `web/` 물리 분할 및 `oldVer` 정리 | `graphicTools/` 패키지 브릿지 제공으로 기존 코드 무수정 구동 | ✅ 완료 |
 | **계획 9** | **최상위 마스터 브릿지** | `unoUtil/__init__.py` V2.0 리라이트, `sys.modules` 등록으로 신/구 API 동시 지원 | `unoUtil.__version__ = "2.0.0"` 명시 | ✅ 완료 |
 | **계획 10** | **utils 중복 정리** | `WindowMsg`, `_unoMath_`, `_logger_config_`, `Files`, `Excel` 통합 $\rightarrow$ `files`, `excel`, `dataframe_utils`, `weather` | `convenienceFunction` 100% 위임 매핑 | ✅ 완료 |
+| **계획 11** | **세부 모듈 레거시 격리 및 정화** | `_UnoPP_.py`, `ExtendedIsolationForest.py`, `TFEstimate.py`, `CurveCombiner.py` 등 패키지 내 산재된 하위 레거시 파일을 `legacy/` 서브폴더로 전격 격리 이동 | 표준 패키지 내부 임포트를 100% 순수 표준 v2.0 모듈로 정화 및 가상 리다이렉트 동기화 완료 | ✅ 완료 |
+| **계획 12** | **진행 바 터미널 호환성 보강** | ANSI 이스케이프가 비활성화된 Windows CMD/PowerShell 터미널에서 진행률 바 갱신 오동작(줄바꿈 현상) 방지 및 제자리 갱신 보장 | `shutil.get_terminal_size` 기반 자동 공백 패딩 및 캐리지 리턴(\r) 결합 렌더링 구현 | ✅ 완료 |
 
 ---
 
@@ -100,7 +102,7 @@ print(f'[unoUtil Version]: {unoUtil.__version__}')
 
 # 1. 신규 V2.0 Clean Architecture API
 from unoUtil.file_reader import FileDataReader, VBOParser
-from unoUtil.vehicle_test.ACCBRK import VTAccBrk, VTAccBrkTire, VTAccBrkProject, BaseMemory, AnAcceleration
+from unoUtil.vehicle.acc_brk import VTAccBrk, VTAccBrkTire, VTAccBrkProject, BaseMemory, AnAcceleration
 from unoUtil.gps import GPStoXYCord, GpsToXYCord
 from unoUtil.signal_process.post_process import moving_average, resample_data, scale_data, remove_outliers
 from unoUtil.graphics import Plotter, set_cursor_mode, RangeSelectorMouseClick
@@ -134,4 +136,35 @@ print('>>> [PASS] All Legacy Backward Compatibility Bridges OK!')
 1. **상세 단위 테스트(pytest) 스위트 확충**:
    - 중앙화된 `test_data/`의 13개 샘플을 기반으로 `tests/` 디렉터리에 `test_vbo_parser.py`, `test_accbrk.py`, `test_filters.py` 등 회귀 테스트 자동화 스크립트 배치 권장.
 2. **사내 사용자 공지 및 마이그레이션 가이드 배포**:
-   - 기존 코드는 수정 없이 그대로 돌아가지만, 신규 개발 시에는 `from unoUtil.vehicle_test.ACCBRK import VTAccBrk`, `from unoUtil.graphics import Plotter` 등의 Clean Architecture API를 사용하도록 권장 가이드 안내.
+   - 기존 코드는 수정 없이 그대로 돌아가지만, 신규 개발 시에는 `from unoUtil.vehicle.acc_brk import VTAccBrk`, `from unoUtil.graphics import Plotter` 등의 Clean Architecture API를 사용하도록 권장 가이드 안내.
+
+---
+
+## 7. 🛠️ [2026-09-21] 전역 레거시 추가 정화 및 콘솔 UI/UX 완전 완성
+
+유노유틸 v2.0 아키텍처의 최종 수렴을 위해 패키지 전반의 **미세 오작동 요소 및 하위 레거시 잔재 파일들을 전수 정화**하고, 콘솔 UI/UX 성능을 세계 최고 수준으로 빌드업 완료하였습니다.
+
+### 7.1. 하위 패키지 내 레거시 브릿지 파일 격리 수용
+메인 표준 폴더 내에 섞여 있어 PEP 8 일관성을 흐리고 혼란을 주던 세부 레거시/브릿지 파일들을 완전히 색출하여 하위 `legacy/` 서브폴더로 전격 격리 수용하고, 표준 임포트 구조를 100% 정화하였습니다.
+- **`signal_process/fft/`**: `_FunctionalFunction_.py`, `SingleTrack.py`, `TFEstimate.py` ➔ `legacy/` 이격 완료.
+- **`signal_process/post_process/`**: `_UnoPP_.py`, `ExtendedIsolationForest.py` ➔ `legacy/` 이격 완료.
+- **`signal_process/curve_fit/CurveCombiner/`**: `CurveCombiner.py`, `_Detect_Initial_Rectangle.py`, `_MagicFormula_.py`, `_Make_Trend_Line_Ransac_Odr.py` ➔ `legacy/` 이격 완료.
+- **`vehicle/`**: `brk_test.py`, `parsing_pattern.py` (및 가이드 `.md`) ➔ `legacy/` 이격 완료.
+- **의존성 정화**: `tf_estimate.py`, `outliers.py`, `curve_combiner.py` 등 표준 v2.0 모듈에서 레거시 브릿지 파일들을 import하던 불순한 코드 구조를 전수 제거하고, **순수 차세대 v2.0 API만을 바라보도록 수술 완료**했습니다.
+
+### 7.2. 프로그레스 바 콘솔 레이아웃 및 렌더링 무결화
+터미널 가로폭(80열)과 전각 문자(한글, 블록 기호) 사이의 괴리로 인해 발생하던 화면 깨짐 및 잔상 누적 현상을 전격 완치했습니다.
+1. **`print` 가공 누출 차단**: `.d7d` 파이싱 루프 도중 `print()`로 직인쇄되던 로그를 표준 로거 `dwd_logger.info`로 정밀 변경하여, 프로그레스 바가 로그 출력 시 자동으로 지워졌다가 복원되는 스마트 라인 버퍼링 범위 안에 바인딩시켰습니다.
+2. **진행율 바 레이아웃 정합성 개선 (카운트 정보 좌측 대이동)**: 
+   - `count_info` (`1/6` 등)를 게이지 바의 왼쪽 퍼센티지 영역 옆으로 묶어 배치했습니다. ➔ **`16.7% (1/6) |████░░░░|`**
+   - 이로 인해 우측 가로폭 제한으로 시간/속도 텍스트가 잘려 나가더라도, 핵심 정량 지표만큼은 **절대로 잘리거나 누출되지 않고 항상 100% 선명하게 끝까지 노출**됩니다.
+3. **VT100 하드웨어 자동 개행 제어 (`DECAWM`)**:
+   - 진행 바를 터미널에 인쇄하기 전 **`\033[?7l`** (자동 줄바꿈 강제 금지) 명령을 전송하고, 인쇄 후 **`\033[?7h`** (자동 줄바꿈 복원)를 돌려주도록 개조했습니다.
+   - 파이썬이 강제로 글씨를 난도질해 가위질할 필요가 없어졌으며, 80칸을 초과해도 터미널이 한 줄로 길게 렌더링하도록 허용해 주어 **줄바꿈 잔상 오동작을 0% 원천 차단**했습니다.
+4. **색상 깜빡임 및 누출 차단**: 
+   - 문자열 트렁케이션 시 복원 코드(`STR_CLR_END`)가 유실되어 텍스트 색상이 흰색과 초록색을 멋대로 오가던 플리커 버그를 해결하기 위해, 잘림 감지 시 무조건 끝에 `STR_CLR_END`를 덧붙이도록 복구했습니다.
+
+### 7.3. 메모리 디버그 로그 한 줄 정렬 (Align) 교정
+- `base_memory.py` 내의 `logger.debug` 문자열 f-string 내부에 하드코딩되어 불필요하게 삽입되어 있던 개행문자 접두사 **`\n`** 4개를 전수 삭제했습니다.
+- 로그 헤더 뒤에 빈 행이 생겨 두 줄로 어색하게 찢어지던 메모리 디스크 정합 로그들이 **한 줄에 보기 좋게 칼 정렬(Align)되어 출력되도록 개선 완료**했습니다.
+

@@ -1,17 +1,4 @@
----
-id: "test_info_res"
-title: "test_info_res 시험 정보 및 결과 컨테이너 매뉴얼"
-type: resource
-category_main: 회사_업무
-category_sub: unoUtil
-aliases:
-  - "_TEST_INFOR_RES_"
-  - "TEST_INFOR_RES"
-  - "TestInfoRes"
-  - "test_info_res"
----
-
-# 🚀 TEST_INFORMATION & RESULT 모듈 상세 가이드 (`test_info_res.py`)
+# 🚀 TEST_INFORMATION & RESULT 모듈 상세 가이드
 
 이 문서는 사용자가 파이썬 코드를 깊게 파악하지 않아도, 각 함수의 목적과 사용법을 직관적으로 이해하고 실무에 즉시 적용할 수 있도록 구성되었습니다.
 

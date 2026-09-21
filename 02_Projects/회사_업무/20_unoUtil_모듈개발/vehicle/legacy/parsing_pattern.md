@@ -32,7 +32,7 @@
 
 ### 4.1. [시나리오 1] 레거시 구문 그대로 채널 패턴 매핑 검출 (무중단 가동)
 ```python
-from unoUtil.vehicle.parsing_pattern import detect_channel_pattern
+from unoUtil.vehicle.legacy.parsing_pattern import detect_channel_pattern
 
 # 1. 기존 주피터 노트북에 박제되어 있던 옛날 호출 방식 그대로 기동!
 raw_columns = ["Velocity_GPS", "LAT_ACC_VBOX", "Yaw_Rate_Sens"]
@@ -45,7 +45,7 @@ print(f"🛰️ 변환 완료! 정규화 채널 목록: {standard_cols}")
 
 ### 4.2. [시나리오 2] 구버전 ParsingPattern 클래스 별칭 인스턴스화 검증
 ```python
-from unoUtil.vehicle.parsing_pattern import ParsingPattern
+from unoUtil.vehicle.legacy.parsing_pattern import ParsingPattern
 
 # 구버전 명칭의 클래스를 그대로 호출하여 최신 표준 클래스로 가상 로딩
 pattern_detector = ParsingPattern()

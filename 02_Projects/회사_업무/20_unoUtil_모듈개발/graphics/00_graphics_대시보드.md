@@ -35,7 +35,7 @@ flowchart TD
 1. 📊 **[[plotters/plotter|plotters (렌더링 플로터)]]**:
    - `Plotter` (`_Plotter_`): 실차 시계열 표준 렌더러
    - `text_offset`: 겹침 방지 데이터 라벨 오프셋
-   - [[plotters/surface_3d|surface_3d]]: 3D 노면/타이어 곡면 그리드 시각화 (구 `_Analysis3D_`)
+   - `surface_3d`: 3D 노면/타이어 곡면 그리드 시각화
 2. 🖱️ **[[controls/cursor_mode|controls (상호작용 컨트롤러)]]**:
    - `set_cursor_mode` (`SetCursorMode`): 십자선 실시간 수치 확인
    - `RangeSelectorMouseClick`: 마우스 드래그 기반 관심 구간 추출

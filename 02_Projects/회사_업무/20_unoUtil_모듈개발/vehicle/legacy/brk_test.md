@@ -33,7 +33,7 @@
 ### 4.1. [시나리오 1] 레거시 스크립트 형태 그대로 제동 성능 계산 (무중단 가동)
 ```python
 import pandas as pd
-from unoUtil.vehicle.brk_test import calc_braking_performance
+from unoUtil.vehicle.legacy.brk_test import calc_braking_performance
 
 # 1. 기존 사내 주피터 노트북에 적혀 있던 옛날 방식 그대로 호출 기동!
 legacy_vbox_df = pd.DataFrame({"GPS_Speed": [100.0, 50.0, 0.0]})
@@ -60,7 +60,7 @@ print("🛡️ 구버전 헝가리안 파라미터가 최신 단어형 인자로
 
 ### 4.3. [시나리오 3] 컨트롤 타이어의 선형 조각 보정 자동 위임 (calc_corrected_reference)
 ```python
-from unoUtil.vehicle.brk_test import calc_corrected_reference
+from unoUtil.vehicle.legacy.brk_test import calc_corrected_reference
 
 # 하루 제동 시험 시퀀스 데이터프레임
 df_day_sequence = pd.DataFrame({"ReqNo": [1, 2, 3], "BrakingDist": [35.5, 36.2, 34.8]})

@@ -1,6 +1,6 @@
 ---
 id: "work_20260910_VT_ACCBRK_TIRE_manual"
-title: "11_VT_ACCBRK_TIRE 단일 타이어 물리 분석 엔진"
+title: "VT_ACCBRK_TIRE 단일 타이어 동역학 분석 매뉴얼"
 type: resource
 category_main: 회사_업무
 category_sub: unoUtil
@@ -12,18 +12,12 @@ tags:
   - 매뉴얼
   - VT_ACCBRK_TIRE
 project_link: "[[unoUtil]]"
-aliases:
-  - "VT_ACCBRK_TIRE"
-  - "11_VT_ACCBRK_TIRE"
-  - "vt_acc_brk_tire"
-  - "VTAccBrkTire"
-  - "11_vt_acc_brk_tire"
 ---
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층
-> - **상위 제어기**: [[12_VT_ACCBRK_PROJECT]] (프로젝트 취합 및 보정), [[10_VT_ACCBRK]] (전체 자동화)
+> - **상위 제어기**: [[VT_ACCBRK_PROJECT]] (프로젝트 취합 및 보정), [[VT_ACCBRK]] (전체 자동화)
 > - **전역 허브**: [[unoUtil]] (사내 도구 통합 색인)
-> - **영구 도메인 이론**: [[41_실차_제동_시계열_신호처리_및_고속_동역학_최적화_아키텍처]] (Wavelet, KDE, 캐시 최적화), [[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처]] (로거 표준 및 무중단 시각화)
+> - **영구 도메인 이론**: [[41_실차_제동_시계열_신호처리_및_고속_동역학_최적화_아키텍처]] (Wavelet, KDE, 캐시 최적화), [[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처]] (로거 표준 및 무중단 시각화), [[43_차세대_실차_가속제동_통합_컨테이너_및_환경보정_아키텍처]] (비파괴 슬림 피클링, 온디맨드 복원, CORRECT)
 > - **하위 6대 서브 분석 모듈**:
 >   - [[_AN_ACCELERATION]]: 가속도/감속도 속도 구간별 적산 분석
 >   - [[_AN_SPLIT_SPEED]]: 고속/저속 구간별 속도 분할 분석
@@ -31,7 +25,7 @@ aliases:
 >   - [[_AN_MU_DROP]]: 수막현상 마찰력 급감(Mu-Drop) 거리 분석
 >   - [[_AN_SLIP_MODE_SKEWNESS]]: 2D 슬립 지형도 및 왜도 분석
 >   - [[_AN_RESPONSE]]: 제동 시스템 초기 응답성 및 지연 분석
->   - [[30_PLOTTER_TIRE]]: 단일 타이어 전문 플롯 시각화 대시보드
+>   - [[_PLOTTER_TIRE]]: 단일 타이어 전문 플롯 시각화 대시보드
 
 # 🏎️ VT_ACCBRK_TIRE: 단일 타이어 가속 및 제동 성능 분석 엔진 (Expert Guide)
 

@@ -1,13 +1,3 @@
----
-title: "22_Func_ACCBRK 공통 연산 및 유틸리티 함수"
-aliases:
-  - "_Func_ACCBRK_"
-  - "Func_ACCBRK"
-  - "22_Func_ACCBRK"
-  - "func_acc_brk"
-  - "22_func_acc_brk"
----
-
 # ACCBRK 기반 유틸리티 및 전용 분석/시각화 모듈 엔지니어링 매뉴얼
 
 **주요 모듈군**:
@@ -31,8 +21,10 @@ aliases:
 | **구간 분할 및 추출**| `cal_split_speed`, `get_valid_trials` | 목표 속도 구간(예: 100~0 km/h) 자동 감지 및 개별 시험 차수(Trial) 슬라이싱 |
 | **통계 분석** | `cal_statistics`, `cal_outlier_iqr` | 평균, 표준편차, 변동계수(CV), IQR 기반 이상치 판별 |
 | **기상/환경 연계** | `integrate_weather_data` | 타이어 시험 타임스탬프와 기상 관측소 10분 주기 DB 인터폴레이션 결합 |
-| **좌표계 변환** | `AN_ACCBRK(local_pos=...)` | GNSS 위경도 좌표를 평면 직교 좌표계(`PosX`, `PosY`)로 투영/회전 변환 ([[10_GPStoXYCord]] 고속 WGS84 연동) |
+| **좌표계 변환** | `AN_ACCBRK(local_pos=...)` | GNSS 위경도 좌표를 평면 직교 좌표계(`PosX`, `PosY`)로 투영/회전 변환 ([`GPStoXYCord`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/GPStoXYCord.py) 고속 WGS84 연동) |
 | **결과 요약 및 병합**| `reorder_columns`, `merge_dataframes` | 통일된 컬럼 명명 규칙 적용 및 요약 테이블 포맷 정렬 |
+
+### 1.2 핵심 개선 사항 (2026 Revision)
 
 - **C 기반 고속 1D Wavelet Denoising 탑재 (`fast_denoise_wavelet_1d`)**: 기존 `skimage.restoration.denoise_wavelet` 대비 50~100배 고속 연산되는 PyWavelets VisuShrink C-백엔드를 연동하여, 수십만 행의 가속도/속도 시계열 신호 노이즈 제거 시간을 0.05초 이내로 단축.
 - **적응형 균일 스트라이드 서브샘플링 KDE (`AN_Histogram`)**: 휠 슬립률 PDF 커널 밀도 추정 시 $O(N \times M)$ 복잡도를 해소하기 위해 오차율 0.05% 미만의 균일 시간 간격 서브샘플링(기본 5,000pt) 및 분산 특이점 방어 로직을 적용하여 연산 속도를 10~30배 이상 고속화.
@@ -44,7 +36,7 @@ aliases:
 - **GPS 0.0 노이즈 방어 및 NaN 격리 (`valid_mask`)**: VBOX 계측 장비 종료 시점의 비정상 좌표(`0.0, 0.0`)가 유입되어 `PosY`가 `-4,000,000m`로 왜곡되던 문제를 방지하기 위해 유효 위경도(`abs > 10.0`) 마스크를 적용하고 비정상 구간은 `NaN`으로 안전 격리.
 - **DataFrame 인덱스 100% 보존 결합**: 기존 `pd.concat(axis=1)` 시 인덱스 불일치로 인한 결측치/왜곡을 원천 차단하기 위해 `df_xy = pd.DataFrame(index=df_input.index)` 및 `df_input[col_local] = df_xy` 직접 대입 방식으로 전환.
 - **제동 랩 요약표 PosX/PosY 집계 기준 표준화 (`first`)**: 랩 결과 집계 시 이동 구간의 중간 평균값(`mean`, 282m) 대신 운전자가 브레이크를 밟은 **정확한 제동 개시점(`first`, 약 251m)**을 기록하도록 `rule_infor` 개편.
-- **WGS84 타원체 정밀 측지 계산 모드 추가**: [[10_GPStoXYCord|GPStoXYCord]]에 WGS84 타원체 정밀 곡률 반경 모델(`method='wgs84'`)을 기본 연동하여 기존 대비 5.9배 고속화(2.5ms) 및 geopy와 0.06mm 수준으로 일치하는 정밀 좌표 변환 제공.
+- **WGS84 타원체 정밀 측지 계산 모드 기본 적용**: [`GPStoXYCord`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gpsProcessing/GPStoXYCord.py)에 WGS84 타원체 정밀 곡률 반경 모델(`method='wgs84'`)을 기본 연동하여 기존 구면 하버사인 대비 5.9배 고속화(2.5ms) 및 geopy와 0.06mm 수준으로 일치하는 정밀 좌표 변환 제공.
 - **Pandas 2.0+ 인덱스 호환성 확보**: `Index.append()` 동작 시 발생하는 Future/Deprecation 경고를 제거하고 `pd.Index(list(col_names) + list(col_local))`로 안정화.
 - **로컬 직교 좌표계(`local_pos`) 파이프라인 연계**: `AN_ACCBRK`에서 문자열('technoring', 'technotrack') 및 사용자 정의 딕셔너리를 통한 평면 좌표 변환을 지원하며, `col_local` 사전 정의를 통해 GPS 부재 환경에서도 안전하게 방어.
 - **Series/DataFrame 인덱싱 방어 로직 강화**: 단일 행 추출 시 `.iloc[0]` 및 스칼라 형 변환 방어 코드를 적용하여 `TypeError` 원천 차단.

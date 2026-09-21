@@ -1,6 +1,6 @@
 ---
 id: "work_20260910_VT_ACCBRK_SUB_ANALYZERS"
-title: "20_VT_ACCBRK_SUB_ANALYZERS 7대 전문 서브 분석기 모듈"
+title: "VT_ACCBRK 6대 전문 동역학 서브 분석 모듈 매뉴얼"
 type: resource
 category_main: 회사_업무
 category_sub: unoUtil
@@ -12,17 +12,11 @@ tags:
   - 매뉴얼
   - VT_ACCBRK
 project_link: "[[unoUtil]]"
-aliases:
-  - "VT_ACCBRK_SUB_ANALYZERS"
-  - "20_VT_ACCBRK_SUB_ANALYZERS"
-  - "vt_acc_brk_sub_analyzers"
-  - "analyzers"
-  - "20_vt_acc_brk_sub_analyzers"
 ---
 
 > [!NOTE] 🧭 Obsidian 네비게이션 & 시스템 계층
-> - **상위 컨테이너**: [[11_VT_ACCBRK_TIRE]] (단일 타이어 동역학 분석 엔진)
-> - **최상위 제어기**: [[12_VT_ACCBRK_PROJECT]], [[10_VT_ACCBRK]]
+> - **상위 컨테이너**: [[VT_ACCBRK_TIRE]] (단일 타이어 동역학 분석 엔진)
+> - **최상위 제어기**: [[VT_ACCBRK_PROJECT]], [[VT_ACCBRK]]
 > - **전역 색인 허브**: [[unoUtil]]
 
 # 🔬 VT_ACCBRK 6대 동역학 전문 서브 분석 모듈 가이드
