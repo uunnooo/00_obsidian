@@ -131,5 +131,5 @@ def render_plot(
 
 * 📘 **엔지니어링 표준**: [[Gemini_Python_코드_생성_규칙]]
 * 🛰️ **적용 모듈**: [[GPStoXYCord]] | [[10_GPStoXYCord]]
-* 🏎️ **실차 분석 엔진**: [[00_VT_ACCBRK_대시보드]] | [[30_PLOTTER_TIRE]]
+* 🏎️ **실차 분석 엔진**: [[00_VT_ACCBRK_대시보드]] | [[plotter_tire]]
 * 🧭 **에이전트 인덱스**: [[00_AI_에이전트_시스템_통합_색인]] | [[04_Resources/00_지식_위키_통합_색인|00_지식_위키_통합_색인]]

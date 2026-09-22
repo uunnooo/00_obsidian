@@ -271,7 +271,7 @@ def write_sample_vbb(file_path: str, timestamps: np.ndarray, speeds: np.ndarray)
 
 * 💾 **[[VBBReader|unoUtil readDataFile VBBReader (VBB 고속 무손실 파서 및 전원차단 복구 엔진)]]**
 * 🛰️ **[[20_VBOX_계측_데이터_규격_및_GPS좌표계|VBOX 계측 데이터 규격 및 GPS 좌표계 (영구 지식)]]**
-* 🏎️ **[[22_Func_ACCBRK|unoUtil vehicleTest ACCBRK _Func_ACCBRK_ (실차 제동 파이프라인)]]**
+* 🏎️ **[[func_acc_brk|unoUtil vehicleTest ACCBRK _Func_ACCBRK_ (실차 제동 파이프라인)]]**
 * 📊 **[[10_실차_평가_데이터_프레임|실차 평가 데이터 프레임 마스터 규격서]]**
 * 🏠 **[[00_실차평가_데이터프레임_통합_색인|00_실차평가 데이터프레임 통합 색인 (MOC)]]**
 * 📚 **[[04_Resources/00_지식_위키_통합_색인|04_Resources 영구 지식 위키 대문]]**
