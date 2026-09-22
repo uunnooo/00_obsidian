@@ -80,6 +80,7 @@ graph TD
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v2.6** | 2026-09-22 | uno &<br/>Gemini | 🏛️ v2 차세대 클래스(PascalCase)/함수(8대동사)/입출력(df_input/output) 전사 명명 표준 확립<br/>🛡️ 물리 legacy 폴더 전수 소각을 위한 100% 가상(MetaPath) 실시간 리다이렉션 직통 아키텍처 수립<br/>🎯 제어 인자(print, plot, save, excel, html) 지능형 다형성 및 bool_ 네임 섀도잉 방지 규격 확정 | ✅ 완료 |
 | **v2.5** | 2026-09-22 | uno &<br/>Gemini | 📝 `vt_acc_brk_tire.py`, `vt_acc_brk_project.py`, `an_response.py`, `an_skewness.py` 내의 `logger.debug` 문자열 시작 개행 문자 `\n` 전수 제거로 로그 한 줄 칼정렬 교정 완료 | ✅ 완료 |
 | **v2.4** | 2026-09-21 | uno &<br/>Gemini | 📂 가감속/제동 표준 폴더 내 brk_test.py, parsing_pattern.py 및 .md 파일 legacy/ 격리 수용<br/>🔌 제동 동역학 핵심 모듈 내의 레거시 Import 구문 전수 정제<br/>📝 base_memory.py 내 logger.debug f-string 개행문자 \n 전수 소거로 콘솔 한 줄 정렬 완료 | ✅ 완료 |
 | **v2.3** | 2026-09-18 | uno | 🧪 14개 핵심 제동 모듈 전수 단독 자가 구동 성공 (Exit 0)<br/>🐛 13대 실차 데이터 파이프라인 런타임 결함 (PP_Slip 튜플 언패킹, SR 인덱스 등) 완전 수정 | ✅ 완료 |

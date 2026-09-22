@@ -42,7 +42,7 @@ project_link: "[[unoUtil]]"
 
 ```python
 import pandas as pd
-from unoUtil.statistics import get_statistics_df
+from unoUtil.uno_statistics import get_statistics_df
 
 df = pd.DataFrame({"Speed": [100, 95, 80, 50, 0], "Decel": [-0.1, -0.8, -0.9, -0.85, 0.0]})
 df_summary = get_statistics_df(df)
