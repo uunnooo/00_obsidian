@@ -29,6 +29,7 @@ aliases:
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v1.3** | 2026-09-21 | uno &<br/>Gemini | 🧠 차분 머신러닝 보정 파이프라인 (Phase 2) 구축 및 검증 완료 (`c_train_correction_and_plot_maps.py`) <br/>📊 3D 제동거리 보정 성능 맵(Delta Correction Map) 시각화 및 저장 (KNN/RF 3D 등고선)<br/>⚖️ 기준 환경(`char_height`=3.0mm, `cd_test_ah`=1.5g/m³) 일괄 정규화 보정 적용 및 `df_combine_test_surface_spec_corrected.pkl` 저장<br/>💾 플랫폼 세션 상태 직렬화(Serialize) 영속성 확보 (`snow_platform_2026.pkl`) | ✅ 완료 |
 | **v1.2** | 2026-09-21 | uno &<br/>Gemini | 🛠️ 글로벌 개발 규격(`PYTHON_CODE_AGENT`) 100% 매칭 적용 완료<br/>🔤 8대 표준 동사 네이밍 수립 (`calc_`, `get_` 등) 및 하위 호환 에일리어스 가동<br/>🧪 5대 코어 모듈 닥스트링, 타입힌트, 3-시나리오 자가 구동 테스트 스위트 보강<br/>🛑 Non-blocking 시각화 및 4단계 `save` 다형성 설계 구현<br/>📚 1:1 동명 마크다운 매뉴얼 파일 5종 구축 완료 | ✅ 완료 |
 | **v1.0** | 2026-09-18 | uno | ❄️ 3D 시공간 디지털 트윈 매칭 및 차분 머신러닝 보정 파이프라인 초안 구축<br/>⚡ 1-Run 고속 집계 (`a_make_SnowAccBrkTest_DF.py`) 및 세션 보간 파이프라인 연계 완료 | ✅ 완료 |
 
