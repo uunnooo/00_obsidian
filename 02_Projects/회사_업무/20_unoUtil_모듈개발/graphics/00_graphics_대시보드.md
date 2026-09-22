@@ -46,6 +46,7 @@ flowchart TD
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🎨 `SetCursorMode` $\rightarrow$ `def set_cursor_mode`, `PairPlotCorrWithScatter` $\rightarrow$ `def plot_pair_corr_with_scatter`, `Regression3D` $\rightarrow$ `def calc_regression_3d` 공식 표준 8대 동사 선언 및 하위 호환 별칭 정합화 완결 | ✅ 완료 |
 | **v2.6** | 2026-09-22 | uno &<br/>Gemini | 🎨 plot/save 제어 인자 표준 다형성 결합 및 bool_plot/bool_save 네임 섀도잉 방지 격리 수립<br/>🛡️ SetCursorMode, PairPlot 등 비표준 PascalCase 함수를 snake_case(8대 동사 룰)로 정규화하는 마스터 플랜 수립 | ✅ 완료 |
 | **v2.4** | 2026-09-21 | uno &<br/>Gemini | 🎨 가로폭 초과로 인한 줄바꿈 잔상 오동작 방지 (VT100 DECAWM \033[?7l 제어 이식)<br/>📊 진행 카운팅(1/6) 수치를 퍼센티지 오른쪽 옆 좌측 영역으로 이동시켜 가독 복원<br/>🎨 문자열 잘림 시 복원코드(STR_CLR_END) 강제 추가로 터미널 색상 플리커 완치 | ✅ 완료 |
 | **v2.0** | 2026-09-18 | uno | 🔌 graphicTools 폐기 및 3대 서브패키지 (plotters, controls, web) 완전 분할<br/>🖼️ plt.show() 전면 금지 및 Non-blocking 시각화 렌더링 표준 강제 | ✅ 완료 |
