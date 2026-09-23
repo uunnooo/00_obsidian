@@ -1,3 +1,20 @@
+---
+id: "correction_engine_20260923"
+title: "correction_engine 상세 매뉴얼"
+type: resource
+category_main: 회사_업무
+category_sub: 개발매뉴얼
+date: 2026-09-23
+status: 완료
+tags:
+  - 회사_업무
+  - SnowSurface
+  - 머신러닝
+  - 차분보정
+  - 매뉴얼
+project_link: "[[00_2026_Snow_Surface_Characteristics_대시보드]]"
+---
+
 # ❄️ correction_engine.py 로컬 개발 매뉴얼
 
 이 모듈은 차분법(Difference Method) 기반 머신러닝 스노우 제동 성능 보정 모델을 학습하고 검증하며, 다양한 환경 조건 변화량에 대한 제동거리 영향도 예측, 실측 제동거리 일괄 정규화 보정, 그리고 종합 대조 데이터 테이블 생성 및 핵심 검증 시각화(4대 차트) 생성을 전담하는 핵심 엔진 클래스입니다.

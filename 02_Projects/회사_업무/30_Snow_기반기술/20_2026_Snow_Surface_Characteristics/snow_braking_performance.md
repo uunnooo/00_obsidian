@@ -1,3 +1,20 @@
+---
+id: "snow_braking_performance_20260923"
+title: "snow_braking_performance 상세 매뉴얼"
+type: resource
+category_main: 회사_업무
+category_sub: 개발매뉴얼
+date: 2026-09-23
+status: 완료
+tags:
+  - 회사_업무
+  - SnowSurface
+  - 통합파사드
+  - 제동보정
+  - 매뉴얼
+project_link: "[[00_2026_Snow_Surface_Characteristics_대시보드]]"
+---
+
 # ❄️ snow_braking_performance.py 로컬 개발 매뉴얼
 
 이 모듈은 스노우 노면 상태 계측 데이터와 실차 제동 평가 데이터의 수집 및 전처리, 3D 시공간 디지털 트윈 보간 맵 빌드, 차분 머신러닝 성능 보정, 종합 대조 데이터 테이블 생성, 4대 핵심 검증 시각화, 그리고 타이어 스펙 영향도 정량 검증까지 분석 프로세스 전반을 단일 파사드(Facade) 아키텍처로 원스톱 제어하는 통합 마스터 클래스(`SnowBrakingPerformance`)와 전문 시각화 플로터(`SnowBrakingPerformancePlotter`)를 구현하고 있습니다.
