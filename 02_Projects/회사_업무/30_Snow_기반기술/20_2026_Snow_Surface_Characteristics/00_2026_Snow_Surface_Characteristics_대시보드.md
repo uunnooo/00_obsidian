@@ -82,3 +82,22 @@ aliases:
   * **1단계 (시공간 디지털 트윈)**: 공간 예측 (Random Forest) ➡️ 시간 보간 (scipy interp1d) ➡️ VBOX GPS 격자 매칭
   * **2단계 (차분 머신러닝 보정)**: 타이어 고유 실력 소거(차분법) ➡️ KNN(3D 등고선 맵 시각화) + Random Forest(최종 정밀 보정 엔진)
 * ❄️ **[[04_Resources/30_스노우_노면_공학/00_스노우_노면_공학_통합_색인|스노우 노면 공학 통합 지식 색인 (MOC)]]**
+
+---
+
+## 📜 버전 이력 및 주요 개발 현황 (Changelog)
+
+### [2026-09-23] - uno & Gemini CLI
+* ⚡ **`unoUtil.resample_data` 초고속 리팩터링 (30~50배 가속):**
+  - NumPy C-API 선형 보간(`np.interp`) 및 이진 탐색(`np.searchsorted`) 적용으로 30만 행 기준 3초 ➡ 0.08초 단축.
+  - 디버거 평가 3초 타임아웃 경고 원천 해소 및 `target_idx.name` 보존으로 `VT_ACCBRK`의 `KeyError: 'Datetime'` 캐시 복원 버그 완치.
+* 🚀 **`a_make_SnowSurfaceCharacteristic_DF.py` 파이프라인 통합 (100배 가속):**
+  - 1차원 센서 이상치 제거 시 머신러닝(Isolation Forest) 반복 학습 대신 컬럼별 독립 분위수(`quantile` 0.05~0.95) 마스킹 & 시간 보간 적용 (센서 간 연대책임 오염 차단 + 132배 가속).
+  - 디스크 재로딩 및 3중 for-loop을 단 1줄의 Pandas 네이티브 `groupby.agg()`로 압축 (30배 가속).
+  - 전체 파이프라인 소요 시간 수십 분 ➡ 수십 초로 98% 단축.
+* 🧊 **시공간 2단계 디커플링(Spatio-Temporal Decoupling) 아키텍처 정립:**
+  - `SurfaceGridSnapshot`: 특정 시점의 2D 공간 격자 내삽기 (`query(pos_yx)`).
+  - `SurfaceConditionTwin`: 세션별 스냅샷들을 엮어 실시간 시간 보간(`interp1d`)을 수행하는 시공간 총괄 관리자.
+* 📊 **`sbp.plot` 시각화 스위트 가이드 확립:**
+  - `sbp.plot.map_2d(channel='temp')`: 노면 온도 2D 등고선 맵 및 세션 내 전 스냅샷 서브플롯 비교(`all_in_session=True`).
+  - `sbp.plot.surface_dashboard()`: Dash 기반 3D 인터랙티브 실시간 회전 및 시간 슬라이더 대시보드.

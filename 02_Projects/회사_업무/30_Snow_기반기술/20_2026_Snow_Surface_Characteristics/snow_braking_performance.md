@@ -1,6 +1,6 @@
 # ❄️ snow_braking_performance.py 로컬 개발 매뉴얼
 
-이 모듈은 스노우 노면 상태 계측 데이터와 실차 제동 평가 데이터의 수집 및 전처리, 3D 시공간 디지털 트윈 보간 맵 빌드, 차분 머신러닝 성능 보정, 그리고 타이어 스펙 영향도 정량 검증까지 분석 프로세스 전반을 단일 파사드(Facade) 아키텍처로 원스톱 제어하는 통합 마스터 클래스(`SnowBrakingPerformance`)와 전문 시각화 플로터(`SnowBrakingPerformancePlotter`)를 구현하고 있습니다.
+이 모듈은 스노우 노면 상태 계측 데이터와 실차 제동 평가 데이터의 수집 및 전처리, 3D 시공간 디지털 트윈 보간 맵 빌드, 차분 머신러닝 성능 보정, 종합 대조 데이터 테이블 생성, 4대 핵심 검증 시각화, 그리고 타이어 스펙 영향도 정량 검증까지 분석 프로세스 전반을 단일 파사드(Facade) 아키텍처로 원스톱 제어하는 통합 마스터 클래스(`SnowBrakingPerformance`)와 전문 시각화 플로터(`SnowBrakingPerformancePlotter`)를 구현하고 있습니다.
 
 ---
 
@@ -8,57 +8,66 @@
 
 ### 1.1 `SnowBrakingPerformance`
 플랫폼을 통합 관장하는 마스터 파사드 클래스입니다.
-* **주요 등록, 적재 및 맵 빌더**:
-  * `load_combined_data(path_or_df)`: 🚀 **[2026 신설]** 통합 데이터셋(제동+노면+기상+스펙)을 1줄로 로드, 검증 및 `is_performance_matched = True` 동기화.
-  * `add_surface_data(data)`: 노면 계측 데이터프레임 또는 파일을 등록합니다.
-  * `add_braking_data(data)`: 실차 제동 평가 데이터를 등록합니다.
-  * `set_weather_data(df_weather)`: 기상관측 데이터를 연동하고 과포화 습도를 분석합니다.
-  * `set_spec_data(df_spec)`: 타이어 사양(컴파운드, 패턴, 규격) 메타데이터를 등록합니다.
-  * `calc_surface_maps(method, group_col)`: 노면 디지털 트윈 격자를 빌드합니다. (하위 호환성 에일리어스: `build_surface_maps`)
-* **핵심 연산, 보정 및 보고서**:
-  * `calc_matched_performance()`: 제동 시험 좌표와 시각에 정밀 대응되는 실시간 노면 데이터를 매칭 결합합니다. (하위 호환성 에일리어스: `match_performance_to_surface`)
-  * `calc_trained_correction_model(model_type, features, target, auto_tune=False, model_params=None, cv=5)`: 🚀 **[2026 고도화]** 차분법 기반 머신러닝 보정 모델을 학습시킵니다. 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(`auto_tune=True`) 및 수동 튜닝(`model_params`) 지원. (하위 호환성 에일리어스: `train_correction_model`)
-  * `calc_corrected_braking_distance(raw_dist, cur_condition, ref_condition)`: 현재 시험 조건에 대한 실시간 제동거리 보정치를 산출합니다. (하위 호환성 에일리어스: `correct_braking_distance`)
-  * `calc_corrected_dataframe(out_col, ref_condition)`: 전체 제동 데이터를 일괄 정규화 보정합니다. (하위 호환성 에일리어스: `correct_dataframe`)
-  * `calc_spec_impact(spec_col)`: 보정 전/후 컴파운드별 분산 감소 효과 및 순위 일관성을 분석합니다. (하위 호환성 에일리어스: `analyze_spec_impact`)
-  * `save_report_md(save=True, figure_dir=None)`: 🚀 **[2026 신설]** 모델 평가 메트릭, 최적 파라미터, 기준 조건, 타이어별 산포 감소율, 차트 링크를 종합 마크다운(.md) 보고서로 자동 생성 및 저장 (다형성 `save` 표준 준수). (하위 호환성 에일리어스: `export_report_md`)
 
-### 1.2 `SnowBrakingPerformancePlotter`
-마스터 클래스 내부의 데이터 및 분석 엔진을 사용하여 차트를 생성하는 전용 플로터 클래스입니다. (`sbp.plot` 멤버 변수를 통해 구동)
-* **모든 플롯 함수는 `save: Union[bool, str, Path] = False` 및 `close: bool = True` 파라미터를 탑재하고 있어 백그라운드 구동(Non-blocking)과 4단계 저장 다형성을 완벽하게 보장합니다.**
-* **제공 시각화 맵**:
-  * `plot_session_3d_map(date, period)`: 세션별 3D 보간 투영 및 실측 3D 매칭 도트 맵 가시화.
-  * `plot_session_2d_overlay(date, period)`: 개별 런의 제동거리, 좌/우 침하 텍스트가 조밀하게 오버레이된 2D 평면 등고선 맵.
-  * `plot_tire_subplot_scatters(req_no)`: 의뢰번호별 타이어 세트를 다중 서브플롯(예: 2x2 격자)에 시각화.
-  * `plot_delta_correction_map()`: 오전/오후 재현 평가의 편차(Delta) 데이터를 활용한 다변량 등고선 보정 맵.
-  * `surface_map()`, `correction_map()`, `spec_boxplots()`, `residual_dependency()`, `model_comparison()`, `spec_analysis()`: 하위 엔진의 개별 시각화 프록시 메서드.
+#### [데이터 적재 및 맵 빌더]
+* `load_combined_data(path_or_df)`: 통합 데이터셋(제동+노면+기상+스펙)을 1줄로 로드, 검증 및 `is_performance_matched = True` 동기화.
+* `add_surface_data(data)`: 노면 계측 데이터프레임 또는 파일을 등록합니다.
+* `add_braking_data(data)`: 실차 제동 평가 데이터를 등록합니다.
+* `set_weather_data(df_weather)`: 기상관측 데이터를 연동하고 과포화 습도를 분석합니다.
+* `set_spec_data(df_spec)`: 타이어 사양(컴파운드, 패턴, 규격) 메타데이터를 등록합니다.
+* `calc_surface_maps(method, group_col)`: 노면 디지털 트윈 격자를 빌드합니다. (에일리어스: `build_surface_maps`)
+
+#### [핵심 연산, 머신러닝 및 데이터 테이블]
+* `calc_matched_performance()`: 제동 시험 좌표와 시각에 정밀 대응되는 실시간 노면 데이터를 매칭 결합합니다. (에일리어스: `match_performance_to_surface`)
+* `train_correction_model(model_type, features, target, auto_tune=False, model_params=None, cv=5)`: 차분법 기반 머신러닝 보정 모델을 학습시킵니다. 5-Fold 교차검증 기반 오토 튜닝(`auto_tune=True`) 및 수동 튜닝(`model_params`) 지원.
+* `calc_corrected_comparison_table(df=None, model_name=None, save=False, **kwargs)`: 🚀 **[2026 신설]** 의뢰번호, 타이어 세트별 1st와 2nd 시험의 원래 제동거리, 보정 제동거리, 예측 변화량, 기상/노면 환경 요인을 종합 대조하는 분석 데이터프레임을 생성하고 엑셀/CSV/Pickle로 다형성 저장합니다.
+  * 1st 시험은 기준 베이스라인(보정치=원래치, 변화량=0.0)
+  * 2nd 시험은 1st 기준 환경으로 정규화 ($D_{\text{corr}} = D_{\text{raw}} - \Delta D_{\text{pred}}$)
+* `correct_dataframe(out_col, ref_condition)`: 전체 제동 데이터를 일괄 정규화 보정합니다. (에일리어스: `calc_corrected_dataframe`)
+* `analyze_spec_impact(spec_col)`: 보정 전/후 컴파운드별 분산 감소 효과 및 순위 일관성을 분석합니다. (에일리어스: `calc_spec_impact`)
+* `save_report_md(save=True, figure_dir=None)`: 모델 메트릭, 최적 파라미터, 기준 조건, 타이어별 산포 감소율, 차트 링크를 종합 마크다운(.md) 보고서로 자동 생성 및 저장합니다.
+
+#### [핵심 검증 시각화 (4대 차트)]
+모든 시각화 메서드는 Non-blocking(`close=True`) 및 다형성 저장(`save`)을 표준 지원합니다.
+* `plot_delta_prediction_scatter(save, close)`: 차분 예측 모델 성능 검증 (실측 차분 vs 예측 차분 산점도, $y=x$ 기준선).
+* `plot_delta_braking_bar(save, close)`: 동일 타이어 반복 시험 간 제동거리 차이($\Delta\text{BrkDist}$) 세트별 바 차트.
+* `plot_scatter_restoration(save, close)`: 1차(Ref) vs 2차(Actual: 빨강 / Corrected: 파랑) 제동거리 산점도 및 Adjusted $R^2$ 복원 성능.
+* `plot_correction_map(model_name, shift_min_zero=True, resolution=10, ...)`: 환경 인자 변화량에 따른 제동거리 변화량 2D 등고선 보정 맵 (슬라이드 6번 표준 사양).
+* `plot_tire_subsets_comparison(req_no, save, close)`: 의뢰서 내 주요 타이어 세트(C1, C2, T1, T2)별 실측치 vs 모델 예측치 2x2 서브플롯.
 
 ---
 
 ## 💻 2. 실무 활용 예제
 
 ```python
-import pandas as pd
+from pathlib import Path
 from Snow_braking_relate_condition.snow_braking_performance import SnowBrakingPerformance
 
 # 1. 마스터 플랫폼 객체 생성
 sbp = SnowBrakingPerformance(name="SnowPlatform_2026")
 
-# 2. 통합 데이터셋 1줄 원스톱 적재 (검증 및 플래그 활성화 자동화)
-df_combined = sbp.load_combined_data("./1. df_combine_test_surface_spec.pkl")
+# 2. 통합 데이터셋 1줄 적재 (1964행 자동 정합성 검증)
+sbp.load_combined_data(r"D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\1. df_combine_test_surface_spec.pkl")
 
-# 3. 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(Auto-Tuning) 학습
-metrics = sbp.calc_trained_correction_model(model_type='KNN Regressor', auto_tune=True, cv=5)
+# 3. 차분 머신러닝 모델 학습 (Random Forest 등 다중 모델)
+metrics = sbp.train_correction_model(
+    model_type='Random Forest',
+    features=['char_height', 'cd_test_ah'],
+    target='char_brk_dist'
+)
 
-# 4. 기준 환경 설정 및 전체 데이터 일괄 정규화 보정
-sbp.correction_engine.set_reference_conditions({'char_height': 5.13, 'cd_test_ah': 1.97})
-df_normalized = sbp.calc_corrected_dataframe(out_col='char_brk_dist_corr')
+# 4. 보정 대조 데이터 테이블 생성 및 엑셀 저장
+df_table = sbp.calc_corrected_comparison_table(
+    save=Path("./output/corrected_comparison_table.xlsx")
+)
 
-# 5. 컴파운드 사양별 영향 분석 및 분산 감소율 집계
-df_summary, ranking_metrics = sbp.calc_spec_impact(spec_col='infor_CTB_COMPOUND')
-print(df_summary[['Spec', 'Var_Reduction(%)']])
+# 5. 4대 핵심 검증 시각화 생성 및 일괄 저장
+output_dir = Path("./figures")
+sbp.plot_delta_prediction_scatter(save=output_dir / "1_Diff_Actual_vs_Predicted.png", close=True)
+sbp.plot_scatter_restoration(save=output_dir / "2_Final_Correction_1st_vs_2nd.png", close=True)
+sbp.plot_correction_map(model_name='KNN Regressor', shift_min_zero=True, save=output_dir / "3_Snow_Contour.png", close=True)
+sbp.plot_tire_subsets_comparison(req_no='25RD110006EF', save=output_dir / "4_Tire_Subplots_25RD110006EF.png", close=True)
 
-# 6. 종합 분석 마크다운(.md) 보고서 자동 생성
-report_path = sbp.save_report_md(save=True)
-print(f"분석 보고서 저장 완료: {report_path}")
+# 6. 종합 마크다운 보고서 저장
+sbp.save_report_md(save=Path("./output/snow_correction_report.md"), figure_dir=output_dir)
 ```
