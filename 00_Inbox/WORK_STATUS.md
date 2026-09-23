@@ -1,77 +1,110 @@
-# 📋 unoUtil v2.6 전사 전수 명명 표준화 및 물리 레거시 완전 퇴출 보고서 (WORK_STATUS)
+---
+id: "WORK_STATUS_20260923"
+title: "2026-09-23 스노우 제동 보정 머신러닝 엔진 고도화 및 위키 지식화 작업 일지"
+type: daily_note
+category_main: 회사_업무
+category_sub: SnowSurface
+date: 2026-09-23
+status: 완료
+tags:
+  - 회사_업무
+  - SnowSurface
+  - 머신러닝
+  - 하이퍼파라미터튜닝
+  - 지식화
+project_link: "[[00_2026_Snow_Surface_Characteristics_대시보드]]"
+---
 
-**일자**: 2026-09-23  
-**작업자**: Gemini CLI  
-**주요 목표**: 전사 모듈 대상 역방향 별칭(`Standard = LEGACY`) 전수 제거, 물리적 `legacy/` 디렉터리 100% 영구 퇴출(Zero Physical Legacy), 하위 호환성 100% 가상 리다이렉션 검증 및 Obsidian Vault 실시간 미러 동기화
+# 📋 [2026-09-23] 스노우 제동 차분 머신러닝 보정 엔진 고도화 및 자동화 파이프라인 완성 보고
+
+## 1. 🎯 작업 개요 및 목표
+* **배경**: 
+  - `b_combine_surface_performance_spec.py` 이후 제동-노면-기상 통합 데이터(1,964행)를 바탕으로 환경 요인을 분리·보정하는 차분 머신러닝 엔진의 사용성, 안정성, 하이퍼파라미터 튜닝 체계의 부재 개선 필요.
+  - Decision Tree 평가 시 발생했던 $R^2$ 음수(-1.03) 과적합 원인 규명 및 지식화.
+  - 사용자가 장기적으로 알고리즘과 모듈 사용법을 잊지 않고 활용할 수 있도록 위키 지식화 및 자동 마크다운(.md) 보고서 생성 체계 구축.
+* **핵심 달성 목표**:
+  1. 원스톱 데이터 적재 API (`load_combined_data`) 신설.
+  2. 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(`auto_tune=True`) 및 수동 튜닝(`model_params`) 구현.
+  3. 종합 분석 결과 마크다운(.md) 보고서 자동 생성 함수(`save_report_md`) 구현 (사내 다형성 `save` 표준 준수).
+  4. 파이썬 표준 규격(`PYTHON_CODE_AGENT.md`) 100% 충족 (Google Style Docstrings, PEP 484 타입 힌트, 레거시 kwargs 완벽 흡수).
 
 ---
 
-## 🎯 1. 주요 작업 내역 및 완결 사항
+## 2. 🚀 주요 개발 및 수정 내역
 
-### 1) 역방향 별칭 및 레거시 명명 전수 점검 및 교정 (Zero Inversion)
-- **`unoUtil.logger.logger`**:
-  - `class LOGGER:` $\rightarrow$ 공식 `class Logger:` 정의로 정상화.
-  - 역방향 별칭 `Logger = LOGGER`를 공식 하위 호환 매핑 `LOGGER = Logger`로 교정.
-  - 전역 로거 타입 힌트 `Dict[str, Logger]` 정합성 확보.
-- **`unoUtil.uno_statistics.uncertainty`**:
-  - `class UNCERTAINTY:` $\rightarrow$ 공식 `class Uncertainty:` 정의.
-  - `class PLOT:` $\rightarrow$ 공식 `class UncertaintyPlot:` 정의.
-  - 하위 호환 매핑 `UNCERTAINTY = Uncertainty`, `PLOT = UncertaintyPlot` 정상 정렬.
-- **`unoUtil.graphics.controls.cursor_mode`**:
-  - `def SetCursorMode` $\rightarrow$ 공식 `def set_cursor_mode`로 선언. 하위 호환 별칭 `SetCursorMode = set_cursor_mode` 수립.
-- **`unoUtil.graphics.plotters.pair_plot`**:
-  - `def PairPlotCorrWithScatter` $\rightarrow$ 공식 `def plot_pair_corr_with_scatter`로 선언. 하위 호환 별칭 수립.
-- **`unoUtil.graphics.plotters.surface_3d`**:
-  - `def Regression3D` $\rightarrow$ 공식 `def calc_regression_3d`로 선언. 하위 호환 별칭 `Regression3D = calc_regression_3d` 수립.
-- **`unoUtil.signal_process.fft.tf_estimate`**:
-  - `def TFEstimate` $\rightarrow$ 공식 `def calc_tf_estimate`로 선언. 하위 호환 별칭 `TFEstimate = calc_tf_estimate` 수립.
-- **`unoUtil.utils.window_msg`**:
-  - `def Window_Error_MSG` $\rightarrow$ 공식 `def set_window_error_msg`로 선언. 하위 호환 별칭 `Window_Error_MSG = set_window_error_msg` 수립.
-- **`unoUtil.ai.dynamic_model`**:
-  - `TireMagicFormula` $\rightarrow$ `def calc_tire_magic_formula`, `UnitYawRate` $\rightarrow$ `def calc_unit_yaw_rate`, `ObjectiveFunc_UnitYawRate` $\rightarrow$ `def calc_objective_unit_yaw_rate`로 선언. 하위 호환 별칭 및 `unoUtil.ai.__init__.py` 익스포트 완결.
-- **`unoUtil.file_reader.standard_channel_pattern`**:
-  - `class Infor_Vehicle` $\rightarrow$ `InforVehicle`, `class Infor_SensorPosition` $\rightarrow$ `InforSensorPosition`, `class GPS` $\rightarrow$ `Gps`로 선언.
-- **`unoUtil.vehicle.hndl_test`**:
-  - `SP_CurveFit_RF` $\rightarrow$ `calc_curvefit_rf`, `SP_CurveFit_MF` $\rightarrow$ `calc_curvefit_mf`로 선언 및 하위 호환 매핑.
+### 2.1. 원스톱 데이터 로더 신설: `load_combined_data()`
+* **위치**: `Snow_braking_relate_condition/snow_braking_performance.py`
+* **역할**: 파일 경로(str, Path) 또는 DataFrame을 인수로 받아 무결성을 검증하고, 플랫폼 버퍼(`self.df_combined`)에 적재하며, `is_performance_matched = True` 플래그를 자동으로 활성화하여 재매칭 연산 낭비를 방지.
+```python
+sbp = SnowBrakingPerformance(name="SnowPlatform_2026")
+df_combined = sbp.load_combined_data(r"D:\uno\...\1. df_combine_test_surface_spec.pkl")
+```
 
----
+### 2.2. 하이퍼파라미터 수동/오토 튜닝 인터페이스 완비
+* **위치**: `Snow_braking_relate_condition/correction_engine.py`, `snow_braking_performance.py`
+* **원인 규명 및 해결 ($R^2 < 0$ 문제)**:
+  - 단일 Decision Tree의 깊이 미제한으로 인해 학습 데이터 95쌍에 과적합(Overfitting)되어 검증 세트에서 베이스라인 평균 예측보다 못한 오차 발생.
+  - 5-Fold CV (`GridSearchCV`) 기반 오토 튜닝을 도입하여 `max_depth=2`, `min_samples_leaf=3` 제약을 부여함으로써 **$R^2 = +0.4492$로 양수 정상 회복**.
+* **오토 튜닝 탐색 공간 (Grid Search Spaces)**:
+  - **KNN Regressor**: `n_neighbors=[3, 4, 5, 7, 9, 11]`, `weights=['uniform', 'distance']`, `p=[1, 2]`
+  - **Random Forest**: `n_estimators=[50, 80, 100, 150]`, `max_depth=[3, 4, 5, None]`, `min_samples_leaf=[1, 2, 3]`
+  - **Ridge**: `alpha=[0.01, 0.1, 1.0, 10.0, 50.0]`
+  - **SVR**: `C=[1.0, 5.0, 10.0, 30.0]`, `epsilon=[0.01, 0.05, 0.1, 0.2]`
+* **수동/오토 튜닝 호출**:
+```python
+# [오토 튜닝 모드] 5-Fold CV로 각 모델 최적 파라미터 자동 탐색
+metrics = sbp.train_correction_model(model_type='KNN Regressor', auto_tune=True, cv=5)
 
-### 2) Zero Physical Legacy (물리 레거시 폴더 100% 영구 퇴출)
-- 디스크 상에 잔존하던 물리적 `legacy/` 디렉터리 9개 전량을 `_archive/`로 안전 격리 퇴출:
-  - `unoUtil/ai/legacy` $\rightarrow$ `_archive/ai_legacy`
-  - `unoUtil/database/legacy` $\rightarrow$ `_archive/database_legacy`
-  - `unoUtil/file_reader/legacy` $\rightarrow$ `_archive/file_reader_legacy`
-  - `unoUtil/logger/legacy` $\rightarrow$ `_archive/logger_legacy`
-  - `unoUtil/signal_process/curve_fit/CurveCombiner/legacy` $\rightarrow$ `_archive/curve_fit_legacy`
-  - `unoUtil/signal_process/fft/legacy` $\rightarrow$ `_archive/fft_legacy`
-  - `unoUtil/signal_process/post_process/legacy` $\rightarrow$ `_archive/post_process_legacy`
-  - `unoUtil/vehicle/legacy` $\rightarrow$ `_archive/vehicle_legacy`
-  - `unoUtil/vehicle/acc_brk/legacy` $\rightarrow$ `_archive/acc_brk_legacy`
-- `unoUtil/convenienceFunction` 디렉터리 완전 격리 (`_archive/convenienceFunction`).
-- `unoUtil` 패키지는 이제 **순수 v2 공식 10대 도메인 디렉터리만 물리적으로 유지**.
-- 모든 레거시 임포트는 메모리 상의 `_UnoUtilLegacyRedirectFinder` 및 사전 바인딩된 `sys.modules` 가상 레이어에서 100% 무중단 라우팅 처리됨.
+# [수동 튜닝 모드] 원하는 파라미터 직접 주입
+metrics = sbp.train_correction_model(
+    model_type='KNN Regressor',
+    model_params={'n_neighbors': 7, 'weights': 'uniform', 'p': 1}
+)
+```
 
----
-
-### 3) 대시보드 및 문서 규격 표준화 (Phase 4 & 5)
-- `unoUtil/vehicle/acc_brk/00_VT_ACCBRK_대시보드.md` 파일명을 표준 소문자 스네이크케이스인 `00_vt_acc_brk_대시보드.md`로 공식 변경.
-- `GEMINI.md` 및 마스터 가이드의 경로 참조 일괄 동기화.
-- `robocopy /MIR` 실행을 통해 Obsidian Vault 내 삭제된 레거시 문서 자동 퍼지(Purge) 및 신규 문서 100% 동기화 완료.
+### 2.3. 종합 분석 결과 마크다운(.md) 보고서 생성기: `save_report_md()`
+* **위치**: `Snow_braking_relate_condition/snow_braking_performance.py`
+* **특징**:
+  - `save=True` (기본값): `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\Snow_Correction_Report.md` 자동 저장.
+  - `save=디렉토리경로`: 해당 디렉토리 내에 `Snow_Correction_Report.md` 결합 저장.
+  - `save=파일경로`: 지정된 파일 경로 그대로 저장.
+  - `save=False`: 파일 저장을 생략하고 마크다운 문자열 반환.
+  - 보고서 내용:
+    1. 데이터 규모 메타데이터 (1,964행 × 48열, 95쌍 차분 데이터)
+    2. 모델별 결정계수($R^2$), 수정 $R^2$, MAE, MSE, Auto-Tune 최적 파라미터 표
+    3. 표준 기준 환경(Reference Conditions: `char_height`=5.13mm, `cd_test_ah`=1.97g/m³)
+    4. 타이어 세트별(C1~C3, T1~T5) 보정 전 vs 후 평균, 표준편차 및 산포 감소율(Std Red.) 표
+    5. 생성된 3D 보정 맵 및 잔차 분석 플롯의 마크다운 링크 매핑
 
 ---
 
-## 🧪 2. 전수 검증 결과 (100% PASS)
+## 3. 📊 최종 학습 성능 및 산출물 검증 결과
 
-1. **`test_structure_integrity.py` (구조 및 하위 호환성 36개 항목 검증)**:
-   - 10대 차세대 도메인 임포트: **100% PASS**
-   - 핵심 클래스/함수 정합성: **100% PASS**
-   - 레거시 패키지/모듈 가상 브릿지: **100% PASS**
-2. **`test_pep8_all.py` (PEP 8 표준 및 함수/클래스 전수 검증)**:
-   - vehicle & ACCBRK: **PASS**
-   - ai 패키지: **PASS**
-   - signal_process: **PASS**
-   - logger 패키지: **PASS**
-   - database 패키지: **PASS**
-   - file_reader 패키지: **PASS**
-   - uno_statistics & utils 패키지: **PASS**
-   - **종합 결과**: `[SUCCESS] unoUtil 전 패키지 PEP 8 표준화 & 하위 호환성 100% PASS!`
+### 3.1. 머신러닝 알고리즘별 성능 비교
+| 머신러닝 모델 | 결정계수 ($R^2$) | 수정 $R^2$ (Adj. $R^2$) | 평균 절대 오차 (MAE) | 탐색된 최적 하이퍼파라미터 |
+| :--- | :---: | :---: | :---: | :--- |
+| **Random Forest** | **0.4927** | **0.4293** | **0.5702 m** | `{'max_depth': 3, 'min_samples_leaf': 3, 'n_estimators': 80}` |
+| **Decision Tree** | **0.4492** | **0.3804** | **0.5941 m** | `{'max_depth': 2, 'min_samples_leaf': 3}` *(음수 오차 완전 탈피)* |
+| **KNN Regressor** | **0.4234** | **0.3513** | **0.5782 m** | `{'n_neighbors': 7, 'p': 1, 'weights': 'uniform'}` |
+| **Ridge** | **0.4134** | **0.3400** | **0.6168 m** | `{'alpha': 10.0}` |
+| **Linear Regression** | **0.4077** | **0.3337** | **0.6100 m** | 기본 최소자승법 |
+| **SVR** | **0.3850** | **0.3081** | **0.5873 m** | `{'C': 5.0, 'epsilon': 0.01}` |
+
+### 3.2. 최종 생성 산출물 목록
+* **종합 마크다운 보고서**: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\Snow_Correction_Report.md`
+* **보정 완료 데이터셋**: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\1. df_combine_test_surface_spec_corrected.pkl`
+* **플랫폼 세션 영속화 객체**: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\snow_platform_2026.pkl`
+* **3D 등고선 보정 맵**:
+  - KNN: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\4. Figure\3D_Braking_Correction_Map_KNN.png`
+  - RF: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\4. Figure\3D_Braking_Correction_Map_RF.png`
+  - Linear: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\4. Figure\3D_Braking_Correction_Map_Linear.png`
+* **검증 플롯**:
+  - 잔차 의존성 소거: `Residual_Dependency_Height.png`, `Residual_Dependency_AH.png`
+  - 타이어 세트별 박스플롯: `Spec_Boxplot_TireSet.png`
+  - 모델별 종합 성능 비교: `Correction_Models_Performance_Comparison.png`
+
+---
+
+## 4. 🧭 향후 계획
+1. `c_plot_correction_verification.py` 스크립트 점검 및 현대화.
+2. 타이어 고유 사양(컴파운드, 패턴, 규격)별 제동거리 보정 효과 및 순위 역전(Rank Inversion) 정밀 분석.

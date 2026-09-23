@@ -8,18 +8,20 @@
 
 ### 1.1 `SnowBrakingPerformance`
 플랫폼을 통합 관장하는 마스터 파사드 클래스입니다.
-* **주요 등록 및 맵 빌더**:
+* **주요 등록, 적재 및 맵 빌더**:
+  * `load_combined_data(path_or_df)`: 🚀 **[2026 신설]** 통합 데이터셋(제동+노면+기상+스펙)을 1줄로 로드, 검증 및 `is_performance_matched = True` 동기화.
   * `add_surface_data(data)`: 노면 계측 데이터프레임 또는 파일을 등록합니다.
   * `add_braking_data(data)`: 실차 제동 평가 데이터를 등록합니다.
   * `set_weather_data(df_weather)`: 기상관측 데이터를 연동하고 과포화 습도를 분석합니다.
   * `set_spec_data(df_spec)`: 타이어 사양(컴파운드, 패턴, 규격) 메타데이터를 등록합니다.
   * `calc_surface_maps(method, group_col)`: 노면 디지털 트윈 격자를 빌드합니다. (하위 호환성 에일리어스: `build_surface_maps`)
-* **핵심 연산 및 보정**:
+* **핵심 연산, 보정 및 보고서**:
   * `calc_matched_performance()`: 제동 시험 좌표와 시각에 정밀 대응되는 실시간 노면 데이터를 매칭 결합합니다. (하위 호환성 에일리어스: `match_performance_to_surface`)
-  * `calc_trained_correction_model(model_type, features, target)`: 차분법 기반 머신러닝 보정 모델을 학습시킵니다. (하위 호환성 에일리어스: `train_correction_model`)
+  * `calc_trained_correction_model(model_type, features, target, auto_tune=False, model_params=None, cv=5)`: 🚀 **[2026 고도화]** 차분법 기반 머신러닝 보정 모델을 학습시킵니다. 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(`auto_tune=True`) 및 수동 튜닝(`model_params`) 지원. (하위 호환성 에일리어스: `train_correction_model`)
   * `calc_corrected_braking_distance(raw_dist, cur_condition, ref_condition)`: 현재 시험 조건에 대한 실시간 제동거리 보정치를 산출합니다. (하위 호환성 에일리어스: `correct_braking_distance`)
   * `calc_corrected_dataframe(out_col, ref_condition)`: 전체 제동 데이터를 일괄 정규화 보정합니다. (하위 호환성 에일리어스: `correct_dataframe`)
   * `calc_spec_impact(spec_col)`: 보정 전/후 컴파운드별 분산 감소 효과 및 순위 일관성을 분석합니다. (하위 호환성 에일리어스: `analyze_spec_impact`)
+  * `save_report_md(save=True, figure_dir=None)`: 🚀 **[2026 신설]** 모델 평가 메트릭, 최적 파라미터, 기준 조건, 타이어별 산포 감소율, 차트 링크를 종합 마크다운(.md) 보고서로 자동 생성 및 저장 (다형성 `save` 표준 준수). (하위 호환성 에일리어스: `export_report_md`)
 
 ### 1.2 `SnowBrakingPerformancePlotter`
 마스터 클래스 내부의 데이터 및 분석 엔진을 사용하여 차트를 생성하는 전용 플로터 클래스입니다. (`sbp.plot` 멤버 변수를 통해 구동)
@@ -42,29 +44,21 @@ from Snow_braking_relate_condition.snow_braking_performance import SnowBrakingPe
 # 1. 마스터 플랫폼 객체 생성
 sbp = SnowBrakingPerformance(name="SnowPlatform_2026")
 
-# 2. 노면, 제동, 기상 및 스펙 데이터 연동 및 주입
-sbp.add_surface_data("./df_surface_raw.pkl")
-sbp.add_braking_data("./df_braking_raw.pkl")
-sbp.set_weather_data("./df_weather_kma.pkl")
-sbp.set_spec_data("./df_spec_meta.pkl")
+# 2. 통합 데이터셋 1줄 원스톱 적재 (검증 및 플래그 활성화 자동화)
+df_combined = sbp.load_combined_data("./1. df_combine_test_surface_spec.pkl")
 
-# 3. 3D 디지털 트윈 구축 및 실시간 노면 조건 1:1 GPS 매칭 결합
-sbp.calc_surface_maps(method='RF')
-sbp.calc_matched_performance()
+# 3. 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(Auto-Tuning) 학습
+metrics = sbp.calc_trained_correction_model(model_type='KNN Regressor', auto_tune=True, cv=5)
 
-# 4. 차분법 머신러닝 학습 및 일괄 정규화 보정
-sbp.calc_trained_correction_model(model_type='Random Forest')
+# 4. 기준 환경 설정 및 전체 데이터 일괄 정규화 보정
+sbp.correction_engine.set_reference_conditions({'char_height': 5.13, 'cd_test_ah': 1.97})
 df_normalized = sbp.calc_corrected_dataframe(out_col='char_brk_dist_corr')
 
 # 5. 컴파운드 사양별 영향 분석 및 분산 감소율 집계
 df_summary, ranking_metrics = sbp.calc_spec_impact(spec_col='infor_CTB_COMPOUND')
 print(df_summary[['Spec', 'Var_Reduction(%)']])
 
-# 6. 정밀 시각화 맵 생성 및 자동 저장 (Non-blocking)
-sbp.plot.plot_session_2d_overlay(
-    date="2026-01-20", 
-    period="am", 
-    save=True,  # 사내 디폴트 저장 폴더에 저장
-    close=True  # 메모리 완전 해제 및 hang 차단
-)
+# 6. 종합 분석 마크다운(.md) 보고서 자동 생성
+report_path = sbp.save_report_md(save=True)
+print(f"분석 보고서 저장 완료: {report_path}")
 ```

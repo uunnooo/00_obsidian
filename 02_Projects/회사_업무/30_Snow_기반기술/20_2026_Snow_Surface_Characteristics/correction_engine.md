@@ -17,10 +17,16 @@
 * **하위 호환성 에일리어스**:
   * `extract_difference_dataset`
 
-### 1.2 `calc_trained_models(df_diff, test_size, n_estimators, max_depth, random_state)`
+### 1.2 `calc_trained_models(df_diff, test_size, model_params=None, auto_tune=False, cv=5, ...)`
 추출된 차분 데이터셋을 활용하여 다양한 머신러닝 회귀 후보 모델들(Random Forest, KNN, Decision Tree, Ridge/Linear Regression, SVR)을 과적합 깊이 규제 및 하이퍼파라미터 제어를 바탕으로 학습시키고 평가 메트릭($R^2$, MAE, MSE, Adjusted $R^2$)을 반환합니다.
 * **인자**:
   * `df_diff (Optional[pd.DataFrame])`: 차분 데이터프레임 (생략 시 내부 캐시 데이터 사용)
+  * `model_params (Optional[Dict[str, Any]])`: 🚀 **[2026 신설]** 특정 모델에 직접 주입할 수동 하이퍼파라미터 딕셔너리
+  * `auto_tune (bool)`: 🚀 **[2026 신설]** 5-Fold 교차검증(`GridSearchCV`)을 가동하여 각 모델의 최적 하이퍼파라미터를 자동 탐색 (기본값: `False`)
+  * `cv (int)`: 교차검증 Fold 수 (기본값: `5`)
+* **핵심 안정화 메커니즘**:
+  * **$R^2$ 음수 파탄 방어**: 95쌍 소규모 차분 데이터에서 단일 Decision Tree의 깊이 미제한으로 인한 과적합을 `max_depth=2`, `min_samples_leaf=3` 제약으로 원천 차단하여 양수($R^2 = +0.45$)로 정상 수렴.
+  * **최적 파라미터 보관**: 탐색된 최적 파라미터는 `self.best_params` 딕셔너리에 영구 보존되어 마크다운 보고서로 연계.
 * **반환값**:
   * `Dict[str, Dict[str, float]]`: 모델별 검증 통계 지표 사전
 * **하위 호환성 에일리어스**:
