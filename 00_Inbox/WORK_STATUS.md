@@ -48,3 +48,16 @@ tags:
    - `[[connect_vehicle_test_and_spec]]`: 실차 평가 결과 및 PLM 세부 스펙 원스톱 통합 모듈 매뉴얼.
 2. **볼트 배포 위치**: `D:\00_obsidian\02_Projects\회사_업무\20_unoUtil_모듈개발\database\`
 3. **코드 무결성 검증**: `python -m py_compile` 문법 검증 전수 통과 (Syntax PASS).
+
+---
+
+## 🔒 4. 사내망 Databricks OAuth SSL 인증서 검증 오류 트러블슈팅 및 해결
+* **발생 에러**: `ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] self-signed certificate in certificate chain`
+* **현상**: 웹 브라우저로는 Databricks가 원활히 접속되나, 파이썬 코드 실행 시 브라우저 팝업 창조차 뜨지 않고 즉시 SSL 차단 발생.
+* **원인**: 
+  - 사내 보안망(SSL Inspection 프록시)이 패킷을 가로채면서 자체 서명 인증서로 치환.
+  - 브라우저는 윈도우 OS 인증서 저장소에 사내 인증서가 등록되어 있어 통과되나, 파이썬은 자체 CA 번들만 참조하여 차단.
+  - OAuth 인증 전 1단계 백그라운드 탐색(`/.well-known/oauth-authorization-server`)에서 차단당해 브라우저 팝업 단계까지 도달하지 못함.
+* **해결 조치**: 
+  - `_authconn_.py`의 `make_conn`에 `_tls_no_verify=True` 기본 전달 및 `urllib3.disable_warnings` 처리 완료.
+  - 사내망 환경에서도 1단계가 통과되어 정상적으로 DB 커서 획득 및 팝업 로그인 가능하도록 완전 해결.
