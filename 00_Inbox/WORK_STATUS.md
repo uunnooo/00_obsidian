@@ -1,46 +1,77 @@
-# 💼 2026-09-22 업무 일지 및 개발 결과 요약 (WORK_STATUS)
+# 📋 unoUtil v2.6 전사 전수 명명 표준화 및 물리 레거시 완전 퇴출 보고서 (WORK_STATUS)
 
-- **작성일자**: 2026년 9월 22일 화요일
-- **작성자**: uno & Gemini CLI
-- **상태**: ✅ 전체 변경 사항 검증 완료 (100% PASS) 및 품질 교정 승인 완료
-
----
-
-## 🚀 1. 핵심 완료 작업 (What We Did)
-
-### 🌦️ ① Pandas 2.0+ object-dtype 보간 경고 완벽 진압
-- **위치**: `unoUtil/utils/weather.py` (`connect_weather`, `make_surfaceSensor`, `make_stationSensor`)
-- **원인**: 최신 판다스(Pandas 2.0+) 버전에서 수치 보간 시 object-dtype(비숫자형) 컬럼이 포함되어 있으면 발생하는 `FutureWarning` 경고
-- **조치**: 보간 전에 `.select_dtypes(include='number')`를 사용하여 **숫자형 컬럼들만 정밀 선별하여 보간(`interpolate`)**을 가동함으로써 최신 판다스 엄격 표준 충족 및 경고를 원천 삭제했습니다.
-- **결과**: 비숫자형(문자열/카테고리형) 컬럼은 원래 설계하신 의도대로 `ffill()` 및 `bfill()`을 통해 논리적 정합성(상태 유지)이 완벽하게 유지된 채 가독성 있게 채워집니다.
-
-### 📝 ② 디버그 로그 줄바꿈 제거 및 콘솔 1행 정렬(Align) 교정
-- **위치**: `vt_acc_brk_tire.py`, `vt_acc_brk_project.py`, `an_response.py`, `an_skewness.py`
-- **조치**: 대용량 캐시 복원 및 삭제 프로세스 등을 로깅할 때, 로거 뒤에 불필요하게 `\n` 개행 문자가 삽입되어 출력 라인이 찢어지던 문제를 전수 해결했습니다.
-- **결과**: 모든 디버깅용 캐시 라이프사이클 로그들이 콘솔 창에 보기 좋게 칼 정렬(Align)되어 출력되도록 개선 완료했습니다.
-
-### 📖 ③ 신규 `logger.md` 통합 로깅 가이드 및 프로그레스 바 매뉴얼 제정
-- **위치**: `unoUtil/logger/logger.md` (1:1 매뉴얼 완비)
-- **내용**: 
-  - `LOGGER` 클래스의 5대 포맷 프리셋 (`default`, `elapsed`, `delta`, `simple`, `detailed`) 설정법 설명.
-  - `with logger.measure("작업명")` 코드 블록 타이밍 분석 컨텍스트 매니저 사용 가이드.
-  - `track()` 및 `progress_bar()` 진행률 바 충돌 방지 렌더링 설명 및 콘솔 로그 출력 시 레이아웃 보호 연동 원리 설명.
-  - 파일 로깅 시 ANSI 이스케이프 자동 소거(`strip_ansi`) 및 PyQt5 에러 메시지 팝업박스 연동 가이드 수록.
+**일자**: 2026-09-23  
+**작업자**: Gemini CLI  
+**주요 목표**: 전사 모듈 대상 역방향 별칭(`Standard = LEGACY`) 전수 제거, 물리적 `legacy/` 디렉터리 100% 영구 퇴출(Zero Physical Legacy), 하위 호환성 100% 가상 리다이렉션 검증 및 Obsidian Vault 실시간 미러 동기화
 
 ---
 
-## 🧪 2. 무결성 정합성 검증 결과 (Verification & Audit)
+## 🎯 1. 주요 작업 내역 및 완결 사항
 
-모든 작업은 **활성화된 파이썬 가상환경**에서 완벽하게 단독 및 통합 검증을 통과했습니다.
-
-1. **`python unoUtil/utils/weather.py`** ➡️ **[100% PASS]** 경고 없는 깨끗한 기상 데이터 슬라이싱 및 시간 정렬/보간 수행 완료.
-2. **`python unoUtil/example/test_structure_integrity.py`** ➡️ **[100% PASS]** 10대 차세대 도메인 임포트 및 이전 버전 스크립트와의 호환성 브릿지 정상 가동.
-3. **`python unoUtil/example/test_pep8_all.py`** ➡️ **[100% PASS]** 전 수립 패키지의 PEP 8 표준 함수/클래스 명명 체계 준수 통과.
+### 1) 역방향 별칭 및 레거시 명명 전수 점검 및 교정 (Zero Inversion)
+- **`unoUtil.logger.logger`**:
+  - `class LOGGER:` $\rightarrow$ 공식 `class Logger:` 정의로 정상화.
+  - 역방향 별칭 `Logger = LOGGER`를 공식 하위 호환 매핑 `LOGGER = Logger`로 교정.
+  - 전역 로거 타입 힌트 `Dict[str, Logger]` 정합성 확보.
+- **`unoUtil.uno_statistics.uncertainty`**:
+  - `class UNCERTAINTY:` $\rightarrow$ 공식 `class Uncertainty:` 정의.
+  - `class PLOT:` $\rightarrow$ 공식 `class UncertaintyPlot:` 정의.
+  - 하위 호환 매핑 `UNCERTAINTY = Uncertainty`, `PLOT = UncertaintyPlot` 정상 정렬.
+- **`unoUtil.graphics.controls.cursor_mode`**:
+  - `def SetCursorMode` $\rightarrow$ 공식 `def set_cursor_mode`로 선언. 하위 호환 별칭 `SetCursorMode = set_cursor_mode` 수립.
+- **`unoUtil.graphics.plotters.pair_plot`**:
+  - `def PairPlotCorrWithScatter` $\rightarrow$ 공식 `def plot_pair_corr_with_scatter`로 선언. 하위 호환 별칭 수립.
+- **`unoUtil.graphics.plotters.surface_3d`**:
+  - `def Regression3D` $\rightarrow$ 공식 `def calc_regression_3d`로 선언. 하위 호환 별칭 `Regression3D = calc_regression_3d` 수립.
+- **`unoUtil.signal_process.fft.tf_estimate`**:
+  - `def TFEstimate` $\rightarrow$ 공식 `def calc_tf_estimate`로 선언. 하위 호환 별칭 `TFEstimate = calc_tf_estimate` 수립.
+- **`unoUtil.utils.window_msg`**:
+  - `def Window_Error_MSG` $\rightarrow$ 공식 `def set_window_error_msg`로 선언. 하위 호환 별칭 `Window_Error_MSG = set_window_error_msg` 수립.
+- **`unoUtil.ai.dynamic_model`**:
+  - `TireMagicFormula` $\rightarrow$ `def calc_tire_magic_formula`, `UnitYawRate` $\rightarrow$ `def calc_unit_yaw_rate`, `ObjectiveFunc_UnitYawRate` $\rightarrow$ `def calc_objective_unit_yaw_rate`로 선언. 하위 호환 별칭 및 `unoUtil.ai.__init__.py` 익스포트 완결.
+- **`unoUtil.file_reader.standard_channel_pattern`**:
+  - `class Infor_Vehicle` $\rightarrow$ `InforVehicle`, `class Infor_SensorPosition` $\rightarrow$ `InforSensorPosition`, `class GPS` $\rightarrow$ `Gps`로 선언.
+- **`unoUtil.vehicle.hndl_test`**:
+  - `SP_CurveFit_RF` $\rightarrow$ `calc_curvefit_rf`, `SP_CurveFit_MF` $\rightarrow$ `calc_curvefit_mf`로 선언 및 하위 호환 매핑.
 
 ---
 
-## 🎯 3. 지식 위키 및 대시보드 동기화 완료 (SSOT Compliance)
-- **MOC 대시보드 누적 갱신**:
-  - `00_unoUtil_모듈개발_대시보드.md` (마스터 헙) ➡️ **v2.5** 갱신 완료
-  - `00_utils_대시보드.md` (공통 헬퍼) ➡️ **v2.5** 🌦️ weather 보간 경고 차단 완료
-  - `00_VT_ACCBRK_대시보드.md` (실차 가감속) ➡️ **v2.5** 📝 로깅 1행 정렬 완료
+### 2) Zero Physical Legacy (물리 레거시 폴더 100% 영구 퇴출)
+- 디스크 상에 잔존하던 물리적 `legacy/` 디렉터리 9개 전량을 `_archive/`로 안전 격리 퇴출:
+  - `unoUtil/ai/legacy` $\rightarrow$ `_archive/ai_legacy`
+  - `unoUtil/database/legacy` $\rightarrow$ `_archive/database_legacy`
+  - `unoUtil/file_reader/legacy` $\rightarrow$ `_archive/file_reader_legacy`
+  - `unoUtil/logger/legacy` $\rightarrow$ `_archive/logger_legacy`
+  - `unoUtil/signal_process/curve_fit/CurveCombiner/legacy` $\rightarrow$ `_archive/curve_fit_legacy`
+  - `unoUtil/signal_process/fft/legacy` $\rightarrow$ `_archive/fft_legacy`
+  - `unoUtil/signal_process/post_process/legacy` $\rightarrow$ `_archive/post_process_legacy`
+  - `unoUtil/vehicle/legacy` $\rightarrow$ `_archive/vehicle_legacy`
+  - `unoUtil/vehicle/acc_brk/legacy` $\rightarrow$ `_archive/acc_brk_legacy`
+- `unoUtil/convenienceFunction` 디렉터리 완전 격리 (`_archive/convenienceFunction`).
+- `unoUtil` 패키지는 이제 **순수 v2 공식 10대 도메인 디렉터리만 물리적으로 유지**.
+- 모든 레거시 임포트는 메모리 상의 `_UnoUtilLegacyRedirectFinder` 및 사전 바인딩된 `sys.modules` 가상 레이어에서 100% 무중단 라우팅 처리됨.
+
+---
+
+### 3) 대시보드 및 문서 규격 표준화 (Phase 4 & 5)
+- `unoUtil/vehicle/acc_brk/00_VT_ACCBRK_대시보드.md` 파일명을 표준 소문자 스네이크케이스인 `00_vt_acc_brk_대시보드.md`로 공식 변경.
+- `GEMINI.md` 및 마스터 가이드의 경로 참조 일괄 동기화.
+- `robocopy /MIR` 실행을 통해 Obsidian Vault 내 삭제된 레거시 문서 자동 퍼지(Purge) 및 신규 문서 100% 동기화 완료.
+
+---
+
+## 🧪 2. 전수 검증 결과 (100% PASS)
+
+1. **`test_structure_integrity.py` (구조 및 하위 호환성 36개 항목 검증)**:
+   - 10대 차세대 도메인 임포트: **100% PASS**
+   - 핵심 클래스/함수 정합성: **100% PASS**
+   - 레거시 패키지/모듈 가상 브릿지: **100% PASS**
+2. **`test_pep8_all.py` (PEP 8 표준 및 함수/클래스 전수 검증)**:
+   - vehicle & ACCBRK: **PASS**
+   - ai 패키지: **PASS**
+   - signal_process: **PASS**
+   - logger 패키지: **PASS**
+   - database 패키지: **PASS**
+   - file_reader 패키지: **PASS**
+   - uno_statistics & utils 패키지: **PASS**
+   - **종합 결과**: `[SUCCESS] unoUtil 전 패키지 PEP 8 표준화 & 하위 호환성 100% PASS!`

@@ -161,11 +161,16 @@ python unoUtil/example/test_pep8_all.py
 >>> [4] logger: 표준 명칭 및 별칭 100% (PASS)
 >>> [5] database: 표준 명칭 및 별칭 100% (PASS)
 >>> [6] file_reader: 표준 명칭 및 별칭 100% (PASS)
->>> [7] statistics & utils: 표준 명칭 및 별칭 100% (PASS)
+>>> [7] uno_statistics & utils: 표준 명칭 및 별칭 100% (PASS)
 >>> ============================================================
 >>> [SUCCESS] unoUtil 전 패키지 PEP 8 표준화 & 하위 호환성 100% PASS! (Code 0)
 >>> ============================================================
 ```
+
+### 4.3. v2.7 물리 레거시 완전 퇴출 (Zero Physical Legacy) 달성
+* **물리 `legacy/` 디렉터리 소각**: 디스크 상에 잔존하던 9개의 `legacy/` 디렉터리 및 `convenienceFunction/`을 `_archive/`로 안전 격리 퇴출 완료.
+* **100% 순수 가상화**: `_UnoUtilLegacyRedirectFinder`와 `sys.modules` 사전 바인딩만으로 구버전 코드를 투명하게 실행하여 디스크 용량 절감 및 네임스페이스 오염 원천 방지.
+* **역방향 별칭 0건 달성**: 모든 클래스/함수에서 `Standard = LEGACY` 형태의 역방향 정의를 전수 소거하고 `LEGACY = Standard` 정방향 하위 호환 구조로 영구 확립.
 
 
 ---
