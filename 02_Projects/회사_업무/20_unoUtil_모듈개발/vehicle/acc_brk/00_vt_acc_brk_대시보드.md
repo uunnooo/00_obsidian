@@ -80,6 +80,7 @@ graph TD
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v2.8** | 2026-09-24 | uno &<br/>Gemini | 🏁 **가감속/제동 동역학 전 모듈 무결성 100% 통과 및 v2.0 정식 릴리즈 완료**<br/>🛡️ C/Fortran 가속도 Wavelet/KDE 바이너리(`_mvn` 등) Windows Smart App Control 서명 정합 완비<br/>🧪 `VTAccBrk`, `VTAccBrkTire`, `VTAccBrkProject`, `BaseMemory` 및 구버전 14대 ACCBRK 모듈 전수 임포트 검증 통과 | ✅ 완료 |
 | **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🔤 대시보드 명칭 소문자 스네이크케이스(`00_vt_acc_brk_대시보드.md`) 공식 확정 및 전사 동기화<br/>🧹 전사 역방향 별칭(`Standard = LEGACY`) 전수 제거 및 PascalCase/8대 동사 기준 정방향(`LEGACY = Standard`) 일괄 정합화<br/>🛡️ 물리 `legacy/` 디렉터리 100% 영구 퇴출 (Zero Physical Legacy 달성) 및 100% 가상 메모리 리다이렉션 무결성 검증 통과 | ✅ 완료 |
 | **v2.6** | 2026-09-22 | uno &<br/>Gemini | 🏛️ v2 차세대 클래스(PascalCase)/함수(8대동사)/입출력(df_input/output) 전사 명명 표준 확립<br/>🛡️ 물리 legacy 폴더 전수 소각을 위한 100% 가상(MetaPath) 실시간 리다이렉션 직통 아키텍처 수립<br/>🎯 제어 인자(print, plot, save, excel, html) 지능형 다형성 및 bool_ 네임 섀도잉 방지 규격 확정 | ✅ 완료 |
 | **v2.5** | 2026-09-22 | uno &<br/>Gemini | 📝 `vt_acc_brk_tire.py`, `vt_acc_brk_project.py`, `an_response.py`, `an_skewness.py` 내의 `logger.debug` 문자열 시작 개행 문자 `\n` 전수 제거로 로그 한 줄 칼정렬 교정 완료 | ✅ 완료 |

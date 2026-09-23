@@ -44,6 +44,7 @@ flowchart TD
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v2.8** | 2026-09-24 | uno &<br/>Gemini | 🏁 **유틸리티 5대 모듈(files, excel, dataframe, console, weather) 무결성 100% 통과**<br/>🧪 `check_path`, `insert_figure_to_excel`, `astype_float`, `load_master_database` 및 레거시 `convenienceFunction` 전수 무중단 임포트 통과 | ✅ 완료 |
 | **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🔤 `Window_Error_MSG` $\rightarrow$ `def set_window_error_msg` 공식 선언 및 하위 호환 별칭 정합화<br/>🛡️ 물리 `convenienceFunction/` 디렉터리 완전 소각 및 순수 가상 메모리 리다이렉션으로 100% 전환 완료 | ✅ 완료 |
 | **v2.6** | 2026-09-22 | uno &<br/>Gemini | 🛠️ save, excel, html 3대 제어 인자 공통 지능형 다형성 해결사(`resolve_save_path`) 설계 수립<br/>🛡️ files.py 및 excel.py 내 레거시 헝가리안 인자군 완전 정제 및 bool_print/bool_save 섀도잉 방지 헌법 확정 | ✅ 완료 |
 | **v2.5** | 2026-09-22 | uno &<br/>Gemini | 🌦️ weather.py 내의 모든 보간 호출 위치에서 숫자형 컬럼(`select_dtypes(include='number')`)만 골라 처리하도록 고도화하여 Pandas 2.0+ `FutureWarning` 경고 100% 원천 차단 | ✅ 완료 |
