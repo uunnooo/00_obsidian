@@ -60,9 +60,19 @@ aliases:
 
 ---
 
+## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
+| 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
+| :---: | :---: | :---: | :--- | :---: |
+| **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🧹 전사 역방향 별칭(`Standard = LEGACY`) 전수 제거 및 PascalCase/8대 동사 기준 정방향(`LEGACY = Standard`) 일괄 정합화<br/>🛡️ 물리 `legacy/` 9개 디렉터리 및 `convenienceFunction/` 전량 `_archive/` 영구 퇴출 (Zero Physical Legacy 달성)<br/>🔌 `_UnoUtilLegacyRedirectFinder` 및 `sys.modules` 사전 바인딩 기반 무중단 가상화 100% 검증 (`test_structure_integrity.py` 36개 항목 PASS) | ✅ 완료 |
+| **v2.6** | 2026-09-23 | uno &<br/>Gemini | 🗄️ GetDB 실차시험 의뢰번호/타이어세트 기반 PLM 세부 스펙 추출 모듈 (`connect_spec_with_req_set`) 구현<br/>📊 실차 평가 결과 테이블(Wet/Dry 제동 등)과 세부 스펙 원스톱 통합 연결 모듈 (`connect_vehicle_test_and_spec`) 구현 및 기술 문서 배포<br/>🔒 사내망 Databricks OAuth SSL 인증서 검증 에러 원인 규명 및 `_authconn_.py` (`_tls_no_verify=True`) 패치 (`auth_conn` 가이드 보강) | ✅ 완료 |
+| **v2.5** | 2026-09-21 | uno &<br/>Gemini | 🏎️ 패키지 내부 레거시 정화 (`signal_process/fft/`, `post_process/`, `curve_fit/`, `vehicle/` 하위 브릿지 격리 및 차세대 v2.0 API 직접 바인딩)<br/>🎨 ProgressBar 터미널 UI/UX 전격 완치 (진행율 수치 좌측 대이동, VT100 `DECAWM` 자동 줄바꿈 제어, 색상 플리커 차단)<br/>📝 `base_memory.py` 내 메모리 디버그 로그 한 줄 칼정렬(`\n` 소거) 교정 완료 | ✅ 완료 |
+| **v2.0** | 2026-09-18 | uno &<br/>Gemini | 🏛️ unoUtil v2.0 10대 도메인 클린 아키텍처 전면 개편 ([[UNOUTIL_V2_REFACTORING_REPORT]])<br/>📦 패키지 내부 1GB+ 거대 계측 데이터 전량 제거 $\rightarrow$ 15.62MB 순수 초경량화 (98.5% 절감)<br/>🎯 8대 표준 동사 네이밍 수립 (`load_`, `read_`, `calc_` 등) 및 `MetaPathFinder` 무중단 가상 로더 수립 | ✅ 완료 |
+| **v1.0** | 2026-09-10 | uno | 🚀 unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트 킥오프 및 기본 분석 파이프라인 수립 | ✅ 완료 |
 
-## 📦 패키지 서브모듈 구조 및 현황 (v2.0 Clean Architecture)
+---
+
+## 📦 2. 패키지 서브모듈 구조 및 현황 (v2.0 Clean Architecture)
 
 
 
@@ -271,7 +281,7 @@ aliases:
 
 
 
-## 📐 2. 개발 및 엔지니어링 표준
+## 📐 3. 개발 및 엔지니어링 표준
 
 
 
