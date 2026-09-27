@@ -48,7 +48,6 @@ flowchart TD
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
-| **v2.8** | 2026-09-24 | uno &<br/>Gemini | 🏁 **신호 후처리 4대 모듈(`filters`, `resample`, `outliers`, `scaler`) 무결성 100% 통과**<br/>🧪 `_UnoPP_` 레거시 및 `CurveCombiner`, `TFEstimate` 등 신호처리 전 도메인 무중단 임포트 정합 완료 | ✅ 완료 |
 | **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🛡️ 물리 legacy 폴더 및 oldVer 폴더 _archive로 영구 격리 퇴출 완료<br/>🔌 CurveCombiner 모듈/패키지 가상 네임스페이스 sys.modules 정합성 확보로 구버전 스크립트 100% 임포트 통과 | ✅ 완료 |
 | **v2.6** | 2026-09-22 | uno &<br/>Gemini | 🔌 이원화 임포트 정합성 감사 및 v2.6 완전 가상(No-Disk) 레거시 리다이렉트 브릿지 통합 아키텍처 수립<br/>🛡️ filters.py, outliers.py 내 비표준 헝가리안 및 CamelCase 입출력 인자를 df_input/output으로 정규화하는 리팩토링 설계 완료 | ✅ 완료 |
 | **v2.4** | 2026-09-21 | uno &<br/>Gemini | 📂 _UnoPP_.py, ExtendedIsolationForest.py 및 .md 파일 post_process/legacy/ 격리 수용<br/>🔌 outliers.py 등 내부 구버전 임포트 구문 제거 및 V2.0 순수 API 연계 수술<br/>🔌 상위 제동 엔진 내부에서 _UnoPP_ 가리키던 Import 구문 전면 정화 | ✅ 완료 |

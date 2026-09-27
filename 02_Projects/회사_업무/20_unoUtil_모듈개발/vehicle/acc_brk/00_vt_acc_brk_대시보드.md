@@ -76,10 +76,14 @@ graph TD
     PLT1 & PLT2 --> EXCEL
 ```
 
+---
+
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v3.0** | 2026-09-27 | uno &<br/>Gemini | 🎯 **No Redundant Prefix Law & Single Baseline Law 전사 안착 및 func_acc_brk 전면 표준화 완비**<br/>• **No Redundant Prefix Law 적용**: `Plotter`, `PlotterTire`, `PlotterProject` 등 역할 내포 클래스의 메서드 접두사 중복 배제(`plot_` 배제 $\rightarrow$ `accbrk()`, `compare_braking()` 등).<br/>• **func_acc_brk 8대 표준 동사 전면 표준화**: `calc_mu_drop`, `calc_slip_mode_skewness`, `calc_response` 표준화, print 전면 퇴출 $\rightarrow$ `logger` 일원화, 리소스 누수 방지 `plt.close` 처리.<br/>• **잠재적 NameError 결함 차단**: `calc_slip_mode_skewness` 내 미선언 변수 `arr_g_filtered` $\rightarrow$ `ax_filtered` 수정.<br/>• **Single Baseline Law 입각 과도기 별칭 소각**: 순환 별칭 정리 및 v1 오리지널 레거시 단일 별칭 바인딩.<br/>• **vt_acc_brk_tire.py 호출 정합**: `calc_acc_brk` 및 PascalCase 6대 분석기(`AnAcceleration` 등) 정규 인스턴스화 연결.<br/>• **자립형 Mock 테스트 스위트**: 외부 파일 의존성 없는 100Hz 시뮬레이션 합성 데이터 검증 스위트 완비 및 전 파일 `py_compile` 무결점 통과. | ✅ 완료 |
+| **v2.9** | 2026-09-26 | uno &<br/>Gemini | 🏎️ **vehicle & acc_brk 도메인 1:1 위키 매뉴얼 100% 완비 및 Single Baseline Law 적용**<br/>• **누락 매뉴얼 5종 신규 배포**: `an_response.md`, `an_skewness.md`, `an_slip_pdf.md`, `an_split_speed.md`, `correct_factors.md` 작성 완료.<br/>• **루트 vehicle 4대 모듈 전면 개편**: `VehicleDynamic` 클래스화(Option B), `hndl_test.py` 비차단화, `TestInformation`/`TestResult` PascalCase 정규화, `analysis_test_data.py` 로거화 및 3대 다변화 시나리오 스위트 완비.<br/>• **Single Baseline Law 수립**: v1 오리지널 레거시 단일 기준 호환성 보장 및 과도기적 미완성 코드의 별칭/브릿지 양산 방지. | ✅ 완료 |
 | **v2.8** | 2026-09-24 | uno &<br/>Gemini | 🏁 **가감속/제동 동역학 전 모듈 무결성 100% 통과 및 v2.0 정식 릴리즈 완료**<br/>🛡️ C/Fortran 가속도 Wavelet/KDE 바이너리(`_mvn` 등) Windows Smart App Control 서명 정합 완비<br/>🧪 `VTAccBrk`, `VTAccBrkTire`, `VTAccBrkProject`, `BaseMemory` 및 구버전 14대 ACCBRK 모듈 전수 임포트 검증 통과 | ✅ 완료 |
 | **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🔤 대시보드 명칭 소문자 스네이크케이스(`00_vt_acc_brk_대시보드.md`) 공식 확정 및 전사 동기화<br/>🧹 전사 역방향 별칭(`Standard = LEGACY`) 전수 제거 및 PascalCase/8대 동사 기준 정방향(`LEGACY = Standard`) 일괄 정합화<br/>🛡️ 물리 `legacy/` 디렉터리 100% 영구 퇴출 (Zero Physical Legacy 달성) 및 100% 가상 메모리 리다이렉션 무결성 검증 통과 | ✅ 완료 |
 | **v2.6** | 2026-09-22 | uno &<br/>Gemini | 🏛️ v2 차세대 클래스(PascalCase)/함수(8대동사)/입출력(df_input/output) 전사 명명 표준 확립<br/>🛡️ 물리 legacy 폴더 전수 소각을 위한 100% 가상(MetaPath) 실시간 리다이렉션 직통 아키텍처 수립<br/>🎯 제어 인자(print, plot, save, excel, html) 지능형 다형성 및 bool_ 네임 섀도잉 방지 규격 확정 | ✅ 완료 |
@@ -116,4 +120,3 @@ graph TD
 * 📘 **[[Gemini_Python_코드_생성_규칙|Python 코드 품질 및 작성 가이드라인]]**: docstring 전수화, `# region` 자가 구동 테스트, 옵시디언 동기화 프로토콜
 
 ---
-

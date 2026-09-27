@@ -1,79 +1,92 @@
-# 🧭 hndl_test 조종안정성 커브피팅 및 선회 거동 해석 모듈 매뉴얼 (hndl_test.md)
+# 🧭 HandlingTest 조종안정성 커브피팅 연산 엔진 매뉴얼 (hndl_test.md)
 
 ## 📌 1. 개요 및 목적 (Overview)
-`hndl_test` 모듈은 실차 조종안정성(Handling) 주행 시험 데이터를 기반으로 차량의 **언더스티어 곡선(Understeer Curve, US-curve) 및 정상 상태 선회 응답 곡선(Steady-State Curve, SS-curve)을 추정하는 고성능 비선형 커브피팅, B-스플라인 보간 및 머신러닝 기하 예측 엔진**을 구현합니다.
+`hndl_test` 모듈은 실차 정상원선회(Constant Radius Cornering) 및 조종안정성(Handling) 시험에서 취득된 **조향각(SWA) - 횡가속도(Ay)** 또는 **횡슬립각(Side-Slip) - 횡가속도(Ay)** 간의 비선형 거동을 정밀 피팅하여 **언더스티어 커브(Understeer Gradient Curve)** 및 타이어 한계 특성을 모델링하는 전문 연산 엔진입니다.
 
-차량 조종안정성 평가 시 횡가속도가 한계 한계점에 도달할수록 차량의 거동은 극도의 비선형성을 띠게 됩니다. 
-본 모듈은 초반 선형 구간에서는 유연한 **B-Spline(스플라인) 보간**을 가동하고, 횡한계 85% 이상의 극한 영역에서는 요레이트 변동 왜곡을 방어하기 위해 **의사결정 나무(Random Forest)의 트레이닝 깊이를 영리하게 제어 스무딩**하며, 최종 선회력 한계는 **타이어 매직포뮬러(Magic Formula) 그리드 서치 최적화**를 통해 수학적으로 완벽하게 피팅 평활화해 줍니다.
-
----
-
-## 🛠️ 2. 핵심 API 명세 (API Specifications)
-
-### 2.1. 글로벌 조종안정성 분석 함수 명세
-
-| 함수명 | 입력 파라미터 | 설명 |
-| :--- | :---: | :--- |
-| `SP_CurveFit_RF(df_raw)` | `df_raw` | B-Spline 스무더와 깊이가 제어된 Random Forest 수치 예측 모델을 가우시안 무빙 평균으로 이중 융합하여 정밀한 언더스티어 평가 피팅선 도출 |
-| `SP_CurveFit_MF(df)` | `df` | US-curve와 SS-curve 점군을 대상으로 비선형 Magic Formula 수식(4-파라미터 A, B, C, D)에 근거한 그리드 서치 및 최소제곱 최적화 추정 수행 |
+v2 아키텍처에서는 기존의 비표준 `plt.show()` 호출을 전면 배제하여 백그라운드 파이프라인 정지 현상을 원천 방어하고, **`calc_curvefit_rf` (B-Spline + Random Forest 하이브리드)**와 **`calc_curvefit_mf` (Pacejka Magic Formula 비선형 최적화)** 두 가지 표준 8대 동사 API로 정비되었습니다.
 
 ---
 
-## 📋 3. 입력 파라미터 상세 정의 (Arguments)
+## 🛠️ 2. 핵심 함수 및 API 명세 (API Specifications)
 
-1. **`df_raw` / `df` (`pd.DataFrame` - 필수)**:
-   - 횡가속도(Lateral Acceleration), 요레이트(Yaw Rate), 조향각(Steering Angle) 채널이 포함된 주행 시계열 데이터프레임입니다.
+| 함수명 (8대 표준 동사) | v1 오리지널 레거시 별칭 | 주요 인자 규격 (헝가리안 배제) | 반환값 | 알고리즘 특성 |
+| :--- | :--- | :--- | :---: | :--- |
+| **`calc_curvefit_rf`** | `SP_CurveFit_RF` | `data: pd.DataFrame, depth=4, window_size=100, num_points=None, plot=False, save=None, close=True` | `pd.DataFrame` | 초반 완만한 영역은 B-spline으로 곡률 보존, 한계 포화 영역(85% 이상)은 depth 제약된 Random Forest로 계단식 수평 직선 융합 |
+| **`calc_curvefit_mf`** | `SP_CurveFit_MF` | `data: pd.DataFrame, min_range=5.0, acc_unit='g', num_points=1000, bayesian=False, plot=False` | `Tuple[X, Y, Estimator]` | Pacejka Magic Formula 비선형 타이어 거동 최적화. 그리드 서치 및 베이지안 탐색을 통한 파라메터 자동 추정 |
 
 ---
 
-## 💻 4. 실무 활용 예제 (Multi-case Examples)
+## 🎯 3. v1 레거시 하위 호환성 단일 기준 원칙 (Single Baseline Law)
+* **v1 오리지널 레거시 호환 100% 보장**:
+  - `unoUtil.vehicleTest._HndlTest_` 및 기존 코드에서 쓰이던 `SP_CurveFit_RF`, `SP_CurveFit_MF` 함수명을 모듈 최하단에 100% 호환 별칭으로 제공합니다.
+  - 구버전 헝가리안 인자(`df_raw`, `df`, `peakratio`, `ws`, `intnum`, `deplot`, `minrange`, `acc_unit_change`, `inter`)는 `**kwargs` 흡수 블록을 통해 신규 표준 인자로 무중단 자동 변환됩니다.
+* **과도기적 미완성 코드의 레거시 취급 배제**:
+  - v2 개발 과정 중의 임시 파라미터나 불필요한 별칭은 남기지 않고 단일 표준 형태로 정합되었습니다.
 
-### 4.1. [시나리오 1] B-Spline 및 Random Forest 융합 언더스티어 곡선(US-Curve) 피팅
+---
+
+## 💻 4. 실무 활용 3대 다변화 시나리오 (Multi-case Examples)
+
+### 4.1. [시나리오 1] `calc_curvefit_rf` 하이브리드 언더스티어 커브 피팅
 ```python
-import numpy as np
 import pandas as pd
-from unoUtil.vehicle.hndl_test import SP_CurveFit_RF
+from unoUtil.vehicle.hndl_test import calc_curvefit_rf
 
-# 1. 조향각 대비 횡가속도 계측 가상 핸들링 스윕 데이터 빌드
-np.random.seed(42)
-lat_acc = np.linspace(0, 0.9, 500)
-steer_angle = 15.0 * lat_acc + 5.0 * (lat_acc ** 3) + np.random.normal(0, 0.02, len(lat_acc))
-df_hndl = pd.DataFrame({"LatAcc": lat_acc, "SteerAngle": steer_angle})
-
-# 2. 고성능 융합 스무딩 피팅 기동
-fitted_steer = SP_CurveFit_RF(df_raw=df_hndl)
-print(f"📊 피팅 완료! 피팅 포인트 수: {len(fitted_steer)}")
-```
-
-### 4.2. [시나리오 2] Magic Formula 그리드 서치 기반 선회 비선형 4-파라미터 최적화 추정
-```python
-from unoUtil.vehicle.hndl_test import SP_CurveFit_MF
-
-# 횡슬립각 대비 코너링포스 관계 데이터프레임 빌드
-df_slip_force = pd.DataFrame({
-    "SlipAngle": np.linspace(-10, 10, 100),
-    "CorneringForce": 1200 * np.sin(1.8 * np.arctan(1.1 * np.linspace(-10, 10, 100)))
+# 1. 조향각(SWA)과 횡가속도(Ay) 데이터프레임 준비
+df_swa_ay = pd.DataFrame({
+    "VehSWA": [0.0, 10.0, 25.0, 50.0, 80.0, 110.0, 130.0],
+    "AccLateral": [0.0, 0.15, 0.38, 0.65, 0.82, 0.88, 0.89]
 })
 
-# 매직포뮬러 4-파라미터(A, B, C, D) 수치 추정 최적화 기동
-optimal_params, df_fitted_mf = SP_CurveFit_MF(df=df_slip_force)
-
-print(f"🎯 최적 추정된 Magic Formula 계수: {optimal_params}")
-# Output: [A_peak, B_stiffness, C_shape, D_curvature] 수치 어레이 반환
+# 2. RF 최대 깊이를 4로 제한하여 한계 영역의 진동을 제거하고 매끄러운 커브 산출
+res_df = calc_curvefit_rf(
+    data=df_swa_ay,
+    depth=4,
+    window_size=10,
+    plot=False
+)
+print(f"✅ 커브 피팅 완료! 피팅 포인트 수: {len(res_df)}")
 ```
 
-### 4.3. [시나리오 3] Non-blocking 시각화 및 자동 저장 연동
+### 4.2. [시나리오 2] `calc_curvefit_mf` Magic Formula 최적화 및 타겟 값 역추정
 ```python
-# 피팅 결과 등고 및 타점 비교 차트 무중단 저장
-import matplotlib.pyplot as plt
+from unoUtil.vehicle.hndl_test import calc_curvefit_mf
 
-fig, ax = plt.subplots()
-ax.scatter(df_hndl["LatAcc"], df_hndl["SteerAngle"], alpha=0.3, label="Raw Data")
-ax.plot(df_hndl["LatAcc"], fitted_steer, "r-", lw=2, label="RF-Spline Fit")
-ax.legend()
+# 1. Magic Formula 비선형 피팅 수행
+x_opt, y_opt, estimator = calc_curvefit_mf(
+    data=df_swa_ay,
+    acc_unit="g",
+    num_points=500,
+    plot=False
+)
 
-fig.savefig("./test_output/handling_understeer_curve.png", dpi=200, bbox_inches="tight")
-plt.close(fig)  # 백그라운드 무중단 메모리 회수
+# 2. 임의의 조향각(SWA = 40 deg)에 대한 횡가속도 예측 (predict)
+pred_ay = estimator.predict([40.0])
+print(f"📊 SWA 40 deg 예측 횡가속도: {pred_ay[0]:.3f} g")
 
-print("💾 조종안정성 한계 거동 피팅 그래프 저장이 완료되었습니다.")
+# 3. 임의의 횡가속도(Ay = 0.5 g)를 달성하기 위한 요구 조향각 역추정 (inverse)
+req_swa = estimator.inverse([0.5])
+print(f"🎯 Ay 0.5 g 달성 요구 조향각: {req_swa[0]:.1f} deg")
 ```
+
+### 4.3. [시나리오 3] v1 레거시 별칭 호출 및 비차단(Non-blocking) 파일 저장
+```python
+from pathlib import Path
+from unoUtil.vehicle.hndl_test import SP_CurveFit_RF
+
+# v1 레거시 인자명(df_raw, ws, deplot)으로 호출하면서 비차단 차트 저장 수행
+legacy_result = SP_CurveFit_RF(
+    df_raw=df_swa_ay,
+    ws=10,
+    depth=3,
+    plot=True,
+    save=Path("./test_output/legacy_rf_curve.png"),
+    close=True  # 메모리 즉시 해제
+)
+print("🎉 v1 레거시 호출 및 비차단 그래프 저장 성공!")
+```
+
+---
+**Last Updated**: 2026-09-26  
+**Module**: `unoUtil.vehicle.hndl_test`  
+**Standard**: unoUtil Clean Architecture v2.0
