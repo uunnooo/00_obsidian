@@ -44,6 +44,7 @@ aliases:
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v3.2** | 2026-09-28 | uno &<br/>Gemini | 🏁 **vehicle 도메인 4대 핵심 모듈 및 가감속/제동 Git 정합 완결 (`b1a0eb3`, `ab1132e`)**<br/>• **vehicle 4대 모듈 8대 동사 전면 표준화**: `VehicleDynamic` 클래스화 및 8대 동사 함수군(`align_coordinate`, `rotate_kinematics`, `calc_side_slip_angle`, `calc_load_transfer_longitudinal`), `analysis_test_data`(`calc_performance`, `calc_compare`), `hndl_test`(`calc_curvefit_rf`, `calc_curvefit_mf`), `test_infor_res`(`TestInformation`, `TestResult`) 정합 및 v1 레거시 브릿지 바인딩 완료.<br/>• **func_acc_brk.py 후처리 임포트 결함 완치**: `post_process`의 `moving_average_fast`, `resample_data` 임포트 불일치 교정으로 전수 무결성 테스트 100% PASS 복구.<br/>• **1:1 마크다운 매뉴얼 6종 반영**: `standard_channel_pattern.md`, `an_response.md`, `an_skewness.md`, `an_slip_pdf.md`, `an_split_speed.md`, `correct_factors.md` 원격 저장소 푸시 완결.<br/>• **00_vehicle_dynamic_대시보드.md 신규 구축**: 조종안정성 및 차량 동역학 전용 MOC 대시보드 신규 배포 및 상위 허브 연동. | ✅ 완료 |
 | **v3.1** | 2026-09-27 | uno &<br/>Gemini | 🚀 **file_reader 이기종 계측 데이터 리더 도메인 8대 동사 전면 표준화 및 자가 구동/대시보드 완비**<br/>• **standard_channel_pattern.py 표준화**: 8대 표준 동사 `to_standard_channels`, `get_default_signals` 신규 구현, 레거시 `funcChangeSignalName` 100% 호환 보존, 3개 시나리오 자가 구동 스위트 및 1:1 매뉴얼(`standard_channel_pattern.md`) 신설.<br/>• **dwdReader.py 8대 동사 정규화**: `read_dwd_file`, `diagnose_dwd` 신규 표준 함수 추가 및 구버전 카멜케이스 별칭 바인딩, `dwd_parser.py` 호출 정합.<br/>• **파서 서브패키지 Mock 자립 구동 전면 보강**: `base_parser`, `vbo_parser`, `vbb_parser`, `dwd_parser`, `text_parser` 전수 외부 파일 의존성 없는 3-시나리오 자립형 자가 구동 스위트 완비.<br/>• **00_file_reader_대시보드.md 신규 구축**: 전용 MOC 대시보드 신규 배포 및 마스터 대시보드 링크 정합. | ✅ 완료 |
 | **v3.0** | 2026-09-27 | uno &<br/>Gemini | 🎯 **No Redundant Prefix Law & Single Baseline Law 전사 안착 및 func_acc_brk 전면 표준화 완비**<br/>• **No Redundant Prefix Law 적용**: `Plotter`, `PlotterTire`, `PlotterProject` 등 역할 내포 클래스의 메서드 접두사 중복 배제(`plot_` 배제 $\rightarrow$ `accbrk()`, `compare_braking()` 등).<br/>• **func_acc_brk 8대 표준 동사 전면 표준화**: `calc_mu_drop`, `calc_slip_mode_skewness`, `calc_response` 표준화, print 전면 퇴출 $\rightarrow$ `logger` 일원화, 리소스 누수 방지 `plt.close` 처리.<br/>• **잠재적 NameError 결함 차단**: `calc_slip_mode_skewness` 내 미선언 변수 `arr_g_filtered` $\rightarrow$ `ax_filtered` 수정.<br/>• **Single Baseline Law 입각 과도기 별칭 소각**: 순환 별칭 정리 및 v1 오리지널 레거시 단일 별칭 바인딩.<br/>• **vt_acc_brk_tire.py 호출 정합**: `calc_acc_brk` 및 PascalCase 6대 분석기(`AnAcceleration` 등) 정규 인스턴스화 연결.<br/>• **자립형 Mock 테스트 스위트**: 외부 파일 의존성 없는 100Hz 시뮬레이션 합성 데이터 검증 스위트 완비 및 전 파일 `py_compile` 무결점 통과. | ✅ 완료 |
 | **v2.9** | 2026-09-26 | uno &<br/>Gemini | 🏎️ **unoUtil.vehicle 도메인 v2 전면 표준화 및 Single Baseline Law 확립 (Finalize)**<br/>• **Single Baseline Law 명문화**: `GEMINI.md`, `PYTHON_CODE_AGENT.md`, `SKILL.md`에 v1 오리지널 레거시 단일 기준 호환 원칙 제정. 과도기적 미완성 코드의 별칭/브릿지 양산 원천 배제.<br/>• **VehicleDynamic 클래스화 (Option B)**: `vehicle_dynamic.py`를 `VehicleDynamic` 단일 표준 클래스로 캡슐화 완료. 8대 표준 동사(`align_coordinate`, `rotate_kinematics`, `rotate_origin`, `calc_p2p_inter_coordinate`, `calc_side_slip_angle`, `calc_slip_angle_fr`, `calc_load_transfer_longitudinal`, `make_standard_df`) 정합, v1 호환 별칭 바인딩, 비차단 시각화 및 3-시나리오 자가 구동 테스트 스위트 구축.<br/>• **hndl_test.py**: `plt.show()` 제거 및 비차단 저장(`_handle_figure_save`), `moving_average` 정합, 인라인 임포트 상단 정리, 3-시나리오 테스트 스위트 구축.<br/>• **test_infor_res.py**: `TestInformation`, `TestResult` PascalCase 본체화 및 v1 호환 별칭(`TEST_INFORMATION`, `TEST_RESULT`), `from_dict`, `update_metadata` 표준화, 3-시나리오 테스트 스위트 구축.<br/>• **analysis_test_data.py**: `print()` 퇴출 및 `LOGGER` 적용, `calc_performance`, `calc_compare` 3-시나리오 테스트 스위트 구축.<br/>• **1:1 위키 매뉴얼 100% 달성**: 누락 5종(`an_response.md`, `an_skewness.md`, `an_slip_pdf.md`, `an_split_speed.md`, `correct_factors.md`) 신규 작성 및 기존 4종(`vehicle_dynamic.md`, `hndl_test.md`, `test_infor_res.md`, `analysis_test_data.md`) 최신 사양 갱신 완료. | ✅ 완료 |
@@ -86,12 +87,13 @@ flowchart TD
 
 ## 📚 3. 도메인별 세부 대시보드 및 MOC 링크
 
-* 🏎️ **[[vehicle/acc_brk/00_vt_acc_brk_대시보드|VT_ACCBRK 가감속/제동 성능 분석 대시보드]]**
+* 🏎️ **[[vehicle/00_vehicle_dynamic_대시보드|vehicle_dynamic 실차 주행 동역학 및 조종안정성 대시보드]]**
+* 🛑 **[[vehicle/acc_brk/00_vt_acc_brk_대시보드|VT_ACCBRK 가감속/제동 성능 분석 대시보드]]**
 * 🚀 **[[file_reader/00_file_reader_대시보드|file_reader 이기종 계측 데이터 리더 대시보드]]**
 * 🎨 **[[graphics/00_graphics_대시보드|graphics 실차 시각화 및 인터랙션 대시보드]]**
 * 📶 **[[signal_process/post_process/00_post_process_대시보드|post_process 신호 후처리 대시보드]]**
 * 🛠️ **[[utils/00_utils_대시보드|utils 사내 공통 유틸리티 대시보드]]**
 
 ---
-**Last Updated**: 2026-09-27  
+**Last Updated**: 2026-09-28  
 **Standard**: unoUtil Clean Architecture v2.0 & Single Baseline Law
