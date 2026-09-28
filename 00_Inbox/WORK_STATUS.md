@@ -1,6 +1,6 @@
 ---
 id: "WORK_STATUS_2026-09-28"
-title: "unoUtil v3.2 vehicle 전면 표준화 및 동역학 대시보드 완결 감사 보고서"
+title: "unoUtil v3.3 models 도메인 신설 및 Magic Formula SSOT 통합 완결 감사 보고서"
 type: audit
 date: 2026-09-28
 author: uno & Gemini
@@ -8,71 +8,68 @@ status: 완료
 tags:
   - unoUtil
   - 감사보고서
-  - vehicle
+  - models
+  - MagicFormula
+  - SSOT
   - 리팩토링
   - 대시보드
-  - v3.2
+  - v3.3
 ---
 
-# 🏁 unoUtil v3.2 vehicle 전면 표준화 및 동역학 대시보드 완결 감사 보고서
+# 🏁 unoUtil v3.3 models 도메인 신설 및 Magic Formula SSOT 통합 완결 감사 보고서
 
 > **일자**: 2026-09-28  
 > **프로젝트**: 사내 실차 시험 통합 프레임워크 unoUtil (`refactor-v2`)  
 > **수행자**: uno & Gemini  
-> **최종 상태**: ✅ **100% 무결성 검증 통과 (Exit Code 0), Git 푸시 완결, 볼트 MOC 대시보드 신설 완료**
+> **최종 상태**: ✅ **100% 무결성 검증 통과 (Exit Code 0), models 승격 및 Magic Formula SSOT 일원화 완료**
 
 ---
 
 ## 🎯 1. 주요 작업 목적 및 달성 내역
 
-오늘 세션에서는 `unoUtil.vehicle` 도메인의 조종안정성/차량동역학 4대 핵심 모듈과 가감속/제동 엔진의 8대 표준 동사 네이밍 전면 정합, 임포트 결함 교정, 누락 1:1 기술 매뉴얼 6종 원격 푸시, 그리고 볼트 위키 내 **조종안정성 전용 MOC 대시보드(`00_vehicle_dynamic_대시보드.md`) 신규 구축**을 성공적으로 완결하였습니다.
+오늘 세션에서는 `signal_process/curve_fit`과 `ai`에 걸쳐 파편화되어 있던 비선형 커브피팅 및 공학 수학 모델들을 **`unoUtil.models`** 도메인으로 통합 승격하고, 타이어 지배 방정식인 **Pacejka Magic Formula의 단일 진실 공급원(SSOT)** 체계를 확립하였습니다.
+
+동시에 기존 `unoUtil.ai` 및 `unoUtil.signal_process.curve_fit` 경로에 대한 **100% 무중단 하위 호환성 브릿지**를 완비하여, 기존 사내 분석 코드에 단 1줄의 영향도 주지 않으면서 클린 아키텍처를 완성하였습니다.
 
 ---
 
 ## 🛠️ 2. 세부 집행 내역 (Changelog)
 
-### 1) vehicle 도메인 4대 핵심 모듈 8대 동사 전면 표준화 (`b1a0eb3`)
-* **`VehicleDynamic` (`vehicle_dynamic.py`)**:
-  * 단일 표준 클래스 캡슐화 완료.
-  * 8대 표준 동사 전역 함수군(`align_coordinate`, `rotate_kinematics`, `rotate_origin`, `calc_p2p_inter_coordinate`, `calc_side_slip_angle`, `calc_slip_angle_fr`, `calc_load_transfer_longitudinal`, `make_standard_df`) 정합.
-  * v1 레거시 별칭 바인딩 및 외부 파일 의존성 없는 3-시나리오 자가 구동 테스트 스위트 탑재.
-* **`analysis_test_data.py`**:
-  * `calc_performance`, `calc_compare`, `make_performance_df`, `make_compare_df` 표준화.
-  * `print()` 전면 퇴출 및 `LOGGER` 적용.
-* **`hndl_test.py`**:
-  * `calc_curvefit_rf` (Random Forest), `calc_curvefit_mf` (Magic Formula) 8대 표준 동사 정합.
-  * `plt.show()` 제거 및 비차단 그림 저장(`_handle_figure_save`) 적용.
-* **`test_infor_res.py`**:
-  * `TestInformation`, `TestResult` PascalCase 데이터 클래스화.
-  * 메타데이터 갱신 인터페이스(`update_metadata`) 표준화.
-* **`vehicle/__init__.py`**:
-  * v1 오리지널 레거시 브릿지(`_AnalysisTestData_`, `_HndlTest_`, `_TEST_INFOR_RES_`, `_BRKTest_`) 바인딩 완료.
+### 1) models 도메인 신설 및 3대 서브패키지 체계 확립
+* **`models.mathematical` (공학 지배 수식 SSOT)**:
+  * `magic_formula.py`: 도메인별로 흩어져 있던 Pacejka 수식을 `calc_magic_formula` 단일 코어 연산 엔진으로 통합. 4대 파라미터(`calc_tire_magic_formula`), 6대 오프셋(`magic_formula`), 수직하중 연동(`magic_formula_mu`), 개별 파라미터형(`calculate_fx`) 전량 단일 수식 코어 호출로 일원화.
+  * `dynamic_formula.py`: 2자유도 횡운동 요레이트 연산(`calc_unit_yaw_rate`) 및 목적함수 RSS(`calc_objective_unit_yaw_rate`) 수식 집중화.
+* **`models.fitting` (수치 최적화 및 비선형 피팅)**:
+  * `fit_magic_formula.py`: Scipy `least_squares` 기반 가중치, Fz 연동 및 Huber loss 지원 `EstimatorMF` 클래스와 종가속도 피팅 `fit_mf_ax` 통합.
+  * `fit_optimizer.py`: Scipy `minimize` 및 베이지안 가우시안 프로세스(`gp_minimize`) 비선형 파라미터 전역 탐색 `MinimizeEstimator` 통합.
+  * `curve_combiner/`: 다구간 스플라인 결합(`CurveCombiner`), 초기 사각형 검출(`KDERectangleDetector`), 트렌드 라인(`TrendLine`) 서브패키지 수용.
+* **`models.neural_net` (기계학습 신경망)**:
+  * `fit_nn.py`: Keras/Sklearn 다층 신경망(MLP) 회귀 피팅 및 GridSearchCV 파라미터 튜닝.
 
-### 2) func_acc_brk.py 후처리 임포트 결함 완치
-* **문제점**: 9/27 리팩토링 중 `func_acc_brk.py`에서 `signal_process.post_process`의 함수를 임포트할 때 과거 임시 명칭(`high_speed_moving_average`, `resample_time_series`)을 참조하여 `ImportError` 발생.
-* **조치**: `moving_average_fast`, `resample_data` 정규 표준 명칭으로 교정 완료.
-* **결과**: `test_structure_integrity.py` 전체 36개 항목 **100% PASS (Exit 0)** 즉시 복구.
+### 2) 100% 투명 무중단 하위 호환성 브릿지 보장
+* `unoUtil/ai/__init__.py`: `unoUtil.models`의 클래스/함수를 투명하게 Re-export.
+* `unoUtil/ai/` 내부 레거시 파일 4종(`dynamic_model.py`, `fit_mf_ax.py`, `fit_minimize_optimization.py`, `fit_nn.py`): 전량 `unoUtil.models`를 바라보는 얇은 SSOT 브릿지로 치환하여 중복 코드 100% 제거.
+* `unoUtil/signal_process/curve_fit/`: `unoUtil.models.fitting`을 바라보는 호환 브릿지 구성 (`unoUtil.curveFit` 가상화 100% 유지).
+* `unoUtil/vehicle/hndl_test.py`: `from unoUtil.models import MinimizeEstimator, TireMagicFormula` 최신 표준 연동.
 
-### 3) 1:1 마크다운 기술 매뉴얼 6종 원격 푸시 완결 (`ab1132e`)
-* `standard_channel_pattern.md` (채널 표준 패턴 기술 문서)
-* `vehicle/acc_brk/analyzers/` 5종 기술 문서:
-  * `an_response.md` (제동 응답성 분석기)
-  * `an_skewness.md` (슬립 왜도 분석기)
-  * `an_slip_pdf.md` (슬립 분포 확률밀도함수 분석기)
-  * `an_split_speed.md` (구간 속도 분석기)
-  * `correct_factors.md` (시험 보정 계수 모델)
+### 3) 1:1 마크다운 기술 매뉴얼 5종 신규 배포
+* `models/mathematical/magic_formula.md` (매직 포뮬러 수식 및 파라미터 의미 문서)
+* `models/mathematical/dynamic_formula.md` (2-DoF 요레이트 지배 방정식 문서)
+* `models/fitting/fit_magic_formula.md` (MF 최소자승 적응형 피팅 엔진 문서)
+* `models/fitting/fit_optimizer.md` (비선형 및 베이지안 파라미터 추정기 문서)
+* `models/neural_net/fit_nn.md` (신경망 비선형 피팅 문서)
 
-### 4) 옵시디언 볼트 조종안정성 MOC 대시보드 신설 및 허브 연동
-* **신규 배포**: `vehicle/00_vehicle_dynamic_대시보드.md` (좌표 변환, 3축 운동역학, 상대 성능 지수, 커브피팅 종합 MOC).
-* **마스터 허브 연동**: `00_unoUtil_모듈개발_대시보드.md` 상단 타임테이블 `v3.2` 행 등록 및 MOC 링크 추가.
-* **제동 허브 연동**: `vehicle/acc_brk/00_vt_acc_brk_대시보드.md` 타임테이블 `v3.2` 행 등록 완료.
+### 4) 옵시디언 볼트 `00_models_대시보드.md` 신설 및 마스터 허브 연동
+* **전용 MOC 신설**: `models/00_models_대시보드.md` (아키텍처 파이프라인 Mermaid, 1:1 매뉴얼 링크, Quick Start 수록).
+* **마스터 허브 연동**: `00_unoUtil_모듈개발_대시보드.md` 상단 타임테이블 `v3.3` 행 등록 및 MOC 링크 추가.
 
 ---
 
 ## 🧪 3. 최종 무결성 검증 결과 (`test_structure_integrity.py`)
 
-* ✅ **10대 차세대 공식 패키지 임포트**: **100% PASS**
-* ✅ **9대 핵심 클래스 정합성**: **100% PASS**
+* ✅ **11대 차세대 공식 패키지 임포트**: **100% PASS**
+* ✅ **핵심 클래스 정합성 (`TireMagicFormula`, `EstimatorMF`, `CurveCombiner`, `MinimizeEstimator`)**: **100% PASS**
+* ✅ **SSOT 동일성 단언 검증 (`assert TireMagicFormula is AiTireMagicFormula`)**: **100% PASS**
 * ✅ **36개 구버전 레거시 경로 가상 리다이렉션**: **100% PASS**
 * ✅ **종합 판정**: `[TEST SUCCESS] unoUtil 하위 호환성 및 무결성 100% 완료! (Exit Code 0)`
 
