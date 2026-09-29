@@ -53,7 +53,7 @@ aliases:
 > [!NOTE]- 📜 v1.0 ~ v3.4 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
-> | **v3.4** | 2026-09-29 | uno &<br/>Gemini | 🧭 **단일 마스터 MOC 일원화(Single Master MOC Law) 전면 단행**<br/>• 7대 하위 분산 대시보드(`file_reader`, `graphics`, `models`, `post_process`, `utils`, `vehicle_dynamic`, `vt_acc_brk`) 완전 소거 및 본 마스터 대시보드로 100% 통합 흡수<br/>• 10대 도메인 접기 아코디언 콜아웃(`> [!NOTE]-`) 및 최상단 ⚡ Quick Jump 앵커 바 도입으로 스크롤 압박 해소<br/>• 하위 호환 별칭(`aliases`) 16종 전수 등록으로 깨진 위키링크 0건 달성 | ✅ 완료 |
+> | **v3.4** | 2026-09-29 | uno &<br/>Gemini | 🎯 **curve_fit 최상위 도메인 승격, tire_curve 패키지 완전 일원화 및 단일 마스터 MOC 정비**<br/>• **curve_fit 최상위 도메인 신설**: `unoUtil.curve_fit` 도메인 및 `tire_curve/` 전용 패키지 구축<br/>• **타이어 피팅 단일 모듈화**: `CurveCombiner`, `fit_mf_ax`, `estimatorMF`, `MinimizeEstimator` 등 분산 피팅을 **`TireCurve` 단 하나의 타이어 피팅 모듈**로 완전 흡수 통합<br/>• **57KB 스플라인 결합 파이프라인 수납**: `curve_combiner/` 복합 파이프라인의 내부 캡슐화 및 OCP 미래 확장 구조 완비<br/>• **models(수식)와 curve_fit(피팅) 역할 분리**: `models`는 순수 지배 방정식 SSOT, `curve_fit`은 데이터 피팅 전담<br/>• **12대 도메인 및 36개 레거시 경로 100% 무결성 검증 통과 (Exit 0)** | ✅ 완료 |
 > | **v3.3** | 2026-09-28 | uno &<br/>Gemini | 🎯 **TireCurve 전략 패턴 및 BicycleModel 전면 표준화 완결 (Exit 0)**<br/>• **TireCurve 구축**: 임의 수학 모델(`model`) 및 최적화 전략(`method`) 주입 가능한 전략 패턴(Strategy Pattern) 기반 단일 클래스 설계<br/>• **2-DoF 자전거 모델 정합**: `dynamic_formula` ➔ `bicycle_model.py`(`BicycleModel`) 자동차공학 국제 표준 정규화<br/>• **Pacejka MF SSOT 확립**: 도메인별 분산 수식을 `calc_magic_formula` 단일 코어로 일원화<br/>• **무결성 검증 100% 통과**: 11대 공식 도메인 패키지 & 36개 구버전 레거시 가상 리다이렉션 전원 통과 | ✅ 완료 |
 > | **v2.9** | 2026-09-26 | uno &<br/>Gemini | 🏎️ **unoUtil.vehicle 도메인 v2 전면 표준화 및 Single Baseline Law 확립**<br/>• `vehicle_dynamic.py`를 `VehicleDynamic` 단일 표준 클래스로 캡슐화 완료 (8대 표준 동사 정합, v1 호환 별칭 바인딩, 비차단 시각화 및 자가 구동 테스트 스위트 구축)<br/>• `hndl_test.py`, `test_infor_res.py`, `analysis_test_data.py` 전면 리팩토링 및 1:1 위키 매뉴얼 100% 달성 | ✅ 완료 |
 > | **v2.8** | 2026-09-24 | uno &<br/>Gemini | 🏁 **unoUtil v2.0 아키텍처 전면 완료 및 전수 무결성 검증 100% 통과 (Final)**<br/>🛡️ 사내 보안 정책(AppLocker) 및 Windows 11 Smart App Control 대응: `D:\uno\Python\envs\unoBase` 표준 환경 구축 및 C/Fortran 확장 DLL 로드 차단 완벽 해소<br/>🧪 전사 10대 도메인 & 36개 세부 레거시 경로 무결성 100% 통과 (`test_structure_integrity.py` Exit 0 달성) | ✅ 완료 |
@@ -75,11 +75,13 @@ aliases:
 >         ARCH["🗄️ _archive/ (과거 코드 영구 보존소 - 탐색기 열람)"]
 >     end
 > 
->     subgraph Core_Domains [unoUtil 10대 핵심 도메인]
+>     subgraph Core_Domains [unoUtil 11대 핵심 도메인]
 >         V["🏎️ vehicle/ (실차 시험 & 동역학)"]
 >         G["🛰️ gps/ (GNSS 좌표계 투영 - gps_to_xy.py 단일화)"]
 >         FR["🚀 file_reader/ (이종 계측데이터 통합 리더 + parsers/ 서브폴더)"]
->         SP["📈 signal_process/ (fft, curve_fit, post_process 4대 전처리)"]
+>         CF["🎯 curve_fit/ (타이어 비선형 피팅 tire_curve/ SSOT)"]
+>         M["📐 models/ (Pacejka MF, Bicycle Model 지배 수식 SSOT)"]
+>         SP["📈 signal_process/ (fft, post_process 4대 전처리)"]
 >         ST["📊 uno_statistics/ (순수 통계 & 측정불확도 uncertainty/)"]
 >         GR["🎨 graphics/ (시각화 3대 서브폴더: plotters, controls, web)"]
 >         UT["🛠️ utils/ (공통 유틸리티 통합 & logger/ 완성)"]
@@ -137,16 +139,24 @@ aliases:
 
 ---
 
-## 📐 6. models 공학 모델링 및 비선형 최적화 도메인
+## 🎯 6. curve_fit 커브 피팅 및 타이어 곡선 도메인
 
-> [!NOTE]- 📐 models 수학 모델, 피팅, 신경망 모듈 목록 [클릭하여 펼치기]
+> [!NOTE]- 🎯 curve_fit 타이어 특성 피팅 및 결합 모듈 목록 [클릭하여 펼치기]
 > | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
 > | :--- | :--- | :---: |
-> | **`magic_formula`** | Pacejka Magic Formula 타이어 횡력/종력 비선형 모델 (SSOT) | [[magic_formula\|매뉴얼 보기]] |
-> | **`bicycle_model`** | 2자유도 차량 평면 횡방향 바이시클 모델 시뮬레이션 | [[bicycle_model\|매뉴얼 보기]] |
-> | **`tire_curve`** | 슬립율/슬립각 대비 타이어 마찰 곡선 수식 모델링 | [[tire_curve\|매뉴얼 보기]] |
-> | **`fit_least_squares` / `fit_optimizer`** | 비선형 최소자승법 및 SciPy 최적화 기반 계수 추정기 | [[fit_least_squares\|최소자승]] · [[fit_optimizer\|최적화]] |
-> | **`curve_combiner`** | 다중 타이어 특성 곡선 합성 및 통계적 평균 모델러 | [[curve_combiner\|매뉴얼 보기]] |
+> | **`tire_curve` (`TireCurve`)** | **타이어 종/횡방향 비선형 특성 곡선 피팅 총괄 클래스 (단일 진실 공급원 - SSOT)** | [[tire_curve\|매뉴얼 보기]] |
+> | **`fit_least_squares`** | Scipy 비선형 최소자승 가중치/Huber loss 추정기 (`EstimatorLeastSquares`) | [[fit_least_squares\|매뉴얼 보기]] |
+> | **`curve_combiner`** | 다구간 스플라인 결합, 변곡점 검출 및 국소 트렌드 라인 복합 파이프라인 | [[curve_combiner\|매뉴얼 보기]] |
+
+---
+
+## 📐 7. models 공학 지배 수식 도메인
+
+> [!NOTE]- 📐 models 순수 공학 수학 지배 방정식 및 신경망 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`magic_formula`** | Pacejka Magic Formula 타이어 횡력/종력 비선형 모델 수식 (SSOT) | [[magic_formula\|매뉴얼 보기]] |
+> | **`bicycle_model`** | 2자유도 차량 평면 횡방향 자전거 모델 수식 시뮬레이션 (`BicycleModel`) | [[bicycle_model\|매뉴얼 보기]] |
 > | **`fit_nn`** | PyTorch / Scikit-Learn 기반 차량 동역학 신경망 모델러 | [[fit_nn\|매뉴얼 보기]] |
 
 ---
