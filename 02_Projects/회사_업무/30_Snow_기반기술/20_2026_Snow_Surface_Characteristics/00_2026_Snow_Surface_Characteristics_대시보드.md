@@ -17,8 +17,9 @@ aliases:
   - "00_2026_Snow_Surface_Characteristics_대시보드"
   - "2026-09-18_스노우노면_일지개편_및_세션보간파이프라인_작업보고"
 ---
-
 # 💼 2026 Snow Surface Characteristics (스노우 노면 특성 분석)
+
+> ⚡ **Quick Jump**: [📅 1. 체인지로그](#-1-프로젝트-주요-버전-이력-changelog-타임테이블) · [📸 2. 센서 인프라](#-2-노면-눌림량-계측-infra) · [⚡ 3. 세션분류&벡터화](#-3-노면-정비preparing-기반-세션-분류-및-고속-벡터화-파이프라인) · [🔗 4. 연관 세부 프로젝트](#-4-연관-세부-프로젝트-및-핵심-알고리즘) · [📜 5. 세부 개발 이력](#-5-상세-엔지니어링-개발-이력-changelog)
 
 > [!ABSTRACT] ❄️ 프로젝트 개요
 > 자연 기상 상태에서 급변하는 눈 트랙의 상태(눈 다져짐 깊이, 기온, 습도)를 수학적으로 격리하여, **어떤 날씨에서 테스트하든 타이어 고유의 성능 실력만 공정하게 뽑아내는 머신러닝 보정 시스템** 개발 과제입니다.
@@ -36,68 +37,62 @@ aliases:
 
 ---
 
-# 1. 노면 눌림량 계측 Infra
+## 📸 2. 노면 눌림량 계측 Infra
 
-> [!NOTE] 📸 센서 지그 및 계측 인프라 구성
+> [!NOTE]- 📸 센서 지그 및 계측 인프라 상세 [클릭하여 펼치기]
 > 차량 휠 주변 및 외곽에 설치된 다채널 변위 센서를 통해 노면 높이 및 눈 눌림 깊이를 실측하는 인프라입니다.
-
-![[_attachments/10_회사_업무/40_2026_Snow_Surface_센서_인프라.png|650]]
-
-### ⚙️ 계측 및 데이터 처리 핵심
-* **센서 위치에 따른 높이 옵셋 설정**:
-  * 기구적 지그 길이와 센서별 장착 높이의 오차를 보정하기 위해 전체 계측 데이터 평균값 차이를 기준으로 옵셋 설정.
-  * Out(외측)과 Tire(타이어부) 센서 간의 옵셋 매칭 및 차이를 산출하여 순수 눈 눌림량 정량치 추출.
+> 
+> ![[_attachments/10_회사_업무/40_2026_Snow_Surface_센서_인프라.png|650]]
+> 
+> ### ⚙️ 계측 및 데이터 처리 핵심
+> * **센서 위치에 따른 높이 옵셋 설정**:
+>   * 기구적 지그 길이와 센서별 장착 높이의 오차를 보정하기 위해 전체 계측 데이터 평균값 차이를 기준으로 옵셋 설정.
+>   * Out(외측)과 Tire(타이어부) 센서 간의 옵셋 매칭 및 차이를 산출하여 순수 눈 눌림량 정량치 추출.
 
 ---
 
-## 2. 노면 정비(Preparing) 기반 세션 분류 및 고속 벡터화 파이프라인 (2026-09-18 구축)
+## ⚡ 3. 노면 정비(Preparing) 기반 세션 분류 및 고속 벡터화 파이프라인
 
-> [!TIP] 💡 트랙터 정비(Preparing)에 따른 물리적 리셋 체계
+> [!NOTE]- 💡 트랙터 정비(Preparing)에 따른 물리적 리셋 체계 [클릭하여 펼치기]
 > * **Preparing 2번 (오전 1회 + 점심 1회):** 점심시간 트랙터가 노면을 갈아엎고 재평탄화(Reset)하므로 오전 다져진 빙판과 오후 부드러운 노면 사이의 시간 연속성이 단절됨 ➔ **`오전`**, **`오후`** 2개 세션 분리.
 > * **Preparing 1번 (아침 1회만):** 점심 재정비 없이 종일 연속 주행하여 노면 다져짐이 하루 종일 누적 지속됨 ➔ **`종일`** 단일 세션.
 > * **Preparing 없음 / 혹한 1회 주행:** 노면 정비 없음 ➔ **`종일`** 단일 세션.
 > * **데이터셋 적용:** `df_surface.csv` 및 `df_surface.pkl`에 `Cond` (`오전`/`오후`/`종일`), `Cond_ID` (`YYYY-MM-DD_세션`), `Preparing` 컬럼 1,105건 전수 부여 완료 (`a_make_SnowSurfaceCharacteristic_DF.py`).
 > * **보간 실행 가이드:** `groupby('Cond_ID')` 단위로 분리하여 노면 리셋 전/후가 섞이지 않도록 시계열 보간 수행.
-
-> [!NOTE] ⚡ 제동 1회 단위(1-Run) 고속 벡터화 집계 파이프라인 (`a_make_SnowAccBrkTest_DF.py`)
-> * **5중 중첩 루프 병목 제거**: 기존 `Date` ➔ `ReqNo` ➔ `TestOrder` ➔ `TestTireSet` ➔ `TestNum` 순차 순회 방식을 일자별 1단계 슬라이싱(`unique_dates`) 후 4대 복합키 단 1회 벡터화 `df_day.groupby(group_keys).agg(**agg_rules)`로 전면 개편.
-> * **메모리 방어 및 속도 향상**: 대용량 DataFrame 전체 복제에 의한 `MemoryError`를 원천 차단하고 집계 소요 시간을 초 단위로 단축.
-> * **안전망 구축**: `time_span` 기반 `AccTime` 벡터화 병합, `df_brk.pkl` 중간 대표값 캐시 저장 및 `len(list_tmp_df) > 0` 가드 로직 탑재.
-
----
-
-## 🔗 연관 세부 프로젝트 및 핵심 알고리즘
-
-* 📋 **[[30_SnowSurface_DailyNote|SnowSurface DailyNote (통합 노면일지)]]**
-  * **[테이블 1]** 일자별 환경 조건 및 노면 총괄 마스터 (20행: Preparing 횟수, 강설 타임라인, 노면 총평)
-  * **[테이블 2]** 세션별 제동 성능 및 노면 센서 수치 마스터 (57행: Line 1~3, SRTT, 전체평균, 편차, 눌림량, 기온 콤팩트 피벗)
-  * **[테이블 3]** 세션별 주행 관측 및 엔지니어링 메모 마스터 (28행: 시간대별 가속감, 미끄러움, 잔설, 센서 세팅 메모)
-* 🚀 **[[20_SnowBrakingPerformance_통합모듈_매뉴얼|SnowBrakingPerformance 통합 모듈 매뉴얼]]**
-  * 노면 데이터/제동 평가(ACCBRK) 누적 등록, 3D 디지털 트윈, 차분 ML 보정 및 스펙 영향도 분석 마스터 클래스
-* ❄️ **[[31_스노우_노면_디지털트윈_및_제동성능_보정_위키|스노우 노면 디지털 트윈 및 제동 성능 환경 보정 종합 위키]]**
-  * 1-Run 집계(`a_make_SnowAccBrkTest_DF.py`), 노면 세션(`Cond_ID`) 파이프라인(`a_make_SnowSurfaceCharacteristic_DF.py`), 차분 머신러닝 노면 Decoupling 및 웹 대시보드
-* 📊 **[[10_노면특성_계측데이터_분석|노면특성 계측데이터 분석]]**
-  * 다채널 센서 계측 로우데이터 기반 노면 특성 데이터베이스 구축
-* 🧠 **[[30_Snow_제동성능보정_알고리즘|Snow제동성능보정 알고리즘 (Resources)]]**
-  * **1단계 (시공간 디지털 트윈)**: 공간 예측 (Random Forest) ➡️ 시간 보간 (scipy interp1d) ➡️ VBOX GPS 격자 매칭
-  * **2단계 (차분 머신러닝 보정)**: 타이어 고유 실력 소거(차분법) ➡️ KNN(3D 등고선 맵 시각화) + Random Forest(최종 정밀 보정 엔진)
-* ❄️ **[[04_Resources/30_스노우_노면_공학/00_스노우_노면_공학_통합_색인|스노우 노면 공학 통합 지식 색인 (MOC)]]**
+> 
+> ### ⚡ 제동 1회 단위(1-Run) 고속 벡터화 집계 (`a_make_SnowAccBrkTest_DF.py`)
+> * **5중 중첩 루프 병목 제거**: 기존 순차 순회 방식을 일자별 1단계 슬라이싱 후 4대 복합키 단 1회 벡터화 `df_day.groupby(group_keys).agg(**agg_rules)`로 전면 개편.
+> * **메모리 방어 및 속도 향상**: 대용량 DataFrame 전체 복제에 의한 `MemoryError` 원천 차단 및 집계 시간 초 단위 단축.
+> * **안전망 구축**: `time_span` 기반 `AccTime` 벡터화 병합, `df_brk.pkl` 중간 대표값 캐시 저장.
 
 ---
 
-## 📜 버전 이력 및 주요 개발 현황 (Changelog)
+## 🔗 4. 연관 세부 프로젝트 및 핵심 알고리즘
 
-### [2026-09-23] - uno & Gemini CLI
-* ⚡ **`unoUtil.resample_data` 초고속 리팩터링 (30~50배 가속):**
-  - NumPy C-API 선형 보간(`np.interp`) 및 이진 탐색(`np.searchsorted`) 적용으로 30만 행 기준 3초 ➡ 0.08초 단축.
-  - 디버거 평가 3초 타임아웃 경고 원천 해소 및 `target_idx.name` 보존으로 `VT_ACCBRK`의 `KeyError: 'Datetime'` 캐시 복원 버그 완치.
-* 🚀 **`a_make_SnowSurfaceCharacteristic_DF.py` 파이프라인 통합 (100배 가속):**
-  - 1차원 센서 이상치 제거 시 머신러닝(Isolation Forest) 반복 학습 대신 컬럼별 독립 분위수(`quantile` 0.05~0.95) 마스킹 & 시간 보간 적용 (센서 간 연대책임 오염 차단 + 132배 가속).
-  - 디스크 재로딩 및 3중 for-loop을 단 1줄의 Pandas 네이티브 `groupby.agg()`로 압축 (30배 가속).
-  - 전체 파이프라인 소요 시간 수십 분 ➡ 수십 초로 98% 단축.
-* 🧊 **시공간 2단계 디커플링(Spatio-Temporal Decoupling) 아키텍처 정립:**
-  - `SurfaceGridSnapshot`: 특정 시점의 2D 공간 격자 내삽기 (`query(pos_yx)`).
-  - `SurfaceConditionTwin`: 세션별 스냅샷들을 엮어 실시간 시간 보간(`interp1d`)을 수행하는 시공간 총괄 관리자.
-* 📊 **`sbp.plot` 시각화 스위트 가이드 확립:**
-  - `sbp.plot.map_2d(channel='temp')`: 노면 온도 2D 등고선 맵 및 세션 내 전 스냅샷 서브플롯 비교(`all_in_session=True`).
-  - `sbp.plot.surface_dashboard()`: Dash 기반 3D 인터랙티브 실시간 회전 및 시간 슬라이더 대시보드.
+| 모듈 / 문서명 | 핵심 역할 및 기능 | 바로가기 |
+| :--- | :--- | :---: |
+| **SnowSurface DailyNote** | 일자별 환경 조건, 세션별 센서 수치 마스터 피벗 | [[30_SnowSurface_DailyNote|문서 보기]] |
+| **SnowBrakingPerformance 통합 매뉴얼** | 노면/제동 데이터 등록, 3D 디지털트윈, 차분 ML 보정 클래스 | [[20_SnowBrakingPerformance_통합모듈_매뉴얼|문서 보기]] |
+| **스노우 노면 디지털 트윈 위키** | 1-Run 집계, 노면 세션 파이프라인, 차분 ML 노면 Decoupling | [[31_스노우_노면_디지털트윈_및_제동성능_보정_위키|문서 보기]] |
+| **노면특성 계측데이터 분석** | 다채널 센서 계측 로우데이터 기반 노면 DB 구축 | [[10_노면특성_계측데이터_분석|문서 보기]] |
+| **Snow 제동성능보정 알고리즘** | 시공간 디지털 트윈(RF/interp1d) + 차분 머신러닝(KNN/RF) | [[30_Snow_제동성능보정_알고리즘|문서 보기]] |
+| **스노우 노면 공학 통합 지식 색인** | MOC 영구 지식 위키 연결 허브 | [[04_Resources/30_스노우_노면_공학/00_스노우_노면_공학_통합_색인|문서 보기]] |
+
+---
+
+## 📜 5. 상세 엔지니어링 개발 이력 (Changelog)
+
+> [!NOTE]- 📜 [2026-09-23] 세부 리팩토링 및 가속화 내역 [클릭하여 펼치기]
+> * ⚡ **`unoUtil.resample_data` 초고속 리팩터링 (30~50배 가속):**
+>   - NumPy C-API 선형 보간(`np.interp`) 및 이진 탐색(`np.searchsorted`) 적용으로 30만 행 기준 3초 ➡ 0.08초 단축.
+>   - 디버거 평가 3초 타임아웃 경고 원천 해소 및 `target_idx.name` 보존으로 `VT_ACCBRK`의 `KeyError: 'Datetime'` 캐시 복원 버그 완치.
+> * 🚀 **`a_make_SnowSurfaceCharacteristic_DF.py` 파이프라인 통합 (100배 가속):**
+>   - 1차원 센서 이상치 제거 시 머신러닝(Isolation Forest) 반복 학습 대신 컬럼별 독립 분위수(`quantile` 0.05~0.95) 마스킹 & 시간 보간 적용 (센서 간 연대책임 오염 차단 + 132배 가속).
+>   - 디스크 재로딩 및 3중 for-loop을 단 1줄의 Pandas 네이티브 `groupby.agg()`로 압축 (30배 가속).
+>   - 전체 파이프라인 소요 시간 수십 분 ➡ 수십 초로 98% 단축.
+> * 🧊 **시공간 2단계 디커플링(Spatio-Temporal Decoupling) 아키텍처 정립:**
+>   - `SurfaceGridSnapshot`: 특정 시점의 2D 공간 격자 내삽기 (`query(pos_yx)`).
+>   - `SurfaceConditionTwin`: 세션별 스냅샷들을 엮어 실시간 시간 보간(`interp1d`)을 수행하는 시공간 총괄 관리자.
+> * 📊 **`sbp.plot` 시각화 스위트 가이드 확립:**
+>   - `sbp.plot.map_2d(channel='temp')`: 노면 온도 2D 등고선 맵 및 세션 내 전 스냅샷 서브플롯 비교(`all_in_session=True`).
+>   - `sbp.plot.surface_dashboard()`: Dash 기반 3D 인터랙티브 실시간 회전 및 시간 슬라이더 대시보드.
