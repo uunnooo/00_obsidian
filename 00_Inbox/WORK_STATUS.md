@@ -14,9 +14,10 @@
    - 57KB 복합 스플라인 결합 파이프라인(`curve_combiner/`)을 서브패키지로 온전하게 수납 및 내부 캡슐화.
    - `from unoUtil.curve_fit import TireCurve` 단 1줄로 모든 피팅 기능(최소자승, 스플라인결합, 전역최적화, 종가속도) 제어 가능.
 
-2. **`unoUtil.models`와 `curve_fit`의 도메인 역할 완벽 분리**:
+2. **`unoUtil.models`와 `curve_fit`의 도메인 역할 완벽 분리 및 과도기 코드 전면 제거**:
    - `models`: Pacejka Magic Formula, 2-DoF Bicycle Model 등 **순수 공학 지배 방정식의 단일 진실 공급원(SSOT)**으로 정립.
    - `curve_fit`: 실차 계측 데이터를 받아 최적화하는 **비선형 피팅 전담 도메인**으로 정립.
+   - **Single Baseline Law 철저 준수**: v2 개발/리팩토링 과정에서 잠시 거쳐갔던 과도기적 이름(`models.fitting`, `models.tire_curve` 등)을 호환 매핑 및 re-export에서 전면 영구 제거. 호환성의 기준은 오직 **사내 실제 운영 v1 오리지널 레거시 코드**만으로 한정.
    - 향후 서스펜션(K&C), 파워트레인 등의 피팅 모듈 확장을 위한 개방 폐쇄 원칙(OCP) 구조 완성.
 
 3. **100% 무중단 하위 호환성 및 무결성 검증 통과 (Exit Code 0)**:

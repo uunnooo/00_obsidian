@@ -55,7 +55,7 @@ flowchart TD
 
 | 버전 | 일자 | 작업자 | 주요 변경 및 승격 내역 | 상태 |
 | :--- :| :---: | :---: | :--- | :---: |
-| **v3.4** | 2026-09-29 | uno & Gemini | **models(수식)와 curve_fit(피팅) 도메인 역할 완벽 분리**<br>- 피팅 엔진 및 `TireCurve`를 `unoUtil.curve_fit` 도메인으로 이전 완료<br>- `models`는 순수 지배 방정식(Pacejka MF, 2-DoF Bicycle Model) 및 신경망 모델의 **단일 진실 공급원(SSOT)**으로 정체성 확립<br>- `unoUtil.models`에서 편의용 `TireCurve` re-export 호환성 100% 유지 | ✅ 배포 완료 |
+| **v3.4** | 2026-09-29 | uno & Gemini | **models(수식)와 curve_fit(피팅) 도메인 역할 완벽 분리**<br>- 피팅 엔진 및 `TireCurve`를 `unoUtil.curve_fit` 도메인으로 이전 완료<br>- `models`는 순수 지배 방정식(Pacejka MF, 2-DoF Bicycle Model) 및 신경망 모델의 **단일 진실 공급원(SSOT)**으로 정체성 확립<br>- 과도기적 중간 re-export를 전면 배제하여 도메인 간 완벽한 직교성 확립 (Single Baseline Law 준수) | ✅ 배포 완료 |
 | **v3.3** | 2026-09-28 | uno & Gemini | **Pacejka MF SSOT 및 Bicycle Model 표준화**<br>- 2-DoF 횡운동 모델의 자동차공학 국제 표준 용어인 **`bicycle_model`**로 정규화 완료<br>- Pacejka Magic Formula 단일 코어 연산 엔진(`calc_magic_formula`) 확립 | ✅ 완료 |
 
 ---
