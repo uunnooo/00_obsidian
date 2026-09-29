@@ -41,7 +41,7 @@
 
 ```python
 from pathlib import Path
-from Snow_braking_relate_condition.snow_braking_performance import SnowBrakingPerformance
+from Snow_braking_relate_condition import SnowBrakingPerformance
 
 # 1. 마스터 플랫폼 객체 생성
 sbp = SnowBrakingPerformance(name="SnowPlatform_2026")

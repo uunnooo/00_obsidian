@@ -30,6 +30,7 @@ aliases:
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v1.5** | 2026-09-29 | uno &<br/>Gemini | 🏗️ Clean Architecture 최신 표준(`unoUtil.logger`) 전 모듈 일괄 마이그레이션 완료<br/>🛡️ 패키지 대소문자 회복 탄력성(Case Resilient Fallback) 적용 (`__init__.py`)<br/>🌤️ 10대 기상 채널 자동 매핑 및 결측 방어(Fallback) 메커니즘 구축<br/>⚡ 361개 노면 센서 3D 공간 보간 및 32개 전 세션 3D/2D 디지털 트윈 맵 일괄 자동 저장 (`b_combine_surface_performance_spec.py`)<br/>📐 **노면 눌림량 차분($\Delta\text{Height}$) 원점 대칭 좌표계(`[-3.0, +3.0] mm`) 복원** 및 0-시프트 왜곡 제거<br/>🏢 **마지막 회사 최종 기준선(`2026-09-23 19:52`, 커밋 `a917f6e`)과 모델 성능 지표 100% 정합 완료** (RF $R^2=0.5121$, KNN $R^2=0.5417$)<br/>🚀 실측 1,964건 통합 파이프라인 무결 통과 (`c_run_snow_correction_pipeline.py`, Exit Code 0) 및 4대 핵심 검증 차트 볼트 갱신 | ✅ 완료 |
 | **v1.4** | 2026-09-23 | uno &<br/>Gemini | 🎯 차분 보정 머신러닝 엔진 대개편 및 원스톱 파이프라인 완성 (`c_train_correction_and_plot_maps.py`)<br/>📥 원스톱 데이터 적재 API (`load_combined_data`) 신설 (검증/매칭플래그 원스톱 동기화)<br/>🤖 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(`auto_tune=True`) 및 수동 튜닝(`model_params`) 완비<br/>📈 단일 DT의 $R^2$ 음수 과적합 문제를 깊이/리프 제약으로 양수(+0.45) 정상 회복<br/>📄 종합 보정 분석 마크다운 보고서 자동 생성 API (`save_report_md`) 구현 및 다형성 `save` 표준 적용<br/>📊 모델 성능 비교, 3D 보정 맵, 잔차 의존성 소거, 타이어 세트별 박스플롯 자동 생성 및 검증 완료 | ✅ 완료 |
 | **v1.3** | 2026-09-21 | uno &<br/>Gemini | 🧠 차분 머신러닝 보정 파이프라인 (Phase 2) 구축 및 검증 완료 (`c_train_correction_and_plot_maps.py`) <br/>📊 3D 제동거리 보정 성능 맵(Delta Correction Map) 시각화 및 저장 (KNN/RF 3D 등고선)<br/>⚖️ 기준 환경(`char_height`=3.0mm, `cd_test_ah`=1.5g/m³) 일괄 정규화 보정 적용 및 `df_combine_test_surface_spec_corrected.pkl` 저장<br/>💾 플랫폼 세션 상태 직렬화(Serialize) 영속성 확보 (`snow_platform_2026.pkl`) | ✅ 완료 |
 | **v1.2** | 2026-09-21 | uno &<br/>Gemini | 🛠️ 글로벌 개발 규격(`PYTHON_CODE_AGENT`) 100% 매칭 적용 완료<br/>🔤 8대 표준 동사 네이밍 수립 (`calc_`, `get_` 등) 및 하위 호환 에일리어스 가동<br/>🧪 5대 코어 모듈 닥스트링, 타입힌트, 3-시나리오 자가 구동 테스트 스위트 보강<br/>🛑 Non-blocking 시각화 및 4단계 `save` 다형성 설계 구현<br/>📚 1:1 동명 마크다운 매뉴얼 파일 5종 구축 완료 | ✅ 완료 |
@@ -81,6 +82,29 @@ aliases:
 ---
 
 ## 📜 5. 상세 엔지니어링 개발 이력 (Changelog)
+
+> [!NOTE]- 📜 [2026-09-29] Clean Architecture 완비 및 회사 최종 기준선(v1.5) 100% 정합 복원 [클릭하여 펼치기]
+> * 📐 **노면 눈 침하 깊이 차분($\Delta\text{Height}$) 원점 대칭 좌표계 복원 및 왜곡 해소**:
+>   - **발생 원인**: 검증 차트 생성 시 `shift_min_zero=True` 로직에 의해 차분 최솟값(Min)이 강제로 감산되어, 실제 노면 눌림량 차분($-3.0 \sim +3.0\text{ mm}$)이 $0 \sim 5.3\text{ mm}$의 양수 영역으로 시프트 및 왜곡되었던 문제 규명.
+>   - **조치 내역**: `c_run_snow_correction_pipeline.py` 및 `c_plot_correction_verification.py`에서 `shift_min_zero=False`로 전환하고, 회사 최종 기준 규격인 `x_range=(-3.0, 3.0)`, `y_range=(-2.0, 2.0)`을 부여하여 원점 대칭 복원 완료.
+>   - **검증 완료**: [Figure 3 등고선 보정 맵](file:///D:/00_obsidian/_attachments/10_%ED%9A%8C%EC%82%AC_%EC%97%85%EB%AC%B4/snow_correction_verification/3_Snow_Surface_Factors_VS_Braking_Contour.png)의 X축이 정상적인 $\Delta\text{Height}\in[-3.0, +3.0\text{ mm}]$ (Center=0)로 완벽히 정규화됨.
+> * 🏢 **마지막 회사 최종 작업 기준선(`2026-09-23 19:52`, 커밋 `a917f6e`) 수치 100% 일치 확인**:
+>   - **Random Forest**: $R^2 = \mathbf{0.5121}$, Adj $R^2 = \mathbf{0.4511}$, MAE = $0.518\text{ m}$ (소수점 4자리까지 완벽 일치).
+>   - **KNN Regressor**: $R^2 = \mathbf{0.5417}$, Adj $R^2 = \mathbf{0.4844}$, MAE = $0.497\text{ m}$.
+>   - **Ridge / Linear Regression**: $R^2 = \mathbf{0.4084} \sim \mathbf{0.4077}$, MAE = $0.610\text{ m}$.
+>   - **타이어 세트별 분산 정화율(산포 감소율)**: C1(+4.9%), C2(+10.2%), C3(+15.9%), T1(+11.1%), T2(+7.3%), T3(+17.0%), T4(+2.3%) 등 전 세트 일괄 개선 및 Spearman rho = 0.8095 기록.
+> * 🏗️ **`unoUtil` Clean Architecture 최신 표준(`unoUtil.logger`) 마이그레이션**:
+>   - 구버전 편의 모듈 경로(`unoUtil.convenienceFunction.logger`)를 폐기하고 최신 규격인 `unoUtil.logger`로 6개 전 모듈(`Snow_Braking_Performance.py`, `correction_engine.py`, `surface_condition_twin.py`, `spec_analyzer.py`, `snow_physics_utils.py`, `surface_dashboard.py`, `c_run_snow_correction_pipeline.py`)을 일괄 전환.
+> * 🛡️ **패키지 대소문자 회복 탄력성(Case Resilient Fallback) 확보**:
+>   - Windows/Linux 및 Git 환경에서 파일시스템 대소문자 불일치(`snow_braking_performance` vs `Snow_Braking_Performance`)로 인한 `ModuleNotFoundError`를 원천 방지하도록 `__init__.py`에 안전한 양방향 Fallback 체계 구축.
+> * 🌤️ **10대 기상 채널 자동 매핑 및 결측 방어(Fallback) 메커니즘**:
+>   - 별도 기상 피클 파일(`df_weather_0712.pkl`)이 부재한 환경에서도 원본 제동 데이터(`2. df_result_test_acc_brk.pkl`)에 내재된 기상 채널(`WB-Temp`, `WB-Hum`, `WB-DP`, `WB-AH` 등)을 `cd_test_*` 표준 컬럼으로 자동 감지하여 1,964행 전부에 100% 매핑.
+> * ⚡ **361개 노면 센서 스냅샷 기반 3D 공간 보간 및 32개 전 세션 디지털 트윈 맵 구축**:
+>   - `b_combine_surface_performance_spec.py` 가동으로 361개 스냅샷 3D 공간 격자화 및 32개 세션의 3D/2D 디지털 트윈 맵 이미지 자동 렌더링 및 디스크 적재 완료.
+>   - 최종 47대 표준 컬럼 규격의 `1. df_combine_test_surface_spec.pkl` 생성 및 저장.
+> * 🚀 **실측 1,964건 통합 파이프라인 End-to-End 완전 무결 통과 (`c_run_snow_correction_pipeline.py`, Exit Code 0)**:
+>   - 209개 1st/2nd 동일 타이어 시험 쌍 엑셀 정밀 대조표(`corrected_braking_comparison_table.xlsx`) 생성.
+>   - 4대 핵심 검증 시각화 완료 (`1_Diff_Actual_vs_Predicted.png`, `2_Final_Correction_1st_vs_2nd.png`, `3_Snow_Surface_Factors_VS_Braking_Contour.png`, `4_Tire_Subplots_25RD110006EF.png`) 및 옵시디언 볼트 첨부파일 폴더 덮어쓰기 복사 완료.
 
 > [!NOTE]- 📜 [2026-09-23] 세부 리팩토링 및 가속화 내역 [클릭하여 펼치기]
 > * ⚡ **`unoUtil.resample_data` 초고속 리팩터링 (30~50배 가속):**
