@@ -1,304 +1,218 @@
 ---
-
 id: "unoutil_project_hub"
-
 title: "unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트"
-
 type: project
-
 category_main: 회사_업무
-
 category_sub: unoUtil
-
 date: 2026-09-10
-
 status: 진행중
-
 tags:
-
   - 회사_업무
-
   - unoUtil
-
   - 파이썬
-
   - 개발도구
-
   - 대시보드
-
   - MOC
-
+  - 아키텍처
+  - 코딩표준
 aliases:
-
   - unoUtil_모듈개발_대시보드
-
   - unoUtil개발허브
-
+  - unoUtil_아키텍처_및_표준가이드
+  - 00_unoUtil_PEP8_표준화_총괄_가이드
+  - UNOUTIL_ARCHITECTURE
+  - UNOUTIL_V2_REFACTORING_REPORT
+  - 01_test_data_통합관리_계획서
+  - "00_curve_fit_대시보드"
+  - "curve_fit_대시보드"
+  - "00_file_reader_대시보드"
+  - "00_graphics_대시보드"
+  - "00_models_대시보드"
+  - "00_post_process_대시보드"
+  - "00_utils_대시보드"
+  - "00_vehicle_dynamic_대시보드"
+  - "00_vt_acc_brk_대시보드"
+  - "file_reader_대시보드"
+  - "graphics_대시보드"
+  - "models_대시보드"
+  - "post_process_대시보드"
+  - "utils_대시보드"
+  - "vehicle_dynamic_대시보드"
+  - "vt_acc_brk_대시보드"
 ---
 
+# 💼 unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트 (Master MOC)
 
+> ⚡ **Quick Jump**: [📅 1. 체인지로그](#-1-프로젝트-주요-버전-이력-changelog-타임테이블) · [🏛️ 2. 아키텍처](#️-2-clean-architecture-11대-도메인-아키텍처) · [🏎️ 3. vehicle/acc_brk](#️-3-vehicle-동역학--가감속제동-vt_acc_brk-도메인) · [🚀 4. file_reader](#-4-file_reader-이기종-계측-데이터-리더-도메인) · [🎨 5. graphics](#-5-graphics-실차-시각화-및-인터랙션-도메인) · [🎯 6. curve_fit](#-6-curve_fit-커브-피팅-및-타이어-곡선-도메인) · [📐 7. models](#-7-models-공학-지배-수식-도메인) · [📶 8. signal_process](#-8-signal_process-신호-후처리-및-정제-도메인) · [🛠️ 9. utils/logger](#️-9-utils--logger-공통-유틸리티-도메인) · [🤖 10. ai/db/stats/gps](#-10-aidatabasestatisticsgps-기타-도메인) · [📖 11. 엔지니어링 표준](#-11-사용자-매뉴얼-및-엔지니어링-표준)
 
-# 💼 unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트
-
-
-
-> [!SUCCESS] 🎉 unoUtil v2.0 전면 리팩토링 및 10대 도메인 아키텍처 개편 완료 (2026-09-18)
-
-> - **상세 결과 보고서**: [[UNOUTIL_V2_REFACTORING_REPORT]] (10대 계획 100% 집행 & 전수 검증 통과)
-
-> - **패키지 다이어트**: 패키지 내 분산된 1GB+ 거대 데이터 제거 $\rightarrow$ 15.62MB 순수 파이썬 초경량화 (98.5% 절감)
-
-> - **100% 무중단 하위 호환**: 기존 사내 스크립트 수정 없는 `sys.modules` 및 위임 래퍼 지원
-
-
-
-> [!ABSTRACT] 🛠️ 프레임워크 개요
-
-> **unoUtil**은 사내 실차 시험 계측 데이터 수집, 신호 전처리, 동역학 물리 분석, 시험 환경 보정, 그리고 시각화 리포팅을 표준화하기 위한 사내 통합 파이썬 라이브러리 개발 프로젝트입니다.
-
-
+> [!ABSTRACT] 🚀 unoUtil 단일 마스터 MOC 허브
+> 사내 파이썬 실차 데이터 분석 프레임워크 **`unoUtil v2.0+`**의 10대 도메인, 87개 핵심 모듈 기술 매뉴얼, Clean Architecture 명세 및 버전 관리 이력을 단일 페이지에서 1화면으로 조망·관리하는 **중앙 마스터 MOC 포털**입니다.
 
 ---
-
-
-
-## 📦 패키지 서브모듈 구조 및 현황 (v2.0 Clean Architecture)
-
-
-
-```text
-
-📂 unoUtil/
-
-├── 🏎️ vehicle/               # 실차 시험 종합 분석 패키지 (Active, 구 vehicleTest)
-
-│   ├── 🏁 acc_brk/           # 실차 가감속 / 제동 성능 정밀 분석 엔진 (vt_acc_brk, vt_acc_brk_tire, vt_acc_brk_project, correct, func_acc_brk, plotter_tire, plotter_project)
-
-│   │   ├── base_memory.py    # BaseMemory (구 _AN_MEMORY_)
-
-│   │   └── 📂 analyzers/     # 6대 전문 물리 분석 엔진 (an_acceleration, an_mu_drop, an_response, an_skewness, an_slip_pdf, an_split_speed)
-
-│   ├── analysis_test_data.py # VCTA 타이어 성능 분석 유틸리티
-
-│   ├── test_info_res.py      # TestInfoRes 시험 정보 및 결과 컨테이너
-
-│   ├── vehicle_dynamic.py    # 차량동역학 좌표변환 엔진
-
-│   └── handling_test.py      # 실차 핸들링 평가 엔진
-
-├── 🛰️ gps/                    # GNSS / VBOX 공간 데이터 및 WGS84 좌표 투영 엔진 (Active, 구 gpsProcessing)
-
-│   └── gps_to_xy.py          # WGS84 타원체 벡터화 투영 엔진 (GPStoXYCord)
-
-├── 🚀 file_reader/            # 차세대 객체지향 이종 계측 데이터 통합 리더 (Active, 구 fileDataReader)
-
-│   ├── file_data_reader.py   # 플루언트 파이프라인 (FileDataReader)
-
-│   ├── datetime_helper.py    # GPS 타임존 자동 판별
-
-│   └── 📂 parsers/           # vbo, vbb, dwd, text 분리 파서
-
-├── 📶 signal_process/         # 신호처리 종합 패키지 (Active)
-
-│   ├── 📂 post_process/      # filters, resample, scaler, outliers (구 _UnoPP_)
-
-│   ├── 📂 curve_fit/         # 다항식/지수 피팅
-
-│   └── 📂 fft/               # 주파수 스펙트럼 분석
-
-├── 🎨 graphics/               # 실차 시각화 및 상호작용 패키지 (Active, 구 graphicTools)
-
-│   ├── 📂 plotters/          # plotter, text_offset, surface_3d, pair_plot
-
-│   ├── 📂 controls/          # cursor_mode, range_selector
-
-│   └── 📂 web/               # plotly_tools
-
-├── 📊 statistics/             # 통계 분석 및 측정불확도 패키지 (Active)
-
-│   ├── summary.py            # 10대 요약 기술통계 (get_statistics_df)
-
-│   └── 📂 uncertainty/       # GUM / ISO 98-3 정밀 측정불확도
-
-├── 🛠️ utils/                  # 사내 통합 공통 유틸리티 (Active, 구 convenienceFunction)
-
-│   ├── files.py / excel.py / dataframe_utils.py / console_style.py / weather_tring.py
-
-│   └── 📂 logger/            # 계층형 로깅 시스템
-
-├── 🤖 ai/                     # 머신러닝/딥러닝 동역학 모델링 (구 unoAI)
-
-└── 🗄️ database/               # 시험 데이터베이스 연동 (auth_conn, plm_loader, queries)
-
-```
-
-
 
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
-| 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
-| :---: | :---: | :---: | :--- | :---: |
-| **v2.6** | 2026-09-23 | uno &<br/>Gemini | 🗄️ **GetDB 실차시험 스펙 및 결과 통합 엔진 신규 구축**<br/>• `_func_connect_spec_with_req_set.py`: 의뢰번호(`RQST_CD`)+타이어세트(`TIRE_SET_VAL`) 기반 PLM 세부 스펙 역추적 고속 추출 엔진(`connect_spec_with_req_set`) 구현<br/>• `_func_connect_vehicle_test_and_spec.py`: 실차 평가 결과(Wet/Dry/Snow 제동 등)를 공통 키(`TRS_TITM_OBJ_TBLK`) 기반 `LEFT JOIN`으로 스펙과 원스톱 결합하는 통합 모듈(`connect_vehicle_test_and_spec`) 구현<br/>• 사내망 Databricks OAuth SSL 인증서 검증 에러(`self-signed certificate in certificate chain`) 원인 규명 및 `_authconn_.py` 내 `_tls_no_verify=True` 패치 적용 완료<br/>• 옵시디언 1:1 위키 매뉴얼 배포 및 개정: `[[auth_conn]]`, `[[connect_spec_with_req_set]]`, `[[connect_vehicle_test_and_spec]]` | ✅ 완료 |
-| **v2.5** | 2026-09-22 | uno &<br/>Gemini | 🌦️ weather.py 내의 모든 보간 호출 위치에서 숫자형 컬럼(`select_dtypes(include='number')`)만 골라 처리하도록 고도화하여 Pandas 2.0+ `FutureWarning` 경고 100% 원천 차단<br/>📝 `vt_acc_brk_tire.py`, `vt_acc_brk_project.py`, `an_response.py`, `an_skewness.py` 내의 `logger.debug` 문자열 시작 개행 문자 `\n` 전수 제거로 로그 한 줄 칼정렬 교정 완료<br/>❄️ 외부 스노우 분석 스크립트 2종(`a_make_SnowAccBrkTest_DF.py`, `a_make_SnowSurfaceCharacteristic_DF.py`)의 임포트 경로 및 대문자 함수명(VT_ACCBRK, SP_Resample 등)을 PEP 8 표준(vt_acc_brk, resample_data 등)으로 전수 치환 완료<br/>🧪 가상환경 위에서 `test_structure_integrity.py` 및 `test_pep8_all.py` 통합 테스트 스위트 전수 통과 (100% PASS) | ✅ 완료 |
-| **v2.4** | 2026-09-21 | uno &<br/>Gemini | 📂 하위 도메인 레거시 브릿지 전원 이격 격리 및 legacy/ 폴더 수용<br/>🌦️ weather.py 기상 보간 FutureWarning 제거 (.infer_objects)<br/>🎨 ProgressBar 가로폭 자동 개행 차단(DECAWM) 및 좌측 정렬 레이아웃 완료<br/>📝 base_memory.py 개행 기호 \n 도려내어 로깅 줄바꿈 칼각 정렬 | ✅ 완료 |
-| **v2.0** | 2026-09-18 | uno | 🏎️ V2 차세대 Clean Architecture 10대 도메인 설계 전면 전환<br/>📦 패키지 다이어트 (1GB+ 거대 데이터 제거 ➔ 15.62MB 경량화)<br/>🔌 sys.meta_path 기반 무중단 하위 호환 가상 리다이렉터 래퍼 수립 | ✅ 완료 |
+> [!NOTE]- 📜 v1.0 ~ v3.4 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
+> | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
+> | :---: | :---: | :---: | :--- | :---: |
+> | **v3.4** | 2026-09-29 | uno &<br/>Gemini | 🎯 **curve_fit 최상위 도메인 승격, tire_curve 패키지 완전 일원화 및 단일 마스터 MOC 정비**<br/>• **curve_fit 최상위 도메인 신설**: `unoUtil.curve_fit` 도메인 및 `tire_curve/` 전용 패키지 구축<br/>• **타이어 피팅 단일 모듈화**: `CurveCombiner`, `fit_mf_ax`, `estimatorMF`, `MinimizeEstimator` 등 분산 피팅을 **`TireCurve` 단 하나의 타이어 피팅 모듈**로 완전 흡수 통합<br/>• **57KB 스플라인 결합 파이프라인 수납**: `curve_combiner/` 복합 파이프라인의 내부 캡슐화 및 OCP 미래 확장 구조 완비<br/>• **models(수식)와 curve_fit(피팅) 역할 분리**: `models`는 순수 지배 방정식 SSOT, `curve_fit`은 데이터 피팅 전담<br/>• **12대 도메인 및 36개 레거시 경로 100% 무결성 검증 통과 (Exit 0)** | ✅ 완료 |
+> | **v3.3** | 2026-09-28 | uno &<br/>Gemini | 🎯 **TireCurve 전략 패턴 및 BicycleModel 전면 표준화 완결 (Exit 0)**<br/>• **TireCurve 구축**: 임의 수학 모델(`model`) 및 최적화 전략(`method`) 주입 가능한 전략 패턴(Strategy Pattern) 기반 단일 클래스 설계<br/>• **2-DoF 자전거 모델 정합**: `dynamic_formula` ➔ `bicycle_model.py`(`BicycleModel`) 자동차공학 국제 표준 정규화<br/>• **Pacejka MF SSOT 확립**: 도메인별 분산 수식을 `calc_magic_formula` 단일 코어로 일원화<br/>• **무결성 검증 100% 통과**: 11대 공식 도메인 패키지 & 36개 구버전 레거시 가상 리다이렉션 전원 통과 | ✅ 완료 |
+> | **v2.9** | 2026-09-26 | uno &<br/>Gemini | 🏎️ **unoUtil.vehicle 도메인 v2 전면 표준화 및 Single Baseline Law 확립**<br/>• `vehicle_dynamic.py`를 `VehicleDynamic` 단일 표준 클래스로 캡슐화 완료 (8대 표준 동사 정합, v1 호환 별칭 바인딩, 비차단 시각화 및 자가 구동 테스트 스위트 구축)<br/>• `hndl_test.py`, `test_infor_res.py`, `analysis_test_data.py` 전면 리팩토링 및 1:1 위키 매뉴얼 100% 달성 | ✅ 완료 |
+> | **v2.8** | 2026-09-24 | uno &<br/>Gemini | 🏁 **unoUtil v2.0 아키텍처 전면 완료 및 전수 무결성 검증 100% 통과 (Final)**<br/>🛡️ 사내 보안 정책(AppLocker) 및 Windows 11 Smart App Control 대응: `D:\uno\Python\envs\unoBase` 표준 환경 구축 및 C/Fortran 확장 DLL 로드 차단 완벽 해소<br/>🧪 전사 10대 도메인 & 36개 세부 레거시 경로 무결성 100% 통과 (`test_structure_integrity.py` Exit 0 달성) | ✅ 완료 |
+> | **v2.7** | 2026-09-23 | uno &<br/>Gemini | 🧹 **전사 역방향 별칭(`Standard = LEGACY`) 전수 제거 및 정방향(`LEGACY = Standard`) 일괄 정합화**<br/>🛡️ 물리 `legacy/` 9개 디렉터리 및 `convenienceFunction/` 전량 `_archive/` 영구 퇴출 (Zero Physical Legacy 달성) | ✅ 완료 |
+> | **v2.6** | 2026-09-23 | uno &<br/>Gemini | 🗄️ **GetDB 실차시험 스펙 및 결과 통합 엔진 신규 구축**<br/>• `_func_connect_spec_with_req_set.py` 및 `_func_connect_vehicle_test_and_spec.py` 구현, SSL 인증서 패치 적용 | ✅ 완료 |
+> | **v2.0** | 2026-09-18 | uno &<br/>Gemini | 🏎️ **unoUtil v2.0 Clean Architecture 10대 도메인 설계 전면 전환**<br/>📦 패키지 다이어트: 1GB+ 거대 계측 데이터 전량 분리 $\rightarrow$ 루트 `test_data/` 중앙 통합 (15.62MB 순수 파이썬 초경량화, 98.5% 절감)<br/>🎯 8대 표준 동사 네이밍 수립 및 `MetaPathFinder` 무중단 가상 로더 수립 | ✅ 완료 |
+> | **v1.0** | 2026-09-10 | uno | 🚀 unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트 킥오프 | ✅ 완료 |
 
 ---
 
-
-
-## 🚀 1. 핵심 활성 모듈: vehicle, gps, file_reader, signal_process
-
-
-
-### 🏎️ 1.1 vehicle (실차 가감속 / 제동 분석 및 동역학 엔진)
-
-* 🏎️ **[[00_VT_ACCBRK_대시보드|VT_ACCBRK 통합 실차 성능 분석 시스템 대시보드]]**
-
-  * **전체 파이프라인**: [[10_VT_ACCBRK]] (`vt_acc_brk.py`)
-
-  * **개별 물리 분석**: [[11_VT_ACCBRK_TIRE]] (`vt_acc_brk_tire.py`)
-
-  * **프로젝트 취합 및 선형 보간**: [[12_VT_ACCBRK_PROJECT]] (`vt_acc_brk_project.py`)
-
-  * **서브 분석 모듈**: [[20_VT_ACCBRK_SUB_ANALYZERS]] (`analyzers/` 6대 물리 분석기)
-
-  * **시각화 플로터**: [[31_PLOTTER_PROJECT]], [[30_PLOTTER_TIRE]]
-
-  * **보정 알고리즘**: [[21_CORRECT]] (`correct.py`)
-
-  * **공통 연산 라이브러리**: [[22_Func_ACCBRK]] (`func_acc_brk.py`)
-
-* 🚗 **타이어 시험 분석 및 결과 컨테이너**:
-
-  * **[[analysis_test_data|analysis_test_data (VCTA 타이어 성능 분석 유틸리티)]]**
-
-  * **[[test_info_res|test_info_res (시험 메타정보 및 결과 패키징)]]**
-
-* 📜 **품질 혁신 및 체인지로그**: [[00_VT_ACCBRK_대시보드#5-버전-이력-및-주요-품질-혁신-내역-changelog--quality-audit|VT_ACCBRK v2.0 대규모 리팩토링 및 품질 혁신 내역]]
-
-
-
-### 🛰️ 1.2 gps (공간 데이터 처리 및 좌표 변환 엔진)
-
-* 🛰️ **[[00_gps_대시보드|gps 공간 데이터 처리 및 평면 좌표계 투영 엔진 대시보드]]**
-
-  * **핵심 투영 엔진**: [[10_GPStoXYCord]] (`gps_to_xy.py`, WGS84 타원체 정밀 벡터화, 5.9배 고속화, 0.06mm 정밀도)
-
-  * **데이터 방어 필터**: VBOX 종료 시점 0.0 노이즈 격리 및 DataFrame 인덱스 100% 보존
-
-  * **트랙 좌표계 정렬**: 테크노링 직선 제동로 기준점 및 회전각($\theta = -0.4^\circ$) 표준화
-
-
-
-### 🚀 1.3 file_reader (차세대 이종 계측 데이터 객체지향 리더 프레임워크) ⭐
-
-* 🚀 **[[00_file_reader_대시보드|file_reader (이종 계측 데이터 통합 객체지향 로더 대시보드)]]**
-
-  * **핵심 리더 엔진**: [[10_file_data_reader]] (`file_data_reader.py`, 전략 패턴 파서 라우팅)
-
-  * **VBOX 바이너리 파서**: [[vbb_reader]] (`vbb_reader.py`, 전원 급차단 3중 방어 복구 엔진)
-
-  * **Dewesoft C-DLL 디코더**: [[dwd_reader]] (`dwd_reader.py`, 비동기 CAN/GPS 채널 고속 정합 엔진)
-
-  * **GPS 스마트 타임존**: 글로벌 주요 시험장(태안, 이발로, IDIADA, ATP) 바운딩 박스 기반 동적 서머타임(DST) 자동 보정
-
-  * **Dewesoft 비동기 채널 정합**: `pd.merge_asof` 기반 고속 타임라인 보간 (15만 행 2.05초)
-
-  * **플루언트 API & 일괄 스캔**: 메서드 체이닝 및 `scan_dir` 멀티파일 예외 격리 배치 로딩
-
-  * **대규모 마이그레이션**: 사내 24개 모듈(`VT_ACCBRK`, `2025_Autobuild`, `Snow`, `MakeBRKResult`) 무중단 전면 전환 완료 (레거시 `readDataFile` 의존도 0% 달성 및 완전 퇴출)
-
-  * **영구 도메인 지식 연계**: [[23_이종_계측_데이터_통합_파이프라인_및_대규모_마이그레이션_엔지니어링]], [[22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론]], [[20_VBOX_계측_데이터_규격_및_GPS좌표계]], [[21_바이너리_파일_IO_및_VBB_데이터_포맷_구조]]
-
-
-
-### 📶 1.4 signal_process (신호 후처리, 커브피팅 및 주파수 분석)
-
-* 📶 **[[00_post_process_대시보드|post_process (신호 후처리 패키지 대시보드)]]**
-
-  * **[[filters|filters (Zero-Phase 이동평균 필터)]]**: 위상 지연 없는 양방향 필터(`filtfilt`) 및 SOS 고속 필터
-
-  * **[[resample|resample (비수치 보존 리샘플링)]]**: 이종 센서 비동기 정합 및 메타데이터 무손실 보존
-
-  * **[[outliers|outliers (다변량 이상치 정제)]]**: Percentile, Z-score, iForest, Extended IF 및 유효 제동 구간 색출
-
-  * **[[scaler|scaler (데이터 정규화)]]**: MinMax, Standard, Robust 스케일링
-
-  * **영구 도메인 지식 연계**: [[25_실차_신호처리_및_시계열_데이터_정제_공학]]
-
-
-
-### 🎨 1.6 graphics (실차 시각화 및 상호작용 인터랙션)
-
-* 🎨 **[[00_graphics_대시보드|graphics (시각화 패키지 대시보드)]]**
-
-  * **[[plotters/plotter|plotters (렌더링 플로터)]]**: Non-blocking 시각화 엔진, 텍스트 오프셋, 3D 서피스
-
-  * **[[controls/cursor_mode|controls (상호작용 제어기)]]**: 십자선 커서 모드, 마우스 드래그 관심구간(ROI) 추출
-
-  * **web**: 브라우저 기반 대화형 Plotly 차트
-
-  * **영구 도메인 지식 연계**: [[26_대규모_파이썬_패키지_모듈화_및_무중단_하위호환_아키텍처#4-시각화-무중단non-blocking-엔지니어링-표준]]
-
-
-
-### 📊 1.7 statistics (통계 분석 및 측정불확도)
-
-* 📊 **[[summary|summary (10대 요약 기술통계량)]]**: `get_statistics_df` (`get_statics_df`)
-
-* 🎯 **[[uncertainty|uncertainty (측정불확도 자동 평가 모듈)]]**: GUM / ISO 98-3 가이드라인 기반 합성표준불확도 및 확장불확도 평가 (`FlexibleUncertaintyEvaluator`)
-
-  * **전용 지식 클러스터 연계**: [[00_측정_불확도_공학_통합_색인|23_측정_불확도_공학 통합 색인 (MOC)]]
-
-  * **핵심 이론 가이드**: [[10_측정불확도_완벽_이론_및_수학적_유도_가이드|측정불확도 완벽 이론 및 수학적 유도 가이드]] (편미분 감도계수, Welch-Satterthwaite 유효자유도, A/B타입 적분 유도)
-
-  * **실무 핸드북**: [[11_타이어_RR_측정_불확도_평가_마스터_가이드_및_통계_핸드북|타이어 RR 측정 불확도 평가 마스터 가이드 & 통계 핸드북]]
-
-  * **실증 적용 사례**: [[20_타이어_회전저항_RR_측정_불확도_산출_기술_보고서|타이어 회전저항(RR) 측정 불확도 산출 기술 보고서 (ISO 28580 / GUM)]]
-
-
-
-### 🛠️ 1.8 utils (사내 통합 공통 유틸리티)
-
-* 🛠️ **[[00_utils_대시보드|utils (유틸리티 패키지 대시보드)]]**
-
-  * **[[files|files (경로 점검 및 파일 탐색)]]**, **[[dataframe_utils|dataframe_utils (DF 헬퍼 & 비율 연산)]]**, **excel**, **weather**
-
-
+## 🏛️ 2. Clean Architecture 10대 도메인 아키텍처
+
+> [!NOTE]- 🏗️ 아키텍처 다이어그램 및 패키지 구조 [클릭하여 펼치기]
+> ```mermaid
+> flowchart TD
+>     subgraph Storage_Isolation [프로젝트 최상위 3대 기둥 분리]
+>         P_CODE["🚀 unoUtil/ (순수 파이썬 프레임워크 - 초경량화)"]
+>         T_DATA["⭐ test_data/ (단일 중앙 테스트 데이터 - 90% 다이어트)"]
+>         ARCH["🗄️ _archive/ (과거 코드 영구 보존소 - 탐색기 열람)"]
+>     end
+> 
+>     subgraph Core_Domains [unoUtil 11대 핵심 도메인]
+>         V["🏎️ vehicle/ (실차 시험 & 동역학)"]
+>         G["🛰️ gps/ (GNSS 좌표계 투영 - gps_to_xy.py 단일화)"]
+>         FR["🚀 file_reader/ (이종 계측데이터 통합 리더 + parsers/ 서브폴더)"]
+>         CF["🎯 curve_fit/ (타이어 비선형 피팅 tire_curve/ SSOT)"]
+>         M["📐 models/ (Pacejka MF, Bicycle Model 지배 수식 SSOT)"]
+>         SP["📈 signal_process/ (fft, post_process 4대 전처리)"]
+>         ST["📊 uno_statistics/ (순수 통계 & 측정불확도 uncertainty/)"]
+>         GR["🎨 graphics/ (시각화 3대 서브폴더: plotters, controls, web)"]
+>         UT["🛠️ utils/ (공통 유틸리티 통합 & logger/ 완성)"]
+>         AI["🤖 ai/ (최적화 모델 & 피팅)"]
+>         DB["🗄️ database/ (DW / PLM 연동)"]
+>     end
+> ```
 
 ---
 
+## 🏎️ 3. vehicle 동역학 & 가감속/제동 (VT_ACCBRK) 도메인
 
-
-## 📐 2. 개발 및 엔지니어링 표준
-
-
-
-* 🏛️ **[[00_unoUtil_PEP8_표준화_총괄_가이드|unoUtil v2.0 PEP 8 표준화 및 하위 호환 총괄 가이드]]**
-
-  * 6대 표준 네이밍 헌장, 8대 표준 동사 함수 접두사(`load_`, `read_`, `calc_` 등), `MetaPathFinder` 무중단 가상 로더
-
-* 🚗 **[[27_실차_제동가감속_성능지수_수학적모델_및_시계열_선형보정_이론|실차 제동·가감속 성능지수 수학적 모델 및 시계열 선형 보정 이론]]**
-
-  * 컨트롤 타이어 시계열 조각 선형 보정 모델, 감산 성능지수, `**kwargs` 안전 매핑 표준
-
-* 📘 **[[Gemini_Python_코드_생성_규칙|Python 코드 품질 및 작성 가이드라인]]**
-
-* 🏗️ **[[26_대규모_파이썬_패키지_모듈화_및_무중단_하위호환_아키텍처|대규모 파이썬 패키지 모듈화 및 무중단 하위호환 아키텍처]]**
-
-  * Type Hinting 전수 적용 및 8대 동사 접두사 / 4대 불변 키워드 인자 표준화
-
-  * Google Style Docstring 표준 및 Non-blocking 시각화 (`plt.close(fig)`) 필수
-
-  * `# region Test` 기반 단위 검증 코드 필수 탑재
-
-  * 옵시디언 기술 문서 실시간 이중 동기화 프로토콜 준수
-
-
+> [!NOTE]- 🏎️ vehicle 및 acc_brk 모듈 1:1 매뉴얼 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`VehicleDynamic`** | 실차 센서 장착점 ➔ 차량 무게중심(CG) 운동역학 변환 및 롤/피치 보정 | [[vehicle_dynamic\|매뉴얼 보기]] |
+> | **`hndl_test`** | 실차 조종안정성(Handling) 계측 데이터 분석 및 요레이트/횡가속도 산출 | [[hndl_test\|매뉴얼 보기]] |
+> | **`test_infor_res`** | 평가 정보(`TestInformation`) 및 결과(`TestResult`) 메타데이터 컨테이너 | [[test_infor_res\|매뉴얼 보기]] |
+> | **`analysis_test_data`**| 제동 및 가속 성능 종합 통계 분석 및 평가 간 비교 엔진 | [[analysis_test_data\|매뉴얼 보기]] |
+> | **`vt_acc_brk`** | 가감속/제동 자동화 파이프라인 마스터 오케스트레이터 | [[vt_acc_brk\|매뉴얼 보기]] |
+> | **`vt_acc_brk_tire`** | 단일 타이어 동역학 분석, Wavelet 가속도 복원, 구간 자동 탐지 | [[vt_acc_brk_tire\|매뉴얼 보기]] |
+> | **`vt_acc_brk_project`**| 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 엔진 | [[vt_acc_brk_project\|매뉴얼 보기]] |
+> | **`correct` / `correct_factors`** | 시험 환경(온도, 노면) 및 콘트롤 타이어 시계열 성능 지수 보정 | [[correct\|correct]] · [[correct_factors\|correct_factors]] |
+> | **`base_memory`** | 대용량 실차 시계열 데이터 초고속 인메모리 관리 및 슬림 피클링 | [[base_memory\|매뉴얼 보기]] |
+> | **`func_acc_brk`** | 제동 분석 전용 시계열 필터링, 데이터 슬라이싱 보조 함수군 | [[func_acc_brk\|매뉴얼 보기]] |
+> | **`analyzers` (6대 서브)**| 가속대역, 감속응답, 슬립속도PDF, Mu-Drop, 왜도, 구간속도분할 전문 분석기 | [[an_acceleration\|가속]] · [[an_response\|응답]] · [[an_slip_pdf\|슬립PDF]] · [[an_mu_drop\|MuDrop]] · [[an_skewness\|왜도]] · [[an_split_speed\|속도분할]] |
+> | **`plotter_tire` / `plotter_project`** | 단일 타이어 분석 차트 및 프로젝트 비교 시계열 플로터 | [[plotter_tire\|타이어플로터]] · [[plotter_project\|프로젝트플로터]] |
 
 ---
 
+## 🚀 4. file_reader 이기종 계측 데이터 리더 도메인
 
+> [!NOTE]- 🚀 file_reader 파서 및 리더 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`file_data_reader`** | VBox(`.vbo`), Dewesoft(`.dwd`), RaceLogic(`.vbb`), 텍스트 이기종 자동 판별 통합 리더 | [[file_data_reader\|매뉴얼 보기]] |
+> | **`parsers` (5대 서브)** | `base_parser`, `vbo_parser`, `vbb_parser`, `dwd_parser`, `text_parser` 전용 엔진 | [[base_parser\|기반]] · [[vbo_parser\|VBO]] · [[vbb_parser\|VBB]] · [[dwd_parser\|DWD]] · [[text_parser\|TEXT]] |
+> | **`datetime_helper`** | GPS 시각 동기화, UTC-KST 변환 및 시계열 타임스탬프 정규화 | [[datetime_helper\|매뉴얼 보기]] |
+> | **`standard_channel_pattern`** | 사내 계측 채널명 정규표현식 매핑 사전 및 표준 칼럼 변환 | [[standard_channel_pattern\|매뉴얼 보기]] |
+> | **`DWDataReader` / `vbbTopython`** | Dewesoft C-DLL 바인딩 및 VBB 바이너리 파이썬 변환 엔진 | [[dwdReader\|dwdReader]] · [[VBBReader\|VBBReader]] |
 
+---
 
+## 🎨 5. graphics 실차 시각화 및 인터랙션 도메인
+
+> [!NOTE]- 🎨 graphics 플로터, 컨트롤러, 웹 시각화 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`plotter`** | Matplotlib 기반 실차 주행 시계열 표준 플로팅 엔진 (비차단 원칙) | [[plotter\|매뉴얼 보기]] |
+> | **`pair_plot`** | 다변량 센서 신호 상관관계 매트릭스 시각화 | [[pair_plot\|매뉴얼 보기]] |
+> | **`surface_3d`** | 노면 높이 및 3차원 공간 특성 서피스 렌더러 | [[surface_3d\|매뉴얼 보기]] |
+> | **`text_offset`** | 차트 주석 텍스트 겹침 방지 자동 오프셋 계산기 | [[text_offset\|매뉴얼 보기]] |
+> | **`cursor_mode` / `range_selector`** | GUI 인터랙티브 마우스 커서 측정 및 특정 구간 드래그 선택기 | [[cursor_mode\|커서]] · [[range_selector\|구간선택]] |
+> | **`plotly_tools`** | 웹 기반 반응형 Plotly 대화형 차트 생성 툴킷 | [[plotly_tools\|매뉴얼 보기]] |
+
+---
+
+## 🎯 6. curve_fit 커브 피팅 및 타이어 곡선 도메인
+
+> [!NOTE]- 🎯 curve_fit 타이어 특성 피팅 및 결합 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`tire_curve` (`TireCurve`)** | **타이어 종/횡방향 비선형 특성 곡선 피팅 총괄 클래스 (단일 진실 공급원 - SSOT)** | [[tire_curve\|매뉴얼 보기]] |
+> | **`fit_least_squares`** | Scipy 비선형 최소자승 가중치/Huber loss 추정기 (`EstimatorLeastSquares`) | [[fit_least_squares\|매뉴얼 보기]] |
+> | **`curve_combiner`** | 다구간 스플라인 결합, 변곡점 검출 및 국소 트렌드 라인 복합 파이프라인 | [[curve_combiner\|매뉴얼 보기]] |
+
+---
+
+## 📐 7. models 공학 지배 수식 도메인
+
+> [!NOTE]- 📐 models 순수 공학 수학 지배 방정식 및 신경망 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`magic_formula`** | Pacejka Magic Formula 타이어 횡력/종력 비선형 모델 수식 (SSOT) | [[magic_formula\|매뉴얼 보기]] |
+> | **`bicycle_model`** | 2자유도 차량 평면 횡방향 자전거 모델 수식 시뮬레이션 (`BicycleModel`) | [[bicycle_model\|매뉴얼 보기]] |
+> | **`fit_nn`** | PyTorch / Scikit-Learn 기반 차량 동역학 신경망 모델러 | [[fit_nn\|매뉴얼 보기]] |
+
+---
+
+## 📶 8. signal_process 신호 후처리 및 정제 도메인
+
+> [!NOTE]- 📶 post_process 4대 필터 및 FFT 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`filters`** | Zero-Phase 이동평균 필터 및 Butterworth 저역통과 필터 | [[filters\|매뉴얼 보기]] |
+> | **`resample`** | 비수치 메타데이터 손실 없는 시계열 고속 리샘플링 | [[resample\|매뉴얼 보기]] |
+> | **`outliers`** | 이상치 자동 검출 및 연속 결측 구간 정제 | [[outliers\|매뉴얼 보기]] |
+> | **`scaler`** | MinMax, Standard, Robust 시계열 신호 정규화 | [[scaler\|매뉴얼 보기]] |
+> | **`extended_isolation_forest`** | 고차원 센서 이상치 탐지를 위한 EIF 알고리즘 | [[extended_isolation_forest\|매뉴얼 보기]] |
+> | **`find_fft` / `single_track` / `tf_estimate`**| 주파수 스펙트럼 분석, 단일 트랙 FFT, 전달함수(TF) 추정 | [[find_fft\|FFT]] · [[single_track\|트랙]] · [[tf_estimate\|전달함수]] |
+
+---
+
+## 🛠️ 9. utils & logger 공통 유틸리티 도메인
+
+> [!NOTE]- 🛠️ utils 및 로깅 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`logger`** | 사내 프레임워크 표준 계층형 로깅 엔진 (Print 전면 퇴출) | [[logger\|매뉴얼 보기]] |
+> | **`progress_bar`** | 콘솔 렌더링 칼정렬 및 깜빡임 없는 프로그레스 바 | [[progress_bar\|매뉴얼 보기]] |
+> | **`console_style` / `styles`** | ANSI 컬러 터미널 출력 포맷터 | [[console_style\|console_style]] · [[styles\|styles]] |
+> | **`dataframe_utils`** | 고속 판다스 조작, 데이터프레임 무결성 검증 유틸리티 | [[dataframe_utils\|매뉴얼 보기]] |
+> | **`excel`** | OpenPyXL 기반 대용량 서식화 엑셀 시트 자동 생성기 | [[excel\|매뉴얼 보기]] |
+> | **`files`** | 재귀적 파일 탐색, 디렉터리 안전 생성/삭제 유틸리티 | [[files\|매뉴얼 보기]] |
+> | **`weather`** | 평가 일자/위치 기반 기상 데이터 수집 및 보간 | [[weather\|매뉴얼 보기]] |
+> | **`window_handler` / `window_msg`** | 윈도우 OS 시스템 알림창 및 팝업 메시지 제어 | [[window_handler\|핸들러]] · [[window_msg\|메시지]] |
+
+---
+
+## 🤖 10. ai/database/statistics/gps 기타 도메인
+
+> [!NOTE]- 🤖 AI, DB, 통계, GPS 모듈 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`ai` (4대 모듈)** | 비선형 모델, 종방향 가속도 피팅, 최적화 모델, 딥러닝 피팅 | [[dynamic_model\|동적모델]] · [[fit_mf_ax\|MF가속]] · [[fit_minimize_optimization\|최적화]] · [[fit_nn\|신경망]] |
+> | **`database` (5대 쿼리)** | PLM 및 사내 DW 시험 마스터, 조건, 결과 테이블 연동 SQL | [[auth_conn\|인증]] · [[load_plm\|PLM]] · [[q1_hkt_rnd_dw__test__tb_th_req_master_mst\|마스터]] · [[q2_hkt_rnd_dw__test__tb_th_rslt_odr_cdn_bas\|조건]] · [[q3_hkt_rnd_dw__test__tb_th_req_item_bas\|항목]] |
+> | **`uno_statistics` / `uncertainty`**| 기술통계 요약(`summary`) 및 ISO GUM 표준 측정불확도 자동 평가 엔진 | [[summary\|통계요약]] · [[uncertainty\|측정불확도]] · [[uncertainty_theory\|불확도이론]] |
+> | **`gps` (`gps_to_xy`)** | WGS84 위경도 좌표를 평면 직각 데카르트 좌표계(XY)로 투영 | [[gps_to_xy\|매뉴얼 보기]] |
+
+---
+
+## 📖 11. 사용자 매뉴얼 및 엔지니어링 표준
+
+> [!NOTE]- 📘 사내 매뉴얼 및 코딩 표준 링크 [클릭하여 펼치기]
+> * 📖 **[[90_ACCBRK_사용자매뉴얼|VT_ACCBRK 실무 사용자 매뉴얼]]**: 3단계 분석 공정 및 함수별 매개변수 가이드
+> * 📘 **[[D:\00_obsidian\.agents\rules\PYTHON_CODE_AGENT.md|PYTHON_CODE_AGENT.md (글로벌 파이썬 마스터 규칙)]]**
+> * 🛑 **[[00_제동_기술_통합_색인|차량 제동(Braking) 기술 위키 통합 색인]]**
+> * 🏠 **[[04_Resources/00_지식_위키_통합_색인|04_Resources 지식 위키 중앙 대문]]**
+
+---
+**Last Updated**: 2026-09-29  
+**Standard**: unoUtil Clean Architecture v2.0 & Single Baseline Law & Single Master MOC Law

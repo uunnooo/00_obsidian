@@ -1,108 +1,83 @@
-# 📚 VCTA 타이어 성능 분석 모듈 문서 (`_AnalysisTestData_.py`)
+# 🧭 AnalysisTestData 시험 데이터 상대 성능 지수 산출 엔진 매뉴얼 (analysis_test_data.md)
 
-이 모듈은 타이어 성능 시험 데이터의 **선형 보정, 통계 분석 및 리포트 생성**을 위한 전문적인 유틸리티 함수들을 제공합니다. `pandas`, `numpy`를 활용하여 데이터의 신뢰성을 확보하고, 컨트롤 타이어 기반의 성능 지수(Index)를 자동으로 산출합니다.
+## 📌 1. 개요 및 목적 (Overview)
+`analysis_test_data` 모듈은 실차 주행 시험(제동, 소음, 승차감 등) 진행 중 노면 온도 및 환경 변화로 인해 발생하는 성능 드리프트를 보정하기 위해, **컨트롤 타이어(Control Tire)의 성능 변화를 선형 보간(Linear Interpolation)**하고 시험 타이어(Test Tire)의 **상대 성능 지수(Index, %)**를 산출하는 전문 분석 엔진입니다. 또한 다회차 시험 데이터를 다차원 피벗하여 지표 중심의 비교표와 요약 통계표를 자동 빌드합니다.
 
----
-
-## 📊 데이터 처리 및 보정 함수
-
-### 1. astype_float(df_input)
-데이터프레임의 모든 열에 대해 수치형(float) 변환을 시도합니다.
-* **기능**: 숫자로 변환 가능한 문자열은 `float64`로 변환하고, 변환 불가능한 텍스트 데이터는 원본을 유지하여 데이터 유실을 방지합니다.
-* **매개변수**:
-    * `df_input` : `pd.DataFrame` (수치형으로 변환할 대상 데이터프레임)
-* **반환**:
-    * `pd.DataFrame` : 변환 가능한 데이터가 수치형으로 변경된 데이터프레임.
-* **예시**:
-    ```python
-    import pandas as pd
-    # BrkDist와 Noise 컬럼의 타입을 수치형으로 정제
-    df_raw_data[['BrkDist', 'Noise']] = astype_float(df_raw_data[['BrkDist', 'Noise']])
-    ```
-
-### 2. calc_performance (make_performance_df)(df_input, str_result_col, str_name_col, str_test_seq='Datetime', str_refer_kwd='c')
-컨트롤 타이어 간 성능 변화를 선형 보정(Linear Interpolation)하여 시험 타이어의 상대 성능 지수를 산출합니다.
-* **기능**: 환경 변화를 제거하기 위해 가상의 컨트롤 기준값(`adj_`)을 계산하고, 이를 기반으로 100 기준의 성능 지수(`per_`)를 생성하여 원본 데이터프레임에 추가합니다.
-* **보정 수식**:
-    * 예상 컨트롤($adj$) = $C_{start} + (C_{end} - C_{start}) \times \frac{현재순번 - 시작순번}{전체간격}$
-    * 성능 지수($Index$) = $(adj / Measured\_Value) \times 100$
-* **매개변수**:
-    * `df_input` : `pd.DataFrame` (전체 시험 결과 데이터)
-    * `str_result_col` : `str` (분석 대상 지표 컬럼명, 예: 'BrkDist')
-    * `str_name_col` : `str` (타이어 세트 이름 컬럼명)
-    * `str_refer_kwd` : `str` (컨트롤 타이어 식별 키워드, 기본 'c')
-* **반환**:
-    * `pd.DataFrame` : 보정값(`adj_`)과 성능 지수(`per_`) 컬럼이 추가된 데이터프레임.
-* **예시**:
-    ```python
-    # 'c'로 시작하는 타이어를 기준으로 제동거리(BrkDist) 지수 산출
-    df_perf = calc_performance (make_performance_df)(df_raw, 'BrkDist', 'tireSet', str_refer_kwd='c')
-    ```
-
-### 3. calc_compare (make_compare_df)(list_dfs, list_comp_cols, list_sel_cols, **kwargs)
-전달받은 비교 기준을 열(Column)로 펼치고, 선택 지표(Metric)를 행(Index)으로 구성한 최종 비교 리포트를 생성합니다.
-* **기능**: 여러 데이터를 통합하고 `unstack`과 `stack` 과정을 통해 지표 중심의 계층 구조를 만듭니다. 동일 조건의 반복 데이터는 평균값으로 집계합니다.
-* **매개변수**:
-    * `list_dfs` : `list of pd.DataFrame` (병합할 데이터프레임 리스트)
-    * `list_comp_cols` : `list` (가로 열로 펼쳐 비교할 기준 컬럼명 리스트, 예: ['Test_Round', 'tireSet'])
-    * `list_sel_cols` : `list` (세로 행으로 보낼 지표명 리스트, 예: ['BrkDist', 'per_BrkDist'])
-    * `list_del_cols` : `list`, optional (그룹화 과정에서 제외할 컬럼 리스트)
-* **반환**:
-    * `df_compare` : `pd.DataFrame` (지표 중심의 타이어별 비교 리포트)
-    * `df_static` : `pd.DataFrame` (리포트 데이터를 기반으로 산출된 요약 통계표)
-* **예시**:
-    ```python
-    # 차수(Test_Round)와 타이어(tireSet)별로 4개 지표를 통합 비교 리포트 생성
-    list_metrics = ['BrkDist', 'per_BrkDist', 'Noise', 'per_Noise']
-    df_compare, df_static = calc_compare (make_compare_df)([df_input], ['Test_Round', 'tireSet'], list_metrics)
-    ```
-
-### 4. get_staticks_df(df_source)
-데이터프레임의 수치형 컬럼들에 대해 10가지 주요 통계 지표를 계산합니다.
-* **기능**: 평균, 범위, IQR, 표준편차, 최대, 최소, 사분위수(Q1, Q3), 중앙값, 개수를 계산하여 반환합니다.
-* **매개변수**:
-    * `df_source` : `pd.DataFrame` (통계량을 계산할 데이터프레임)
-* **반환**:
-    * `pd.DataFrame` : 10가지 통계 지표가 행(Index)으로 구성된 요약 통계표.
-* **예시**:
-    ```python
-    # 생성된 비교표를 바탕으로 타이어군별 통계 요약표 생성
-    df_static_summary = get_staticks_df(df_compare)
-    ```
-
-### 5. agg_mean(df_target)
-데이터프레임의 열별 평균을 계산하며, 비수치형 데이터에 대한 예외 처리를 수행합니다.
-* **기능**: 평균 계산 시도 후 실패 시 최댓값을 반환하여 데이터 유실 없이 대표값을 추출합니다.
-* **매개변수**:
-    * `df_target` : `pd.DataFrame` (집계 대상 데이터프레임)
-* **반환**:
-    * `pd.Series` : 열별 평균값 또는 최댓값이 담긴 시리즈.
-* **예시**:
-    ```python
-    # 제동거리와 소음의 단순 열별 평균값 확인
-    ser_agg_result = agg_mean(df_raw_data[['BrkDist', 'Noise']])
-    ```
+v2 아키텍처에서는 기존의 `print()` 기반 로깅을 전면 퇴출하고 **`LOGGER("AnalysisTestData")`** 계층형 로거를 도입하였으며, 8대 표준 동사(`calc_performance`, `calc_compare`) 체계로 정비되었습니다.
 
 ---
 
-## 📋 리포트 출력 예시 (Sample Output)
+## 🛠️ 2. 핵심 함수 및 API 명세 (API Specifications)
 
-`calc_compare (make_compare_df)` 함수를 통해 생성된 최종 리포트는 아래와 같은 구조를 가집니다.
-
-| parameter | R1_Control | R1_t_01 | R2_Control | R2_t_01 |
-| :--- | :---: | :---: | :---: | :---: |
-| **BrkDist** | 40.30 | 42.25 | 40.50 | 42.50 |
-| **per_BrkDist** | 100.00 | 95.38 | 100.00 | 95.29 |
-| **Noise** | 70.65 | 68.10 | 70.80 | 68.00 |
-| **per_Noise** | 100.00 | 101.45 | 100.00 | 101.32 |
+| 함수명 (8대 표준 동사) | v1 오리지널 레거시 별칭 | 주요 인자 규격 (헝가리안 배제) | 반환값 | 알고리즘 특성 |
+| :--- | :--- | :--- | :---: | :--- |
+| **`calc_performance`** | `make_performance_df` | `data: pd.DataFrame, target_col: str, name_col: str, test_seq='Datetime', refer_kwd='c'` | `pd.DataFrame` | 컨트롤 타이어 간 성능 변화를 선형 보간하여 시점별 기준값(`adj_`) 산출 및 상대 성능 지수(`per_`, %) 계산 |
+| **`calc_compare`** | `make_compare_df` | `dfs: List[pd.DataFrame], comp_cols: List[str], sel_cols: List[str], del_cols=[]` | `Tuple[compare_df, stat_df]` | 가로 열로 비교 기준(회차, 타이어셋)을 언스택(Unstack)하고 세로 행으로 지표(Metric)를 정렬한 다차원 비교표 및 통계표 생성 |
 
 ---
-**Last Updated**: 2026-09-18  
-**Department**: VCTA (Vehicle Characteristic Test & Analysis)  
-**Author**: Yunho Jung
 
-## 🔗 관련 문서 및 옵시디언 백링크
-* 📚 **영구 도메인 지식**: [[27_실차_제동가감속_성능지수_수학적모델_및_시계열_선형보정_이론|27_실차 제동·가감속 성능지수 수학적 모델 및 시계열 선형 보정 이론]]
-* 🏛️ **표준화 총괄 가이드**: [[00_unoUtil_PEP8_표준화_총괄_가이드|unoUtil PEP 8 표준화 총괄 가이드]]
-* 📐 **컨트롤 타이어 선형 보정 모듈**: [[cal_control|cal_control 모듈 매뉴얼]]
-* 🏎️ **가감속/제동 종합 분석 프레임워크**: [[vt_acc_brk|vt_acc_brk 모듈 매뉴얼]]
+## 🎯 3. v1 레거시 하위 호환성 단일 기준 원칙 (Single Baseline Law)
+* **v1 오리지널 레거시 호환 100% 보장**:
+  - `make_performance_df`, `make_compare_df` 별칭을 모듈 레벨에서 100% 유지합니다.
+  - 구버전 헝가리안 인자(`df_input`, `str_result_col`, `str_name_col`, `str_test_seq`, `str_refer_kwd`, `list_dfs`, `list_comp_cols`, `list_sel_cols`, `list_del_cols`)는 `**kwargs` 흡수 패턴을 통해 신규 표준 인자로 무중단 자동 변환됩니다.
+* **과도기적 미완성 코드의 레거시 취급 배제**:
+  - v2 개발 과정 중의 임시 파라미터나 불필요한 별칭은 남기지 않고 단일 표준 형태로 정합되었습니다.
+
+---
+
+## 💻 4. 실무 활용 3대 다변화 시나리오 (Multi-case Examples)
+
+### 4.1. [시나리오 1] `calc_performance` 컨트롤 타이어 선형 보정 및 지수 산출
+```python
+import pandas as pd
+from unoUtil.vehicle.analysis_test_data import calc_performance
+
+# 1. 시험 결과 데이터프레임 구성 (C1 -> T1 -> C2 순서)
+df_raw = pd.DataFrame({
+    "tireSet": ["c1", "t_01", "c2"],
+    "Datetime": pd.date_range("2026-03-17 09:00", periods=3, freq="h"),
+    "BrkDist": [40.0, 42.0, 41.0]
+})
+
+# 2. 제동거리(BrkDist) 선형 보정 수행
+df_perf = calc_performance(
+    data=df_raw,
+    target_col="BrkDist",
+    name_col="tireSet",
+    refer_kwd="c"
+)
+print(df_perf[["tireSet", "adj_BrkDist", "per_BrkDist"]])
+# t_01의 예상 컨트롤 성능은 40.5m, 상대 성능 지수는 (40.5 / 42.0) * 100 = 96.43%
+```
+
+### 4.2. [시나리오 2] `calc_compare` 다차원 비교표 및 통계 요약 산출
+```python
+from unoUtil.vehicle.analysis_test_data import calc_compare
+
+# 1. 비교표 및 통계 요약표 일괄 빌드
+comp_df, stat_df = calc_compare(
+    dfs=[df_perf],
+    comp_cols=["tireSet"],
+    sel_cols=["BrkDist", "per_BrkDist"]
+)
+print("📊 지표 중심 비교표:\n", comp_df)
+print("📈 통계 요약표:\n", stat_df)
+```
+
+### 4.3. [시나리오 3] v1 레거시 별칭 및 인자 흡수 호환성 검증
+```python
+from unoUtil.vehicle.analysis_test_data import make_performance_df
+
+# 구버전 함수명 및 헝가리안 인자로 안전하게 호출
+df_legacy = make_performance_df(
+    df_input=df_raw,
+    str_result_col="BrkDist",
+    str_name_col="tireSet"
+)
+print("🎉 v1 레거시 호환 정상:", "per_BrkDist" in df_legacy.columns)
+```
+
+---
+**Last Updated**: 2026-09-26  
+**Module**: `unoUtil.vehicle.analysis_test_data`  
+**Standard**: unoUtil Clean Architecture v2.0
