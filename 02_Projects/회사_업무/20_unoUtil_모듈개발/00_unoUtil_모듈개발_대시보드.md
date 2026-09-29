@@ -23,6 +23,8 @@ aliases:
   - UNOUTIL_ARCHITECTURE
   - UNOUTIL_V2_REFACTORING_REPORT
   - 01_test_data_통합관리_계획서
+  - "00_curve_fit_대시보드"
+  - "curve_fit_대시보드"
   - "00_file_reader_대시보드"
   - "00_graphics_대시보드"
   - "00_models_대시보드"
@@ -41,7 +43,7 @@ aliases:
 
 # 💼 unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트 (Master MOC)
 
-> ⚡ **Quick Jump**: [📅 1. 체인지로그](#-1-프로젝트-주요-버전-이력-changelog-타임테이블) · [🏛️ 2. 아키텍처](#️-2-clean-architecture-10대-도메인-아키텍처) · [🏎️ 3. vehicle/acc_brk](#️-3-vehicle-동역학--가감속제동-vt_acc_brk-도메인) · [🚀 4. file_reader](#-4-file_reader-이기종-계측-데이터-리더-도메인) · [🎨 5. graphics](#-5-graphics-실차-시각화-및-인터랙션-도메인) · [📐 6. models](#-6-models-공학-모델링-및-비선형-최적화-도메인) · [📶 7. signal_process](#-7-signal_process-신호-후처리-및-정제-도메인) · [🛠️ 8. utils/logger](#️-8-utils--logger-공통-유틸리티-도메인) · [🤖 9. ai/db/stats/gps](#-9-aidatabasestatisticsgps-기타-도메인) · [📖 10. 엔지니어링 표준](#-10-사용자-매뉴얼-및-엔지니어링-표준)
+> ⚡ **Quick Jump**: [📅 1. 체인지로그](#-1-프로젝트-주요-버전-이력-changelog-타임테이블) · [🏛️ 2. 아키텍처](#️-2-clean-architecture-11대-도메인-아키텍처) · [🏎️ 3. vehicle/acc_brk](#️-3-vehicle-동역학--가감속제동-vt_acc_brk-도메인) · [🚀 4. file_reader](#-4-file_reader-이기종-계측-데이터-리더-도메인) · [🎨 5. graphics](#-5-graphics-실차-시각화-및-인터랙션-도메인) · [🎯 6. curve_fit](#-6-curve_fit-커브-피팅-및-타이어-곡선-도메인) · [📐 7. models](#-7-models-공학-지배-수식-도메인) · [📶 8. signal_process](#-8-signal_process-신호-후처리-및-정제-도메인) · [🛠️ 9. utils/logger](#️-9-utils--logger-공통-유틸리티-도메인) · [🤖 10. ai/db/stats/gps](#-10-aidatabasestatisticsgps-기타-도메인) · [📖 11. 엔지니어링 표준](#-11-사용자-매뉴얼-및-엔지니어링-표준)
 
 > [!ABSTRACT] 🚀 unoUtil 단일 마스터 MOC 허브
 > 사내 파이썬 실차 데이터 분석 프레임워크 **`unoUtil v2.0+`**의 10대 도메인, 87개 핵심 모듈 기술 매뉴얼, Clean Architecture 명세 및 버전 관리 이력을 단일 페이지에서 1화면으로 조망·관리하는 **중앙 마스터 MOC 포털**입니다.
@@ -161,7 +163,7 @@ aliases:
 
 ---
 
-## 📶 7. signal_process 신호 후처리 및 정제 도메인
+## 📶 8. signal_process 신호 후처리 및 정제 도메인
 
 > [!NOTE]- 📶 post_process 4대 필터 및 FFT 모듈 목록 [클릭하여 펼치기]
 > | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
@@ -175,7 +177,7 @@ aliases:
 
 ---
 
-## 🛠️ 8. utils & logger 공통 유틸리티 도메인
+## 🛠️ 9. utils & logger 공통 유틸리티 도메인
 
 > [!NOTE]- 🛠️ utils 및 로깅 모듈 목록 [클릭하여 펼치기]
 > | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
@@ -191,7 +193,7 @@ aliases:
 
 ---
 
-## 🤖 9. ai/database/statistics/gps 기타 도메인
+## 🤖 10. ai/database/statistics/gps 기타 도메인
 
 > [!NOTE]- 🤖 AI, DB, 통계, GPS 모듈 목록 [클릭하여 펼치기]
 > | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
@@ -203,7 +205,7 @@ aliases:
 
 ---
 
-## 📖 10. 사용자 매뉴얼 및 엔지니어링 표준
+## 📖 11. 사용자 매뉴얼 및 엔지니어링 표준
 
 > [!NOTE]- 📘 사내 매뉴얼 및 코딩 표준 링크 [클릭하여 펼치기]
 > * 📖 **[[90_ACCBRK_사용자매뉴얼|VT_ACCBRK 실무 사용자 매뉴얼]]**: 3단계 분석 공정 및 함수별 매개변수 가이드
