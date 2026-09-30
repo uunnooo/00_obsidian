@@ -84,7 +84,31 @@ aliases:
 
 ## 📜 5. 상세 엔지니어링 개발 이력 (Changelog)
 
-> [!NOTE]- 📜 [2026-09-30] v1.7: 노면 환경(`snow_condition`) 및 타이어 성능(`snow_braking_performance`) 도메인 분리 & 47대 SSOT 표준화 완료 [클릭하여 펼치기]
+> [!NOTE]- 📜 [2026-09-30] v1.8: 보정 모델 검증(`snow_condition`)과 타이어 스펙 성능(`snow_braking_performance`) 도메인 완전 분리 완료 [클릭하여 펼치기]
+> * 🎯 **도메인 경계 재정의 및 직교성(Orthogonality) 확립**:
+>   - **사용자 핵심 피드백 반영**: "보정 모델에 대한 검증 차트 및 산점도가 왜 브레이킹 퍼포먼스에 있는가? 브레이킹 퍼포먼스는 타이어의 스펙 관련된 부분만 들어가야 한다."
+>   - **노면 환경 및 보정 모델 도메인 (`snow_condition.correction_model.SnowCorrectionModel`)**:
+>     - 노면 환경 변화($\Delta H, \Delta\text{AH}$)와 동일 타이어 제동거리 차분($\Delta D$) 간의 관계 학습, 적용, 검증을 일원화 전담.
+>     - `calc_corrected_comparison_table()`: 동일 의뢰/타이어 1st vs 2nd 대조표 산출 (Raw_Diff, Corr_Diff, Error_Reduction) 및 엑셀 저장.
+>     - `plot_delta_prediction_scatter()` (**Figure 1**): 실측 차분($\Delta D_{\text{actual}}$) vs 예측 차분($\Delta D_{\text{pred}}$) 산점도 및 $R^2$, MAE 검증.
+>     - `plot_scatter_restoration()` (**Figure 2**): 1차 기준(Ref) 대비 2차 원본(Raw)과 보정본(Corrected) 일치도 복원 산점도 ($y=x$ 대조, Adjusted $R^2$ 복원).
+>     - `plot_correction_map()` (**Figure 3**): 노면 침하차 vs 대기 절대습도차에 따른 제동거리 3D/2D 등고선 보정 맵.
+>     - `plot_delta_braking_bar()`: 타이어 세트별 보정 전 편차 대비 보정 후 편차 0선 수렴 바차트.
+>     - `plot_residual_dependency()`: 보정 전/후 잔차의 노면 환경 인자(침하 깊이) 의존성 소거 검증 플롯.
+>   - **타이어 스펙 성능 평가 도메인 (`snow_braking_performance.spec_analyzer.SnowSpecAnalyzer`)**:
+>     - 순수 타이어 사양(Spec: 컴파운드, 패턴, 규격, 세트 등)에 관련된 성능 평가 및 순위 일관성 전담.
+>     - `calc_spec_distributions()`: 사양별 평균 제동거리, 표준편차(Std), 분산 감소율(Variance Reduction, %), 변동계수(CV, %).
+>     - `calc_ranking_consistency()`: 보정 전/후 타이어 사양 간 서열 보존성 검증 (Spearman $\rho$, Kendall $\tau$).
+>     - `plot_spec_boxplots()`: 타이어 사양별 제동거리 분포 박스플롯.
+>     - `plot_tire_subsets_comparison()` (**Figure 4**): 의뢰서별 타이어 세트 1st vs 2nd_Raw vs 2nd_Corr 성능 비교 서브플롯.
+>     - `plot_track_position_braking_map()`: 트랙 좌표계(PosX, PosY)상 타이어 세트별 제동거리 공간 분포 맵.
+>   - **하위 호환성 어댑터 및 파사드 관제 (`braking_evaluator.py`, `pipeline_facade.py`)**:
+>     - `SnowBrakingEvaluator` (`braking_evaluator.py`): 보정 모델 검증 호출을 `snow_condition.correction_model.SnowCorrectionModel`로 자동 포워딩/위임하는 경량 어댑터로 전환하여 기존 코드 100% 하위 호환 보장.
+>     - `SnowBrakingPerformance` (`pipeline_facade.py`): 보정 검증 요청은 `self.correction_model`로, 스펙 분석 요청은 `self.spec_analyzer`로 명확하게 분기 위임.
+> * 🚀 **실데이터 1,964건 통합 파이프라인 완주 검증 통과 (`c_run_snow_correction_pipeline.py`, Exit Code 0)**:
+>   - Figure 1~3은 `SnowCondition.CorrModel`이 주관 생성 및 저장 완료.
+>   - Figure 4는 `SnowBraking.Spec`이 주관 생성 및 저장 완료.
+>   - 4개 서브모듈 1:1 기술 매뉴얼(`correction_model.md`, `spec_analyzer.md`, `pipeline_facade.md`, `braking_evaluator.md`) 갱신 완료.
 > * 📦 **모듈 도메인 분리 및 독립 패키지화 완비**:
 >   - **기존 구조**: 거대 단일 모듈 `Snow_braking_relate_condition`에 노면 물리, 센서 디지털 트윈, ML 보정, 타이어 스펙 분석, 제동 평가가 혼재.
 >   - **신규 분리 구조**:

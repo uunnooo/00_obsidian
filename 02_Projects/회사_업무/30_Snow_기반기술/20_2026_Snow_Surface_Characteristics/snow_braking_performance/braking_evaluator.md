@@ -2,6 +2,11 @@
 
 이 문서는 스노우 실차 제동 평가에서 1차 기준(Ref)과 2차 평가(Corr)의 원본 및 환경 보정 제동거리를 1:1 대조하고, 편차 감소율 및 원형 복원율($R^2$)을 정량 평가하는 **`SnowBrakingEvaluator`** 모듈의 명세 및 사용법을 정의합니다.
 
+> [!NOTE] 🧭 도메인 분리 안내 (Domain Separation)
+> 보정 모델 자체의 유효성 검증 기능(Figure 1 차분 산점도, Figure 2 복원 산점도, 등고선 맵, 1st vs 2nd 대조표)의 공식 주관 모듈은 **`snow_condition.correction_model.SnowCorrectionModel`**입니다.
+> 순수 타이어 스펙(컴파운드, 패턴, 세트 등) 성능 평가는 **`snow_braking_performance.spec_analyzer.SnowSpecAnalyzer`**를 사용하십시오.
+> 본 `SnowBrakingEvaluator` 클래스는 기존 코드의 하위 호환성을 유지하기 위한 위임 어댑터로 유지됩니다.
+
 ---
 
 ## 1. 📌 핵심 개요

@@ -22,7 +22,12 @@
 | `predict_delta(diff_height, diff_ah)` | 특정 노면 침하차 및 절대습도차에 따른 제동거리 변화량($\Delta D$) 예측 | `diff_height`, `diff_ah` | `Union[float, np.ndarray]` |
 | `correct_dataframe(data, reference_condition=...)` | 기준 환경 기반 일괄 정규화 또는 1st 대비 2nd 상대 환경 차분 차감 보정 | `data`, `reference_condition`, `out_col` | `pd.DataFrame` (`char_brk_dist_corr` 추가) |
 | `plot_model_comparison(save=False)` | 모델별 $R^2$ 및 MAE 성능 비교 바차트 시각화 | `save`, `close` | `Tuple[plt.Figure, Any]` |
-| `plot_correction_map(save=False)` | $\Delta H$ vs $\Delta \text{AH}$에 따른 $\Delta D$ 3D/2D 등고선 보정 맵 시각화 | `x_range`, `y_range`, `shift_min_zero`, `save`, `close` | `Tuple[plt.Figure, plt.Axes]` |
+| `plot_correction_map(save=False)` | $\Delta H$ vs $\Delta \text{AH}$에 따른 $\Delta D$ 3D/2D 등고선 보정 맵 시각화 (Figure 3) | `x_range`, `y_range`, `shift_min_zero`, `save`, `close` | `Tuple[plt.Figure, plt.Axes]` |
+| `calc_corrected_comparison_table(data)` | 1차(Ref) vs 2차(Corr) 정밀 대조표 산출 (Raw/Corr 편차, 복원 오차 감소율) 및 엑셀 저장 | `data`, `model_name`, `save` | `pd.DataFrame` (정밀 대조표) |
+| `plot_delta_prediction_scatter(save=False)` | 차분 예측 모델 검증 산점도(Actual $\Delta D$ vs Predicted $\Delta D$, Figure 1) | `df_diff`, `model_name`, `save`, `close` | `Tuple[plt.Figure, plt.Axes]` |
+| `plot_scatter_restoration(save=False)` | 1차 기준 제동거리 대비 2차 원본/보정본 일치도 복원 산점도 (Figure 2) | `df_comp`, `data`, `save`, `close` | `Tuple[plt.Figure, Any]` |
+| `plot_delta_braking_bar(save=False)` | 세트별 보정 전 편차 대비 보정 후 편차 0 수렴 바차트 시각화 | `df_comp`, `title`, `save`, `close` | `Tuple[plt.Figure, plt.Axes]` |
+| `plot_residual_dependency(save=False)` | 보정 전/후 잔차의 환경 인자(침하 깊이) 의존성 소거 검증 플롯 | `data`, `factor_col`, `save`, `close` | `Tuple[plt.Figure, Any]` |
 | `save_models()`, `load_models()` | 학습된 모델 및 평가지표의 pkl/joblib 영구 저장 및 복원 | `save_dir`, `filepath` | `Path`, `bool` |
 
 ---
