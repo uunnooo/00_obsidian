@@ -30,6 +30,7 @@ aliases:
 
 |    버전    |     날짜     |       작업자        | 핵심 수정 및 개발 내역 (Changelog)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |  상태  |
 | :------: | :--------: | :--------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--: |
+| **v1.9** | 2026-09-30 | uno &<br/>Gemini | 🏛️ 노면 컨디션 모듈을 범용 패키지(`unoUtil.snow_condition`)로 전면 이관 및 독립화<br/>🧩 **`acc_brk` 스타일 컴포지션 패턴(Composition Pattern)** 기반 보정 엔진 3대 분할 완결 (`SnowCorrectionModel`, `SnowCorrectionValidator`, `SnowCorrectionPlotter`)<br/>🧹 레거시 `snow_condition` 폴더 삭제 및 파사드(`pipeline_facade`, `braking_evaluator`) 제거<br/>🏎️ `snow_braking_performance`는 순수 타이어 스펙 분석(`SnowSpecAnalyzer`) 전담으로 직교성 확립<br/>🚀 통합 파이프라인(`c_run_snow_correction_pipeline.py`) 직렬 리팩터링 및 실데이터 1,964건 무결 검증 완료 (Exit Code 0) | ✅ 완료 |
 | **v1.6** | 2026-09-29 | uno &<br/>Gemini | 🏗️ Clean Architecture 최신 표준(`unoUtil.logger`) 전 모듈 일괄 마이그레이션 완료<br/>🛡️ 패키지 대소문자 회복 탄력성(Case Resilient Fallback) 적용 (`__init__.py`)<br/>🌤️ 10대 기상 채널 자동 매핑 및 결측 방어(Fallback) 메커니즘 구축<br/>⚡ 361개 노면 센서 3D 공간 보간 및 32개 전 세션 3D/2D 디지털 트윈 맵 일괄 자동 저장 (`b_combine_surface_performance_spec.py`)<br/>📐 **노면 눌림량 차분($\Delta\text{Height}$) 원점 대칭 좌표계(`[-3.0, +3.0] mm`) 복원** 및 0-시프트 왜곡 제거<br/>🏢 **마지막 회사 최종 기준선(`2026-09-23 19:52`, 커밋 `a917f6e`)과 모델 성능 지표 100% 정합 완료** (RF $R^2=0.5121$, KNN $R^2=0.5417$)<br/>🚀 실측 1,964건 통합 파이프라인 무결 통과 (`c_run_snow_correction_pipeline.py`, Exit Code 0) 및 4대 핵심 검증 차트 볼트 갱신 | ✅ 완료 |
 | **v1.5** | 2026-09-23 | uno &<br/>Gemini | 🚀 스노우 제동-노면 차분 머신러닝 보정 통합 파이프라인 완성 (`c_run_snow_correction_pipeline.py`)<br/>📑 1st(Ref)/2nd(Corr) 전수 대조 데이터 테이블 생성 모듈화 (`calc_corrected_comparison_table`) 및 엑셀 자동 산출(209건)<br/>🗺️ 슬라이드 6번 표준 등고선 보정 맵(min=0 shift, 1단위 ticks, KNN 보간) 엔진 표준 탑재<br/>📊 4대 핵심 검증 시각화 모듈화 및 파사드 위임 (`plot_delta_prediction_scatter`, `plot_delta_braking_bar`, `plot_scatter_restoration`, `plot_correction_map`, `plot_tire_subsets_comparison`)<br/>🔤 Windows Malgun Gothic 자동 바인딩으로 한글 글리프 누락 UserWarning 완전 해결                                                                                                               | ✅ 완료 |
 | **v1.4** | 2026-09-23 | uno &<br/>Gemini | 🎯 차분 보정 머신러닝 엔진 대개편 및 원스톱 파이프라인 완성 (`c_train_correction_and_plot_maps.py`)<br/>📥 원스톱 데이터 적재 API (`load_combined_data`) 신설 (검증/매칭플래그 원스톱 동기화)<br/>🤖 5-Fold 교차검증 기반 하이퍼파라미터 오토 튜닝(`auto_tune=True`) 및 수동 튜닝(`model_params`) 완비<br/>📈 단일 DT의 $R^2$ 음수 과적합 문제를 깊이/리프 제약으로 양수(+0.45) 정상 회복<br/>📄 종합 보정 분석 마크다운 보고서 자동 생성 API (`save_report_md`) 구현 및 다형성 `save` 표준 적용<br/>📊 모델 성능 비교, 3D 보정 맵, 잔차 의존성 소거, 타이어 세트별 박스플롯 자동 생성 및 검증 완료                                                                                                                                                                              | ✅ 완료 |
@@ -83,6 +84,42 @@ aliases:
 ---
 
 ## 📜 5. 상세 엔지니어링 개발 이력 (Changelog)
+
+> [!NOTE]- 📜 [2026-09-30] v2.0: 의뢰번호 및 타이어 세트별 보정 전/후 비교 그래프 모듈 신설 및 다형성 지원 [클릭하여 펼치기]
+> * 📊 **의뢰번호 및 타이어 세트 인자 기반 보정 전/후 비교 플롯 다형성 완결**:
+>   - **SnowSpecAnalyzer.plot_tire_subsets_comparison()** 및 **SnowCorrectionPlotter.plot_tire_subsets_comparison() / plot_tire_set_correction()**:
+>     - **다형성 지원**:
+>       - 
+eq_no만 지정 시: 해당 의뢰번호에 속한 모든 타이어 세트를  서브플롯 그리드로 일괄 렌더링.
+>       - 
+eq_no와 	ire_set 둘 다 지정 시: 해당 특정 타이어 세트만 단일 축(Single Axes)으로 상세 렌더링 (범례, 상세 축 라벨 포함).
+>     - **스타일 다변화 (style='trend' / style='bar')**:
+>       - style='trend' (기본값): 1st Ref 기준 수평 점선 + 1st $	o$ 2nd Raw 변화선(붉은 점선) + 1st $	o$ 2nd Corr 복원선(푸른 실선) + 개별 시험 Run 산점도(Jitter) + 오차개선율(%) 뱃지 일체형 렌더링.
+>       - style='bar': 1st, 2nd_Raw, 2nd_Corr 3열 바차트 형식.
+> * 🖼️ **실제 데이터 검증 차트 생성 및 저장 완료**:
+>   - 4_Tire_Subplots_25RD110006EF.png: 25RD110006EF 의뢰 전체 타이어 7종(C1~C3, T1~T4) 서브플롯 그리드.
+>   - 4_Tire_SingleSet_25RD110006EF_T1.png: 'T1' 타이어 세트 단독 상세 복원 궤적 플롯.
+> * 📚 **기술 매뉴얼 및 볼트 동기화 완료**:
+>   - spec_analyzer.md, correction_plotter.md 최신 명세 반영 및 옵시디언 볼트 100% 동기화.
+
+> [!NOTE]- 📜 [2026-09-30] v1.9: 노면 컨디션 `unoUtil` 전면 이관 및 컴포지션 패턴(Composition Pattern) 분할 완결 [클릭하여 펼치기]
+> * 🏛️ **노면 컨디션 모듈의 범용 유틸리티 패키지(`unoUtil.snow_condition`) 전면 이관**:
+>   - `schema.py`, `physics.py`, `surface_twin.py`, `dashboard.py` 전면 배치 및 `unoUtil` 최상위 노출 완료.
+>   - 스노우 프로젝트 내 레거시 `snow_condition` 폴더를 완전히 영구 삭제하고 `unoUtil.snow_condition`으로 단일화.
+> * 🧩 **`acc_brk` 스타일 컴포지션 패턴(Composition Pattern) 기반 3대 전문 클래스 완결**:
+>   - **`SnowCorrectionModel`** (`correction_model.py`):
+>     - 6대 머신러닝 회귀 학습(RF, KNN, SVR, Ridge, Lasso, ElasticNet), 데이터프레임 일괄 보정(`correct_dataframe`), 모델 직렬화(`save_models`).
+>     - `self.validator = SnowCorrectionValidator(self)` 및 `self.plot = SnowCorrectionPlotter(self)` 합성 탑재.
+>   - **`SnowCorrectionValidator`** (`correction_validator.py`):
+>     - 1차(Ref) vs 2차(Corr) 정밀 대조표 산출(`calc_corrected_comparison_table`), 엑셀/CSV 다형성 저장, 오차 감소율 요약 통계(`calc_error_reduction_summary`).
+>   - **`SnowCorrectionPlotter`** (`correction_plotter.py`):
+>     - Non-blocking 렌더링, `save` 다형성, `close=True` 안전 자원 해제.
+>     - Figure 1 (`plot_delta_prediction_scatter`), Figure 2 (`plot_scatter_restoration`), Figure 3 (`plot_correction_map`), 편차 0 수렴 바차트(`plot_delta_braking_bar`), 잔차 환경 의존성 소거(`plot_residual_dependency`).
+> * 🧹 **거대 파사드(`pipeline_facade`, `braking_evaluator`) 제거 및 스펙 분석 패키지 정제**:
+>   - 불필요한 보정 잔재 래퍼 파일들을 원천 삭제하고, `snow_braking_performance`를 순수 타이어 스펙 분석(`SnowSpecAnalyzer`) 전담으로 직교성 확립.
+> * 🚀 **통합 실행 파이프라인(`c_run_snow_correction_pipeline.py`) 직렬 리팩터링 및 실데이터 1,964건 검증 통과**:
+>   - 파사드 없이 `unoUtil.snow_condition`과 `SnowSpecAnalyzer`를 직접 연결하여 1~9단계 원스톱 가동 (Exit Code 0).
+>   - 4대 핵심 검증 차트 및 엑셀 대조표 생성 완료 (MAE 개선율=58.62%, Std 개선율=49.52%).
 
 > [!NOTE]- 📜 [2026-09-30] v1.8: 보정 모델 검증(`snow_condition`)과 타이어 스펙 성능(`snow_braking_performance`) 도메인 완전 분리 완료 [클릭하여 펼치기]
 > * 🎯 **도메인 경계 재정의 및 직교성(Orthogonality) 확립**:

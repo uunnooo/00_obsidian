@@ -43,7 +43,7 @@ aliases:
 
 # 💼 unoUtil 사내 파이썬 통합 프레임워크 개발 프로젝트 (Master MOC)
 
-> ⚡ **Quick Jump**: [📅 1. 체인지로그](#-1-프로젝트-주요-버전-이력-changelog-타임테이블) · [🏛️ 2. 아키텍처](#️-2-clean-architecture-11대-도메인-아키텍처) · [🏎️ 3. vehicle/acc_brk](#️-3-vehicle-동역학--가감속제동-vt_acc_brk-도메인) · [🚀 4. file_reader](#-4-file_reader-이기종-계측-데이터-리더-도메인) · [🎨 5. graphics](#-5-graphics-실차-시각화-및-인터랙션-도메인) · [🎯 6. curve_fit](#-6-curve_fit-커브-피팅-및-타이어-곡선-도메인) · [📐 7. models](#-7-models-공학-지배-수식-도메인) · [📶 8. signal_process](#-8-signal_process-신호-후처리-및-정제-도메인) · [🛠️ 9. utils/logger](#️-9-utils--logger-공통-유틸리티-도메인) · [🤖 10. ai/db/stats/gps](#-10-aidatabasestatisticsgps-기타-도메인) · [📖 11. 엔지니어링 표준](#-11-사용자-매뉴얼-및-엔지니어링-표준)
+> ⚡ **Quick Jump**: [📅 1. 체인지로그](#-1-프로젝트-주요-버전-이력-changelog-타임테이블) · [🏛️ 2. 아키텍처](#️-2-clean-architecture-11대-도메인-아키텍처) · [🏎️ 3. vehicle/acc_brk](#️-3-vehicle-동역학--가감속제동-vt_acc_brk-도메인) · [🚀 4. file_reader](#-4-file_reader-이기종-계측-데이터-리더-도메인) · [🎨 5. graphics](#-5-graphics-실차-시각화-및-인터랙션-도메인) · [🎯 6. curve_fit](#-6-curve_fit-커브-피팅-및-타이어-곡선-도메인) · [📐 7. models](#-7-models-공학-지배-수식-도메인) · [📶 8. signal_process](#-8-signal_process-신호-후처리-및-정제-도메인) · [🛠️ 9. utils/logger](#️-9-utils--logger-공통-유틸리티-도메인) · [🤖 10. ai/db/stats/gps](#-10-aidatabasestatisticsgps-기타-도메인) · [❄️ 11. snow_condition](#-11-snow_condition-노면-환경--머신러닝-보정-도메인) · [📖 12. 엔지니어링 표준](#-12-사용자-매뉴얼-및-엔지니어링-표준)
 
 > [!ABSTRACT] 🚀 unoUtil 단일 마스터 MOC 허브
 > 사내 파이썬 실차 데이터 분석 프레임워크 **`unoUtil v2.0+`**의 10대 도메인, 87개 핵심 모듈 기술 매뉴얼, Clean Architecture 명세 및 버전 관리 이력을 단일 페이지에서 1화면으로 조망·관리하는 **중앙 마스터 MOC 포털**입니다.
@@ -55,6 +55,7 @@ aliases:
 > [!NOTE]- 📜 v1.0 ~ v3.4 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
+> | **v3.5** | 2026-09-30 | uno &<br/>Gemini | ❄️ **snow_condition 공식 도메인 승격 및 acc_brk 스타일 컴포지션 패턴 구축**<br/>• **snow_condition 전면 이관**: 47대 SSOT 노면 계측, 물리 역학, 3D 디지털 트윈, 4D 대시보드, ML 보정 엔진 공식 편입<br/>• **컴포지션 패턴 분할**: SnowCorrectionModel(코어 모델) + SnowCorrectionValidator(정량 검증) + SnowCorrectionPlotter(시각화 플로터)<br/>• **보정 전/후 다형성 비교 플롯**: plot_tire_subsets_comparison 구현 (의뢰번호 전체 서브플롯 및 개별 세트 상세 플롯, 1st Ref선 vs 2nd Raw 점선 vs 2nd Corr 실선 + Run 산점도)<br/>• **1:1 기술 매뉴얼 7종 및 하위 대시보드 MOC 완비, 전수 무결성 검증 통과 (Exit 0)** | ✅ 완료 |
 > | **v3.4** | 2026-09-29 | uno &<br/>Gemini | 🎯 **curve_fit 최상위 도메인 승격, tire_curve 패키지 완전 일원화 및 단일 마스터 MOC 정비**<br/>• **curve_fit 최상위 도메인 신설**: `unoUtil.curve_fit` 도메인 및 `tire_curve/` 전용 패키지 구축<br/>• **타이어 피팅 단일 모듈화**: `CurveCombiner`, `fit_mf_ax`, `estimatorMF`, `MinimizeEstimator` 등 분산 피팅을 **`TireCurve` 단 하나의 타이어 피팅 모듈**로 완전 흡수 통합<br/>• **57KB 스플라인 결합 파이프라인 수납**: `curve_combiner/` 복합 파이프라인의 내부 캡슐화 및 OCP 미래 확장 구조 완비<br/>• **models(수식)와 curve_fit(피팅) 역할 분리**: `models`는 순수 지배 방정식 SSOT, `curve_fit`은 데이터 피팅 전담<br/>• **12대 도메인 및 36개 레거시 경로 100% 무결성 검증 통과 (Exit 0)** | ✅ 완료 |
 > | **v3.3** | 2026-09-28 | uno &<br/>Gemini | 🎯 **TireCurve 전략 패턴 및 BicycleModel 전면 표준화 완결 (Exit 0)**<br/>• **TireCurve 구축**: 임의 수학 모델(`model`) 및 최적화 전략(`method`) 주입 가능한 전략 패턴(Strategy Pattern) 기반 단일 클래스 설계<br/>• **2-DoF 자전거 모델 정합**: `dynamic_formula` ➔ `bicycle_model.py`(`BicycleModel`) 자동차공학 국제 표준 정규화<br/>• **Pacejka MF SSOT 확립**: 도메인별 분산 수식을 `calc_magic_formula` 단일 코어로 일원화<br/>• **무결성 검증 100% 통과**: 11대 공식 도메인 패키지 & 36개 구버전 레거시 가상 리다이렉션 전원 통과 | ✅ 완료 |
 > | **v2.9** | 2026-09-26 | uno &<br/>Gemini | 🏎️ **unoUtil.vehicle 도메인 v2 전면 표준화 및 Single Baseline Law 확립**<br/>• `vehicle_dynamic.py`를 `VehicleDynamic` 단일 표준 클래스로 캡슐화 완료 (8대 표준 동사 정합, v1 호환 별칭 바인딩, 비차단 시각화 및 자가 구동 테스트 스위트 구축)<br/>• `hndl_test.py`, `test_infor_res.py`, `analysis_test_data.py` 전면 리팩토링 및 1:1 위키 매뉴얼 100% 달성 | ✅ 완료 |
@@ -66,7 +67,7 @@ aliases:
 
 ---
 
-## 🏛️ 2. Clean Architecture 10대 도메인 아키텍처
+## 🏛️ 2. Clean Architecture 12대 도메인 아키텍처
 
 > [!NOTE]- 🏗️ 아키텍처 다이어그램 및 패키지 구조 [클릭하여 펼치기]
 > ```mermaid
@@ -77,7 +78,7 @@ aliases:
 >         ARCH["🗄️ _archive/ (과거 코드 영구 보존소 - 탐색기 열람)"]
 >     end
 > 
->     subgraph Core_Domains [unoUtil 11대 핵심 도메인]
+>     subgraph Core_Domains [unoUtil 12대 핵심 도메인]
 >         V["🏎️ vehicle/ (실차 시험 & 동역학)"]
 >         G["🛰️ gps/ (GNSS 좌표계 투영 - gps_to_xy.py 단일화)"]
 >         FR["🚀 file_reader/ (이종 계측데이터 통합 리더 + parsers/ 서브폴더)"]
@@ -205,7 +206,24 @@ aliases:
 
 ---
 
-## 📖 11. 사용자 매뉴얼 및 엔지니어링 표준
+
+---
+
+## ❄️ 11. snow_condition 노면 환경 & 머신러닝 보정 도메인
+
+> [!NOTE]- ❄️ snow_condition 7대 모듈 및 MOC 매뉴얼 목록 [클릭하여 펼치기]
+> | 모듈명 | 핵심 클래스 / 역할 | 1:1 기술 매뉴얼 링크 |
+> | :--- | :--- | :---: |
+> | **`00_snow_condition_대시보드`** | snow_condition 도메인 MOC 포털 | [[00_snow_condition_대시보드|도메인 대시보드]] |
+> | **`schema`** | SSOT 47대 표준 컬럼 및 DataFrame 정규화 단일 관문 (`harmonize_snow_dataframe`) | [[schema|매뉴얼 보기]] |
+> | **`physics`** | Sonntag 빙점하 수증기압, 과포화도, 타이어 접지압 물리 역학 수식 | [[physics|매뉴얼 보기]] |
+> | **`surface_twin`** | 센서 좌표계 복원, 3D 시공간 디지털 트윈 엔진 (`SnowSurfaceTwin`) | [[surface_twin|매뉴얼 보기]] |
+> | **`dashboard`** | Plotly 4D 시공간 인터랙티브 노면 환경 애니메이션 (`SnowSurfaceDashboard`) | [[dashboard|매뉴얼 보기]] |
+> | **`correction_model`** | 6대 머신러닝 회귀 학습 및 데이터 보정 코어 엔진 (`SnowCorrectionModel`) | [[correction_model|매뉴얼 보기]] |
+> | **`correction_validator`** | 1st vs 2nd 대조표 산출, 엑셀 내보내기, 오차 감소율 통계 (`SnowCorrectionValidator`) | [[correction_validator|매뉴얼 보기]] |
+> | **`correction_plotter`** | 다형성 비교 플롯, 오버플랏 산점도, 2D 등고선 보정 맵 (`SnowCorrectionPlotter`) | [[correction_plotter|매뉴얼 보기]] |
+
+## 📖 12. 사용자 매뉴얼 및 엔지니어링 표준
 
 > [!NOTE]- 📘 사내 매뉴얼 및 코딩 표준 링크 [클릭하여 펼치기]
 > * 📖 **[[90_ACCBRK_사용자매뉴얼|VT_ACCBRK 실무 사용자 매뉴얼]]**: 3단계 분석 공정 및 함수별 매개변수 가이드

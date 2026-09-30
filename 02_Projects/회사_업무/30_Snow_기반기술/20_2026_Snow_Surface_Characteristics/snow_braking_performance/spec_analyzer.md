@@ -22,7 +22,7 @@
 | `calc_spec_distributions(data, spec_col='infor_CTB_COMPOUND')` | 사양별 보정 전/후 평균, 표준편차, CV 및 분산 감소율 집계 | `data`, `spec_col`, `raw_col`, `corr_col` | `pd.DataFrame` (요약 테이블) |
 | `calc_ranking_consistency(data, spec_col='infor_CTB_COMPOUND')` | 사양별 보정 전/후 평균 순위의 Spearman $\rho$ 및 Kendall $\tau$ 검정 | `data`, `spec_col`, `raw_col`, `corr_col` | `Dict[str, float]` (상관계수) |
 | `plot_spec_boxplots(data, spec_col='infor_CTB_COMPOUND', save=False)` | 사양별 보정 전/후 박스플롯 분포 나란히 시각화 | `data`, `spec_col`, `save`, `close` | `Tuple[plt.Figure, plt.Axes]` |
-| `plot_tire_subsets_comparison(data, req_no=..., save=False)` | 의뢰서별 타이어 세트 비교 서브플롯 (1st vs 2nd_Raw vs 2nd_Corr, Figure 4) | `data`, `req_no`, `save`, `close` | `Tuple[plt.Figure, Any]` |
+| `plot_tire_subsets_comparison(data, req_no=..., tire_set=..., style='trend', save=False)` | 의뢰번호 및 타이어 세트별 보정 전/후 비교 차트 (`style='trend'` 복원 궤적+런 산점도, `style='bar'` 막대) | `data`, `req_no`, `tire_set`, `style`, `save`, `close` | `Tuple[plt.Figure, Any]` |
 | `plot_track_position_braking_map(data, req_no=..., save=False)` | 트랙 좌표계(PosX, PosY)상 타이어 세트별 제동거리 공간 분포 맵 | `data`, `req_no`, `tire_set`, `save`, `close` | `Tuple[plt.Figure, Any]` |
 | `plot_residual_dependency(data, env_col='char_height', save=False)` | 환경 인자와의 상관 추세 기울기(Slope) 소거 산점도 검증 | `data`, `env_col`, `save`, `close` | `Tuple[plt.Figure, Any]` |
 
