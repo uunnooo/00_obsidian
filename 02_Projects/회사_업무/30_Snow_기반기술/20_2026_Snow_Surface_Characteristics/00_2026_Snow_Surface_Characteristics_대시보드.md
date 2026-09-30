@@ -84,6 +84,30 @@ aliases:
 
 ## 📜 5. 상세 엔지니어링 개발 이력 (Changelog)
 
+> [!NOTE]- 📜 [2026-09-30] v1.7: 노면 환경(`snow_condition`) 및 타이어 성능(`snow_braking_performance`) 도메인 분리 & 47대 SSOT 표준화 완료 [클릭하여 펼치기]
+> * 📦 **모듈 도메인 분리 및 독립 패키지화 완비**:
+>   - **기존 구조**: 거대 단일 모듈 `Snow_braking_relate_condition`에 노면 물리, 센서 디지털 트윈, ML 보정, 타이어 스펙 분석, 제동 평가가 혼재.
+>   - **신규 분리 구조**:
+>     1. `snow_condition`: 노면 환경 계측, 물리 방정식, 시공간 3D 디지털 트윈, 차분 머신러닝 보정 맵 전담.
+>        - `schema.py`: 47대 SSOT 표준 컬럼 정의 및 `harmonize_snow_dataframe()` 단일 관문.
+>        - `physics.py`: Sonntag 포화수증기압, 과포화도, 타이어 접지압 계산.
+>        - `surface_twin.py`: 센서 좌표계 복원, 노면 침하 및 표면온도 디지털 트윈.
+>        - `correction_model.py`: 동일 타이어 차분 생성, 6종 ML 회귀 훈련, 보정 등고선 맵.
+>        - `dashboard.py`: Plotly 기반 4D 시공간 노면 서피스 애니메이션.
+>     2. `snow_braking_performance`: 타이어 사양별 성능 분석 및 제동 평가 파이프라인 관제 전담.
+>        - `spec_analyzer.py`: 사양별 분산 감소율, CV, Spearman/Kendall 순위 일관성, 박스플롯, 잔차 의존성.
+>        - `braking_evaluator.py`: 1st vs 2nd 대조표, 편차 바차트, 복원율 산점도, 트랙 위치 맵.
+>        - `pipeline_facade.py`: 통합 관제 마스터 파사드 `SnowBrakingPerformance` 및 플로터.
+>     3. `Snow_braking_relate_condition`: 기존 코드 100% 호환 브릿지 어댑터로 전환.
+> * 🏷️ **47대 SSOT 표준 컬럼 규격 정의 및 과도기적 호환성 정리**:
+>   - 수많은 별칭(Alias)으로 인한 혼란을 해소하고 `infor_*`, `test_*`, `char_*`, `cd_test_*`, `diff_*` 표준 체계 확립.
+>   - 모든 모듈에서 `harmonize_snow_dataframe()`을 거쳐 표준 명칭으로 안전하게 변환되도록 보장.
+> * 🧪 **전체 1,964건 실데이터 파이프라인 무결성 검증 통과 (`c_run_snow_correction_pipeline.py`, Exit Code 0)**:
+>   - 95쌍 차분 데이터셋 생성, 6종 머신러닝 회귀 학습(KNN, RF, SVR, Ridge, Lasso, ElasticNet).
+>   - 대조표 엑셀 파일 자동 출력(`corrected_braking_comparison_table.xlsx`).
+>   - 4대 고해상도 검증 차트 생성 및 옵시디언 볼트 첨부파일 폴더 갱신.
+>   - 6종 모델 바이너리(.joblib) 및 종합 분석 마크다운 보고서 저장.
+
 > [!NOTE]- 📜 [2026-09-29] Clean Architecture 완비 및 회사 최종 기준선(v1.5) 100% 정합 복원 [클릭하여 펼치기]
 > * 📐 **노면 눈 침하 깊이 차분($\Delta\text{Height}$) 원점 대칭 좌표계 복원 및 왜곡 해소**:
 >   - **발생 원인**: 검증 차트 생성 시 `shift_min_zero=True` 로직에 의해 차분 최솟값(Min)이 강제로 감산되어, 실제 노면 눌림량 차분($-3.0 \sim +3.0\text{ mm}$)이 $0 \sim 5.3\text{ mm}$의 양수 영역으로 시프트 및 왜곡되었던 문제 규명.
