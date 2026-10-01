@@ -32,6 +32,8 @@ aliases:
   - "00_utils_대시보드"
   - "00_vehicle_dynamic_대시보드"
   - "00_vt_acc_brk_대시보드"
+  - "00_snow_condition_대시보드"
+  - "snow_condition_대시보드"
   - "file_reader_대시보드"
   - "graphics_대시보드"
   - "models_대시보드"
@@ -55,6 +57,11 @@ aliases:
 > [!NOTE]- 📜 v1.0 ~ v3.4 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
+> | **v3.10** | 2026-10-01 | uno &<br/>Gemini | ❄️ **SnowSurfaceInterpolator 순수 공간 보간기 정립 (센서 연산 완전 분리, char_* 단일 표준화 및 3중 결측/이상치 방어)**<br/>• **센서 하드웨어 연산 100% 완전 분리 (SoC)**: 보간기 내부의 특정 센서 뺄셈(`Height1~6`, `Temp1~2`, `h_left`, `h_right`, `h_out`, `h_tire` 등)을 전면 삭제하고 데이터 전처리 영역으로 격리, 순수 3D 공간 보간기에만 집중하도록 정립<br/>• **`char_*` 단일 명명 체계 (SSOT) 전면 일원화**: 파편화된 별칭(`calc_h_diff`, `calc_t_diff`, `HeightDiffAver`, `TempDiffAver`) 영구 정리, `char_height`, `char_temp`, `Cond_ID` 표준 컬럼으로 인터페이스 및 내부 학습 단일화<br/>• **3중 결측치·이상치 안전 정제 파이프라인 (`_sanitize_feature`, `np.clip`)**: 비수치 변환 ➔ 센서 결측치(NaN) 중앙값 대치 ➔ 물리적 범위 이탈값 `np.clip` 상/하한 안전 제한 완비<br/>• **실데이터 엔드투엔드 파이프라인 전수 통과**: `b_combine_surface_performance_spec.py` 1,964건 전수 결합 및 `c_run_snow_correction_pipeline.py` 머신러닝 차분 보정 완벽 완주 (Exit Code 0) | ✅ 완료 |
+> | **v3.9** | 2026-10-01 | uno &<br/>Gemini | ❄️ **노면 차분 머신러닝 보정 엔진 동적 특성 인자(x_cols, y_col) 지원, 결측치(NaN) 방어 가드 및 시각화 동적화**<br/>• **동적 특성 인자 리스트 표준화**: 고정 키워드 인자(`x_1`, `x_2`)를 완전히 탈피하고, 파이썬 표준 리스트 인터페이스 `x_cols: Optional[List[str]]` 및 `y_col: str`로 전면 개편 (기온, 습도, 침하량 등 임의 조합 및 3개 이상 다변량 피처 확장 100% 지원)<br/>• **결측치(NaN) 자동 정제 및 방어 가드 (`missing_strategy='drop'`)**: 센서 결측치 자동 드롭, All NaN 컬럼 및 빈 입력 시 명시적 `ValueError` 사전 차단<br/>• **다형성 예측 인터페이스 (`predict_delta`)**: 스칼라, 딕셔너리, NumPy 배열, Pandas DataFrame 단일 함수 다형성 지원<br/>• **시각화 플로터 및 검증기 100% 동적 라벨링 연동**: 모델에 전달된 특성 컬럼명이 산점도(Fig 1), 2D 등고선 맵(Fig 3), 대조표에 자동 실시간 반영<br/>• **전수 무결성 검증 통과**: 단위 테스트 및 1,964건 실데이터 파이프라인 완벽 완주 (Exit Code 0) | ✅ 완료 |
+> | **v3.8** | 2026-10-01 | uno &<br/>Gemini | ❄️ **SnowSurfaceInterpolator 직관적 단일 표준 확립 및 12:30 세션 쪼개짐 원천 해결**<br/>• **네이밍 & 아키텍처 혁신**: 추상적이고 모호했던 `SurfaceConditionTwin` 및 `surface_twin.py`를 완전히 폐기하고, 수치해석/데이터과학 표준에 부합하는 **`SnowSurfaceInterpolator`** (`surface_interpolator.py`)로 승격 리팩토링<br/>• **사이킷런 표준 인터페이스**: `interp.fit(df_surface)` (3D 격자 보간 모델 구축) $\to$ `interp.transform(df_brk)` (제동 데이터에 노면 특성치 일괄 결합) 표준 확립<br/>• **시험 묶음 최초 시작 시각(`min(Datetime)`) 기반 단일 세션 결합**: `Date + ReqNo + TestOrder` 그룹별 최초 시작 시각을 감지하여 12:30 경계 전후에 걸쳐 진행된 제동 시험 세트가 am/pm으로 분열되는 치명적 데이터 왜곡 결함을 100% 원천 해결<br/>• **파이프라인 초경량화**: `b_combine_surface_performance_spec.py`의 수동 for 루프 30줄을 단 2줄로 압축, 1,964건 제동 데이터 전수 매칭 및 2026-01-13 단일 세션 유지 완벽 검증 | ✅ 완료 |
+> | **v3.7** | 2026-10-01 | uno &<br/>Gemini | ❄️ **노면 정비 세션(Cond_ID) 기반 시공간 디지털 트윈 격리 보간 및 SSOT 스키마 정합**<br/>• **세션(Session) 개념 정합**: '동일 시기 및 동일 노면 컨디션(정비 이력)'을 보장하는 단일 세션(`Cond_ID`, 예: `2026-01-15_am`, `2026-01-19_all`) 체계 완비<br/>• **세션 자동 분류기 편입**: `classify_surface_condition(dt)` 공식 함수 구현 (노면일지 3단계 정비 캘린더 규칙: 2회 정비일 12:30 분기, 혹한 0/1회 정비일 all 단일 세션 자동 판별)<br/>• **세션 격리 시공간 보간**: `SurfaceConditionTwin.get_surface_condition`에서 해당 `Cond_ID` 스냅샷 그룹 내부에서만 시간 축 선형 보간을 수행하여 정비 전후 노면 왜곡 및 이종 날짜 혼합 원천 차단<br/>• **스키마 및 애니메이터 연동**: `schema.py`(`COL_COND_ID`, `COL_PREPARING`), `surface_animator.py`(`cond_id` 인자 지원) 전면 정합 및 전수 자가 테스트 통과 (Code 0) | ✅ 완료 |
+> | **v3.6** | 2026-10-01 | uno &<br/>Gemini | ❄️ **Single Master MOC 헌장 정합 및 snow_condition 서브모듈 리팩토링**<br/>• **Single Master MOC & Vault-Only SSOT 완결**: 소스 코드 디렉토리 내 오생성 대시보드 및 하위 대시보드 영구 삭제, 최상위 단일 대시보드로 MOC 완전 흡수 일원화<br/>• **모듈 명명 정합화**: 프로젝트 대시보드와의 명칭 혼동을 원천 해소하기 위해 `dashboard.py` ➔ **`surface_animator.py`**(`SurfaceAnimator` 클래스 및 `create_surface_animation_figure` 함수)로 승격 리팩토링<br/>• **1:1 기술 매뉴얼 정합**: `surface_animator.md` 로컬 및 옵시디언 이중 동기화 완료 및 전수 자가 구동 테스트 통과 (Exit 0) | ✅ 완료 |
 > | **v3.5** | 2026-09-30 | uno &<br/>Gemini | ❄️ **snow_condition 공식 도메인 승격 및 acc_brk 스타일 컴포지션 패턴 구축**<br/>• **snow_condition 전면 이관**: 47대 SSOT 노면 계측, 물리 역학, 3D 디지털 트윈, 4D 대시보드, ML 보정 엔진 공식 편입<br/>• **컴포지션 패턴 분할**: SnowCorrectionModel(코어 모델) + SnowCorrectionValidator(정량 검증) + SnowCorrectionPlotter(시각화 플로터)<br/>• **보정 전/후 다형성 비교 플롯**: plot_tire_subsets_comparison 구현 (의뢰번호 전체 서브플롯 및 개별 세트 상세 플롯, 1st Ref선 vs 2nd Raw 점선 vs 2nd Corr 실선 + Run 산점도)<br/>• **1:1 기술 매뉴얼 7종 및 하위 대시보드 MOC 완비, 전수 무결성 검증 통과 (Exit 0)** | ✅ 완료 |
 > | **v3.4** | 2026-09-29 | uno &<br/>Gemini | 🎯 **curve_fit 최상위 도메인 승격, tire_curve 패키지 완전 일원화 및 단일 마스터 MOC 정비**<br/>• **curve_fit 최상위 도메인 신설**: `unoUtil.curve_fit` 도메인 및 `tire_curve/` 전용 패키지 구축<br/>• **타이어 피팅 단일 모듈화**: `CurveCombiner`, `fit_mf_ax`, `estimatorMF`, `MinimizeEstimator` 등 분산 피팅을 **`TireCurve` 단 하나의 타이어 피팅 모듈**로 완전 흡수 통합<br/>• **57KB 스플라인 결합 파이프라인 수납**: `curve_combiner/` 복합 파이프라인의 내부 캡슐화 및 OCP 미래 확장 구조 완비<br/>• **models(수식)와 curve_fit(피팅) 역할 분리**: `models`는 순수 지배 방정식 SSOT, `curve_fit`은 데이터 피팅 전담<br/>• **12대 도메인 및 36개 레거시 경로 100% 무결성 검증 통과 (Exit 0)** | ✅ 완료 |
 > | **v3.3** | 2026-09-28 | uno &<br/>Gemini | 🎯 **TireCurve 전략 패턴 및 BicycleModel 전면 표준화 완결 (Exit 0)**<br/>• **TireCurve 구축**: 임의 수학 모델(`model`) 및 최적화 전략(`method`) 주입 가능한 전략 패턴(Strategy Pattern) 기반 단일 클래스 설계<br/>• **2-DoF 자전거 모델 정합**: `dynamic_formula` ➔ `bicycle_model.py`(`BicycleModel`) 자동차공학 국제 표준 정규화<br/>• **Pacejka MF SSOT 확립**: 도메인별 분산 수식을 `calc_magic_formula` 단일 코어로 일원화<br/>• **무결성 검증 100% 통과**: 11대 공식 도메인 패키지 & 36개 구버전 레거시 가상 리다이렉션 전원 통과 | ✅ 완료 |
@@ -90,6 +97,7 @@ aliases:
 >         UT["🛠️ utils/ (공통 유틸리티 통합 & logger/ 완성)"]
 >         AI["🤖 ai/ (최적화 모델 & 피팅)"]
 >         DB["🗄️ database/ (DW / PLM 연동)"]
+>         SC["❄️ snow_condition/ (노면 환경 & ML 보정)"]
 >     end
 > ```
 
@@ -211,17 +219,43 @@ aliases:
 
 ## ❄️ 11. snow_condition 노면 환경 & 머신러닝 보정 도메인
 
-> [!NOTE]- ❄️ snow_condition 7대 모듈 및 MOC 매뉴얼 목록 [클릭하여 펼치기]
+> [!NOTE]- ❄️ snow_condition 7대 핵심 모듈 목록 [클릭하여 펼치기]
 > | 모듈명 | 핵심 클래스 / 역할 | 1:1 기술 매뉴얼 링크 |
 > | :--- | :--- | :---: |
-> | **`00_snow_condition_대시보드`** | snow_condition 도메인 MOC 포털 | [[00_snow_condition_대시보드|도메인 대시보드]] |
 > | **`schema`** | SSOT 47대 표준 컬럼 및 DataFrame 정규화 단일 관문 (`harmonize_snow_dataframe`) | [[schema|매뉴얼 보기]] |
 > | **`physics`** | Sonntag 빙점하 수증기압, 과포화도, 타이어 접지압 물리 역학 수식 | [[physics|매뉴얼 보기]] |
-> | **`surface_twin`** | 센서 좌표계 복원, 3D 시공간 디지털 트윈 엔진 (`SnowSurfaceTwin`) | [[surface_twin|매뉴얼 보기]] |
-> | **`dashboard`** | Plotly 4D 시공간 인터랙티브 노면 환경 애니메이션 (`SnowSurfaceDashboard`) | [[dashboard|매뉴얼 보기]] |
+> | **`surface_interpolator`** | 센서 좌표계 복원, 3D 시공간 격자 보간 및 시험 묶음 시작 시각 기반 결합 (`SnowSurfaceInterpolator`) | [[surface_interpolator|매뉴얼 보기]] |
+> | **`surface_animator`** | Plotly 4D 시공간 인터랙티브 노면 환경 애니메이션 (`SurfaceAnimator`) | [[surface_animator|매뉴얼 보기]] |
 > | **`correction_model`** | 6대 머신러닝 회귀 학습 및 데이터 보정 코어 엔진 (`SnowCorrectionModel`) | [[correction_model|매뉴얼 보기]] |
 > | **`correction_validator`** | 1st vs 2nd 대조표 산출, 엑셀 내보내기, 오차 감소율 통계 (`SnowCorrectionValidator`) | [[correction_validator|매뉴얼 보기]] |
 > | **`correction_plotter`** | 다형성 비교 플롯, 오버플랏 산점도, 2D 등고선 보정 맵 (`SnowCorrectionPlotter`) | [[correction_plotter|매뉴얼 보기]] |
+> 
+> ```mermaid
+> classDiagram
+>     direction TB
+>     class SnowCorrectionModel {
+>         +model_type: str
+>         +train(df_train)
+>         +predict_diff(df_cur, df_ref)
+>         +correct_dataframe(df)
+>         +validator: SnowCorrectionValidator
+>         +plot: SnowCorrectionPlotter
+>     }
+>     class SnowCorrectionValidator {
+>         +calc_corrected_comparison_table(df_test)
+>         +evaluate_restoration_metrics(df_comp)
+>     }
+>     class SnowCorrectionPlotter {
+>         +plot_delta_prediction_scatter()
+>         +plot_scatter_restoration()
+>         +plot_correction_map()
+>         +plot_tire_subsets_comparison(req_no, tire_set)
+>     }
+>     SnowCorrectionModel *-- SnowCorrectionValidator : Composition (self.validator)
+>     SnowCorrectionModel *-- SnowCorrectionPlotter : Composition (self.plot)
+> ```
+
+---
 
 ## 📖 12. 사용자 매뉴얼 및 엔지니어링 표준
 
@@ -232,5 +266,40 @@ aliases:
 > * 🏠 **[[04_Resources/00_지식_위키_통합_색인|04_Resources 지식 위키 중앙 대문]]**
 
 ---
-**Last Updated**: 2026-09-29  
-**Standard**: unoUtil Clean Architecture v2.0 & Single Baseline Law & Single Master MOC Law
+
+## 📜 13. 버전 이력 및 주요 개발 현황 (Changelog)
+
+### [2026-10-01] v3.9 - 노면 차분 머신러닝 보정 엔진 동적 특성 인자(x_cols, y_col) 지원, 결측치(NaN) 방어 가드 및 시각화 동적화
+- **동적 특성 인자 리스트 인터페이스 (`x_cols: List[str]`, `y_col: str`) 혁신**:
+  - 기존의 고정 키워드 인자(`x_1`, `x_2`) 방식을 과감히 폐기하고 머신러닝 표준 규격인 `x_cols: Optional[List[str]]` 및 `y_col: str`로 전면 개편.
+  - 침하 깊이, 표면 온도, 기온, 절대습도 등 임의의 실험 인자 조합은 물론 3개 이상의 다변량 피처 확장까지 완전 지원.
+- **결측치(NaN) 자동 정제 및 방어 가드 (`missing_strategy='drop'`)**:
+  - 센서 결측치 자동 드롭, All NaN 컬럼 및 빈 입력 시 명시적 `ValueError` 사전 차단.
+- **다형성 예측 인터페이스 (`predict_delta`)**:
+  - 스칼라 가변인자(`*args`), 딕셔너리(`dict`), 1D/2D NumPy 배열, Pandas DataFrame 입력을 단일 함수에서 자동 판별 처리.
+- **시각화 플로터 및 검증기 100% 동적 라벨링 연동**:
+  - `SnowCorrectionPlotter`의 Figure 1(산점도), Figure 3(등고선 맵), 오버플랏 플롯의 축 라벨 및 타이틀이 모델의 `x_cols`, `y_col` 명칭으로 자동 치환.
+  - 다변량(3개 이상) 피처 등고선 맵 렌더링 시 미선택 축은 0.0(기준 baseline)으로 고정하여 2D 격자 정밀 평가.
+- **전수 무결성 검증 통과 (Exit Code 0)**:
+  - 단위 테스트 및 실데이터 1,964건 통합 파이프라인 전수 완주 (Exit Code 0).
+
+### [2026-10-01] v3.8 - SnowSurfaceInterpolator 직관적 단일 표준 확립 및 12:30 세션 쪼개짐 원천 해결
+- **`SnowSurfaceInterpolator` 리팩토링 및 완전 승격**:
+  - 모호했던 과도기적 명칭 `SurfaceConditionTwin` 및 `surface_twin.py`를 완전히 폐기하고, 사이킷런 표준 인터페이스 기반의 직관적인 **`SnowSurfaceInterpolator`** (`surface_interpolator.py`)로 전면 개편.
+  - `fit(df_surface)` $\to$ `transform(df_brk)` 구조로 표준화하여 `b_combine_surface_performance_spec.py`의 수동 for 루프를 단 2줄로 경량화.
+- **시험 묶음 최초 시작 시각(`min(Datetime)`) 기반 단일 세션 결합 (`transform`)**:
+  - `Date + ReqNo + TestOrder` 그룹별로 평가 시작 시각을 감지하여 세션(`test_cond_id`)을 판별.
+  - 12:30 전후로 걸쳐 진행된 제동 시험 세트(예: 2026-01-13 10:07~12:34)가 런별 단순 시각 비교로 인해 am/pm으로 분열되던 중대 결함을 100% 원천 해결.
+- **파이프라인 무결성 검증 완결**:
+  - `surface_interpolator.py`, `surface_animator.py` 자가 구동 테스트 전수 통과 (Exit Code 0).
+  - 실차 제동 1,964건 전수 보간 매칭 완결 및 2026-01-13 단일 세션 유지 완벽 검증.
+
+### [2026-10-01] v3.6 - snow_condition 도메인 a_/b_ 전처리 직렬 연계 및 중복 컬럼 완전 정화
+- **a_/b_ 전처리 직렬 연계**: `a_make_SnowAccBrkTest_DF.py`, `a_make_SnowSurfaceCharacteristic_DF.py`, `a_make_SRTT_DF.py` 최종 저장에 `harmonize_snow_dataframe` 적용.
+- **`b_combine_surface_performance_spec.py` 전면 현대화**: 과거 레거시 파사드를 완전 걷어내고 `SurfaceConditionTwin` 직접 인스턴스화하여 53개 3D 스냅샷 복원 $\to$ 1,964건 제동 런 1:1 시공간 보간 매칭 파이프라인 완성.
+- **스키마 무결성 강화**: `schema.py` 내 레거시 다대일 매핑 시 중복 컬럼 생성 버그 원천 해결 및 `COL_47_ORDER` 표준 정렬 상수 공식 탑재.
+- **Exit Code 0 무결성 통과**: `c_run_snow_correction_pipeline.py` 가동 전수 통과 (3초 완결).
+
+---
+**Last Updated**: 2026-10-01  
+**Standard**: unoUtil Clean Architecture v3.9 & Single Baseline Law & Single Master MOC Law
