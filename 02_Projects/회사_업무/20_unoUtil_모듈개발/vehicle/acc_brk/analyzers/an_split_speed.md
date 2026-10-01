@@ -12,7 +12,7 @@
 ### 2.1. `AnSplitSpeed` 클래스
 ```python
 class AnSplitSpeed(BaseMemory):
-    def __init__(self, obj_tire: Any, **kwargs: Any) -> None: ...
+    def __init__(self, obj_tire: Any, level: Union[int, str, None] = None, **kwargs: Any) -> None: ...
 ```
 
 * **상속**: `unoUtil.vehicle.acc_brk.base_memory.BaseMemory`
@@ -20,8 +20,10 @@ class AnSplitSpeed(BaseMemory):
   * `df` (`pd.DataFrame`): 원본 시계열에 고속/저속 라벨이 태깅된 데이터프레임 (휘발성 캐시).
   * `summary` (`pd.DataFrame`): 영역별 누적 제동거리 및 평균 가속도 요약 통계 테이블 (영구 보존).
   * `has_data` (`bool`): 메모리 캐시 적재 여부.
+  * `level`: 현재 적용 중인 로깅 레벨 (부모 `obj_tire.level` 상속).
+  * `logger`: 피클 직렬화 안전성을 보장하는 동적 바인딩 로거.
 * **주요 메서드**:
-  * **`analysis(vel_split=50.0, **kwargs)`**:
+  * **`analysis(vel_split=50.0, level=None, **kwargs)`**:
     * 분할 기준 속도(km/h)를 기준으로 고속/저속 구간 물리량 분할 연산.
   * **`clear_cache()`**:
     * 대용량 시계열 캐시(`_df`)를 즉각 소거.

@@ -15,12 +15,14 @@
 | 메서드 / 속성 | 타입 | 설명 |
 | :--- | :---: | :--- |
 | `target_attr_list` | `List[str]` | 클래스 변수. 피클링 시 대용량을 날려버릴 타겟 변수명 리스트 (기본값: `['df', 'summary']`) |
-| `__init__(obj_tire, **kwargs)` | 생성자 | 부모 타이어 인스턴스를 약한 참조로 안전 결속하고 서브 모듈 이름과 디버그 플래그 지정 |
-| `test` | `property` | 부모 객체 접근 안전 통로. 부모 객체 소멸 시 `ReferenceError`를 예쁘게 던짐 |
+| `__init__(obj_tire, level=None, **kwargs)` | 생성자 | 부모 타이어 인스턴스를 약한 참조로 안전 결속하고 로깅 레벨 및 서브모듈 설정 |
+| `test` | `property` | 부모 객체 접근 안전 통로. 부모 객체 소멸 시 `ReferenceError`를 발생시킴 |
+| `level` | `property` | 현재 로깅 레벨 (지정되지 않은 경우 부모 `test.level` 자동 상속) |
+| `logger` | `property` | 피클 직렬화 안전성을 보장하는 동적 바인딩 로거 (`LOGGER(f"VT_ACCBRK.{name}", level=self.level)`) |
 | `clear_cache()` | 메서드 | RAM 점유율을 즉시 회수하기 위해 대용량 메모리 캐시를 강제로 비우고 `None` 처리 |
 | `restore_cache()` | 메서드 | 온디맨드 복원을 수동으로 강제 기동하여 캐시 데이터를 메모리 위에 다시 빌드 |
-| `has_active_cache(name)` | 메서드 | 연산 복원 동작(analysis)을 깨우지 않고 쥐 죽은 듯이 캐시 적재 유무만 True/False 판별 |
-| `__getstate__()` | 특수 메서드 | 피클 파일 저장 시 호출되어 대용량 변수를 날리고 weakref를 임시 강한 참조로 해제하여 포장 |
+| `has_active_cache(name)` | 메서드 | 연산 복원 동작(analysis)을 깨우지 않고 캐시 적재 유무만 True/False 판별 |
+| `__getstate__()` | 특수 메서드 | 피클 파일 저장 시 호출되어 대용량 변수를 비우고 `weakref`를 임시 강한 참조로 해제하여 포장 |
 | `__setstate__(state)` | 특수 메서드 | 피클 로드 시 호출되어 레거시 속성을 복원하고 부모 인스턴스를 다시 안전한 `weakref`로 재바인딩 |
 
 ---
@@ -28,11 +30,13 @@
 ## 📋 3. 입력 파라미터 및 속성 상세 정의 (Arguments)
 
 1. **`obj_tire` (`Any` - 필수)**: 
-   - 자식 분석 모듈을 생성할 때 전달하는 상위 `VT_ACCBRK_TIRE` 인스턴스입니다.
-   - 내부 변수 `_test_ref` 에 `weakref.ref(obj_tire)` 로 바인딩되어 메모리 소멸(가비지 컬렉터) 시 자동으로 RAM에서 가비지 수집되도록 통제합니다.
-2. **`**kwargs` (선택)**:
+   - 자식 분석 모듈을 생성할 때 전달하는 상위 `VTAccBrkTire` 인스턴스입니다.
+   - 내부 변수 `_test_ref` 에 `weakref.ref(obj_tire)` 로 바인딩되어 순환 참조 방지 및 메모리 자동 수집을 통제합니다.
+2. **`level` (`Union[int, str, None]` - 선택)**:
+   - 로깅 출력 레벨 (기본값: `None`, 부모 `obj_tire.level` 자동 상속).
+3. **`**kwargs` (선택)**:
    - `name` (`str` - 기본값 `None`): 서브 모듈을 식별하기 위한 문자열 명칭 (예: `'Acceleration'`).
-   - `print` (`bool` - 기본값 `False`): 콘솔 디버그 로그 출력 여부를 나타내는 플래그.
+   - `print` / `flag_print` (`bool` - 하위 호환): `True` 시 `logging.DEBUG`, `False` 시 `logging.WARNING`으로 자동 매핑.
 
 ---
 
@@ -40,16 +44,17 @@
 
 ### 4.1. [시나리오 1] 자식 분석 모듈 상속 및 약한 참조 기반 부모 안전 접근
 ```python
+import logging
 import pandas as pd
-from unoUtil.vehicle.ACCBRK.base_memory import BaseMemory
+from unoUtil.vehicle.acc_brk.base_memory import BaseMemory
 
 class MyCustomAnalyzer(BaseMemory):
     # 피클 저장 시 다이어트할 변수명 지정 (backing field는 앞에 밑줄이 붙은 '_df', '_summary'가 됨)
     target_attr_list = ['df', 'summary']
     
-    def __init__(self, obj_tire):
-        # 상위 생성자에 부모 타이어 객체 전달 및 모듈명 지정
-        super().__init__(obj_tire, name='CustomAnalyzer', print=True)
+    def __init__(self, obj_tire, level=logging.DEBUG):
+        # 상위 생성자에 부모 타이어 객체 전달 및 모듈명, 로거 레벨 지정
+        super().__init__(obj_tire, name='CustomAnalyzer', level=level)
         self._df = None
         self._summary = None
         
@@ -59,7 +64,7 @@ class MyCustomAnalyzer(BaseMemory):
         if self._df is None:
             # self.test 프로퍼티를 통해 부모 타이어 인스턴스의 정보에 메모리 안전하게 접근
             tire_set_name = self.test.information.set
-            print(f"[{self.name}] {tire_set_name} 원본 데이터로 고속 연산 수행 중...")
+            self.logger.debug(f"[{self.name}] {tire_set_name} 원본 데이터로 고속 연산 수행 중...")
             self._df = pd.DataFrame({'Velocity': [100, 50, 0]})
         return self._df
 ```

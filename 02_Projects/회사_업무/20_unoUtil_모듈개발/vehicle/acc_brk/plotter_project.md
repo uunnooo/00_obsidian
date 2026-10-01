@@ -84,25 +84,46 @@
 
 ---
 
+## 🛠️ 5. PlotterProject 클래스 인터페이스 및 메서드 명세 (No Redundant Prefix)
+
+`PlotterProject` 클래스는 프로젝트 내 다중 타이어 간 성능 비교 시각화를 전담하는 엔진입니다.
+
+| 메서드명 | 비교 대상(목적어) | 설명 |
+| :--- | :--- | :--- |
+| `__init__(project, level=None, **kwargs)` | 생성자 | 부모 프로젝트 인스턴스 바인딩 및 로깅 레벨 설정 (부모 `project.level` 상속) |
+| `all(save=None, excel=None, html=False, close=True, level=None)` | 통합 비교 전체 | 8대 프로젝트 비교 그래프 일괄 렌더링 및 저장 |
+| `compare_braking(...)` | 제동 성능 비교 | 보정 전/후 제동거리 및 상대 지수(%) 병렬 비교 바 차트 |
+| `compare_acceleration(...)` | 가속도 트렌드 | 속도 대역별 가속도 트렌드 및 역전 구간 비교 |
+| `compare_split_distance(...)` | 분할 제동거리 | 고속/저속 구간별 제동 기여도 스택 바 차트 |
+| `compare_split_acceleration(...)` | 분할 감속도 | 속도 대역 분할 감속도 지수 비교 |
+| `compare_slip_pdf(...)` | 슬립 분포 산맥도 | 4륜 슬립률 확률밀도함수(PDF) Ridgeline 비교 |
+| `compare_mudrop_dist(...)` | 뮤드롭 손실 거리 | 수막현상 마찰 급감에 따른 손실 거리 비교 |
+| `compare_slip_mode_skewness(...)` | 슬립 모드 왜도 | 2D 슬립 지형도 및 왜도 지표 비교 |
+| `compare_response(...)` | 제동 응답성 비교 | 초기 제동 반응 지연 시간 및 기울기 비교 |
+
+---
+
 ## 💻 실무 밀착형 종합 예제 코드
 
 ```python
-# [변수 네이밍 규칙 준수: 변수타입_목적(이름)]
+import logging
+from unoUtil.vehicle.acc_brk import VTAccBrkProject
 
-# 1. 프로젝트 시각화 엔진 호출 (상위 프로젝트 객체 전달)
-obj_pjt_plotter = PLOTTER_PROJECT(obj_project_main)
+# 1. 프로젝트 객체 생성 및 타이어 등록 (로거 레벨 지정)
+pjt = VTAccBrkProject(name="PJT_SUMMER_TEST", level=logging.INFO)
+pjt.add_tire(t_c1)
+pjt.add_tire(t_t1)
+pjt.add_tire(t_c2)
 
-# 2. 고도화된 비교 리포트 생성 (Method Chaining)
-(
-    obj_pjt_plotter
-    .compare_braking(title="1. Overall Braking Performance")    # 보정 제동력 비교
-    .compare_acceleration(title="2. G-Force Trend Analysis")     # 가속 트렌드 분석
-    .compare_index_split_distance(title="3. Split Efficiency")  # 구간별 효율 지수
-    .compare_slip_pdf(xlim=(0, 20), h=-0.6)                     # 슬립 분포 산맥도
-    .compare_mudrop_dist(title="4. Robustness to Surface")      # 노면 강건성 확인
-)
+# 2. 성능 보정 연산 수행
+pjt.correct_performance()
 
-print("🚀 모든 타이어 간 비교 분석 시각화가 완벽하게 처리되었습니다!")
+# 3. 8대 통합 비교 리포트 일괄 출력 (No Redundant Prefix: pjt.plot.all())
+pjt.plot.all(save="./plots_project", level=logging.INFO)
+
+# 4. 개별 특화 비교 그래프 단독 생성
+fig_brk = pjt.plot.compare_braking()
+fig_ridge = pjt.plot.compare_slip_pdf(xlim=(0, 20), h=-0.6)
 ```
 
 **Documented by your Coding Partner & Technical Writer, uno.**

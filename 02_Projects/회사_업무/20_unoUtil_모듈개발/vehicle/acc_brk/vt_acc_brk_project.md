@@ -124,17 +124,19 @@ graph TD
 
 ## 4. 클래스 인터페이스 및 메서드 상세 명세
 
-### 1. `__init__(name='', ref_kwd='c', **kwargs)`
+### 1. `__init__(name='', ref_kwd='c', level=logging.INFO, **kwargs)`
 - **기능**: 프로젝트 오케스트레이터 객체를 생성하고 하위 시각화 플로터 및 빈 컨테이너를 빌드합니다.
 - **인자**:
   - `name` (`str`): 프로젝트의 고유 대표명.
   - `ref_kwd` (`str`): 콘트롤 타이어 식별용 접두 키워드.
+  - `level` (`Union[int, str]`): 로깅 레벨 (기본값: `logging.INFO`).
+  - `**kwargs`: `print`, `flag_print` (하위 호환 매핑 지원).
 
 ### 2. `add_tire(obj, tire=None)` -> `None`
 - **기능**: 분석 완료된 타이어 인스턴스를 프로젝트 하위 목록에 추가 등록합니다.
 - **아키텍처 안전망**: 원본 타이어 객체의 훼손을 차단하기 위해 내부적으로 **`deepcopy`** 처리된 복사본 사본을 마운트하여 연산 무결성을 지킵니다.
 - **인자**:
-  - `obj` (`VT_ACCBRK_TIRE`): 단일 타이어 분석기 인스턴스.
+  - `obj` (`VTAccBrkTire`): 단일 타이어 분석기 인스턴스.
   - `tire` (`str`, optional): 세트 식별 키워드. 미지정 시 타이어 메타정보에서 자동 추출합니다.
 
 ### 3. `cal_corrected(inverse=False, **kwargs)` -> `pd.DataFrame`
@@ -145,21 +147,25 @@ graph TD
 ### 4. `update_summary()` -> `None`
 - **기능**: 프로젝트 외부에서 타이어 인스턴스의 하위 수치나 사양 정보를 수정한 경우, 프로젝트 데이터프레임과 요약 성적서에 바인딩된 원천 수치들을 다시 전수 취합하여 일관성을 동기화합니다.
 
-### 5. `plt(save=None, excel=None, html=False, close=True)` -> `None`
+### 5. `plt(save=None, excel=None, html=False, close=True, level=None)` -> `None`
 - **기능**: 8대 비교 전문 차트(제동 성능, 가속 응답, 2D PDF Ridgeline, 수막현상 loss 등)를 레이아웃에 맞춰 일괄 출력 및 이미지 저장, HTML 출력, 엑셀 워크북 병합을 완수합니다.
 - **인자**:
   - `excel` (`dict`): 저장 경로, 시트명 정보 딕셔너리.
   - `excel_opt` (`str`): 동일 프로젝트 내 비교 차트 배치 방향 (기본값: `"down"`으로 세로 정렬).
   - `next_project` (`bool`): 엑셀 워크북 내에 연속적으로 다른 프로젝트를 이어 그릴 때 우측 확장 영역 자동 산출 및 배치 여부.
+  - `level` (`Union[int, str]`, optional): 시각화 로그 출력 레벨 (기본값: 부모 `self.level`).
 
-### 6. `save_pjt(path, print=True, **kwargs)` -> `None`
+### 6. `save_pjt(path, level=None, **kwargs)` -> `None`
 - **기능**: 수집된 타이어 사본들과 프로젝트 보정 데이터 전체를 실무 최적 압축률(`compresslevel=5`)로 패키징하여 `.pjt` 단일 파일로 기록 보관합니다 (3~5배 가속).
 - **인메모리 캐시 보존**: 저장 직후에도 메모리 캐시를 소거하지 않아 후속 플롯 및 데이터 조회가 즉각 가능합니다.
+- **인자**:
+  - `path` (`Union[str, Path]`): 저장할 파일 경로.
+  - `level` (`Union[int, str]`, optional): 로깅 레벨.
 
 ### 7. `save_tires(path=None, **kwargs)` -> `None`
 - **기능**: 프로젝트에 속한 개별 타이어 객체들을 `.tir` 개별 파일로 분할 저장합니다 (`compresslevel=5`).
 
-### 8. `load(file=None, **kwargs)` [Class Method] -> `VT_ACCBRK_PROJECT`
+### 8. `load(file=None, **kwargs)` [Class Method] -> `VTAccBrkProject`
 - **기능**: 디스크 상에 바이너리로 저장되어 있던 `.pjt` 프로젝트 상태를 복원하여 완전한 파이썬 개체로 역직렬화합니다. `restore=False` 지연 로딩을 통한 초고속 복원이 가능합니다.
 
 ---

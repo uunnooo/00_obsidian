@@ -12,7 +12,7 @@
 ### 2.1. `AnResponse` 클래스
 ```python
 class AnResponse(BaseMemory):
-    def __init__(self, obj_tire: Any, **kwargs: Any) -> None: ...
+    def __init__(self, obj_tire: Any, level: Union[int, str, None] = None, **kwargs: Any) -> None: ...
 ```
 
 * **상속**: `unoUtil.vehicle.acc_brk.base_memory.BaseMemory`
@@ -20,8 +20,10 @@ class AnResponse(BaseMemory):
   * `df` (`pd.DataFrame`): 응답 지연 상태 플래그 및 리샘플링된 시계열 데이터프레임 (휘발성 캐시).
   * `summary` (`pd.DataFrame`): 휠별 지연 시간, 환산 반응 거리, 라이징 기울기 최종 요약 통계 테이블 (영구 보존).
   * `has_data` (`bool`): 메모리 캐시 적재 여부.
+  * `level`: 현재 적용 중인 로깅 레벨 (부모 `obj_tire.level` 상속).
+  * `logger`: 피클 직렬화 안전성을 보장하는 동적 바인딩 로거.
 * **주요 메서드**:
-  * **`analysis(pre_sec=2.0, resample='1ms', col_response_wheelslip=None, response_target=None, rising_target=None, **kwargs)`**:
+  * **`analysis(pre_sec=2.0, resample='1ms', col_response_wheelslip=None, response_target=None, rising_target=None, level=None, **kwargs)`**:
     * 휠 속도 미분 프로파일과 차량 거동을 정밀 파싱하여 과도 응답 지연성과 라이징 타임/기울기를 연산.
   * **`clear_cache()`**:
     * 대용량 시계열 캐시(`_df`)를 즉시 소거하여 메모리 누수를 차단.

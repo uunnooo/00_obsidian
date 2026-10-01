@@ -70,23 +70,42 @@
 
 ---
 
+## 🛠️ 5. PlotterTire 클래스 인터페이스 및 메서드 명세 (No Redundant Prefix)
+
+`PlotterTire` 클래스는 단일 타이어(`VTAccBrkTire`)의 8대 핵심 동역학 시각화를 담당하는 전용 플로터입니다.
+
+| 메서드명 | 대상(목적어) | 설명 |
+| :--- | :--- | :--- |
+| `__init__(tire, level=None, **kwargs)` | 생성자 | 부모 타이어 인스턴스 바인딩 및 로깅 레벨 설정 (부모 `tire.level` 상속) |
+| `all(save=None, excel=None, html=False, close=True, level=None)` | 통합 전체 | 8대 그래프 전체 일괄 렌더링 및 저장 |
+| `accbrk(...)` | 가감속 종합 | 속도/가속도/거리 시계열 및 유효 런 시각화 |
+| `acceleration(...)` | 가속도 분포 | 속도 밴드별 평균 가속도/감속도 시각화 |
+| `split_acceleration(...)` | 분할 속도 | 고속/저속 구간별 감속도 및 제동거리 비교 |
+| `mudrop(...)` | 뮤드롭 지표 | KMeans 및 Decision Tree 기반 마찰 급감 영역 시각화 |
+| `slip_pdf(...)` | 슬립률 확률분포 | 4륜 KDE 확률밀도함수(PDF) 곡선 시각화 |
+| `slip_mode_skewness(...)` | 2D 슬립 왜도 | 슬립 모드 및 왜도 지형도 시각화 |
+| `response(...)` | 제동 응답성 | 제동 초기 반응 지연 및 OLS 기울기 시각화 |
+
+---
+
 ## 💻 전체 프로세스 한눈에 보기
 
 ```python
-# [전체 아키텍처 실행 순서 요약]
+import logging
+from unoUtil.vehicle.acc_brk import VTAccBrkTire
 
 # 1. 아키텍처 초기화 (Ready Layer)
-obj_analyzer = VT_ACCBRK_TIRE(df_raw, req="REQ01", set="T1", sr=100)
+obj_analyzer = VTAccBrkTire(data=df_clean, req="REQ01", set="T1", sample_rate=100, level=logging.INFO)
 
 # 2. 로직 엔진 가동 (Core Layer)
-(
-    obj_analyzer  # ML 기반 노면 분석 알고리즘
-)
+obj_analyzer.analysis(test_vel=[100, 0])
 
-# 3. 결과 시각화 및 객체화 (Action Layer)
-obj_analyzer.plt(save="./plots")
-obj_analyzer.save(path="./archive")
+# 3. 결과 시각화 (No Redundant Prefix: plotter.accbrk(), plotter.all())
+obj_analyzer.plot.all(save="./plots", level=logging.INFO)
+
+# 4. 개별 특화 그래프 단독 생성
+fig_acc = obj_analyzer.plot.accbrk()
+fig_pdf = obj_analyzer.plot.slip_pdf()
 ```
 
 **Documented by your Coding Partner & Technical Writer, uno.**
-```

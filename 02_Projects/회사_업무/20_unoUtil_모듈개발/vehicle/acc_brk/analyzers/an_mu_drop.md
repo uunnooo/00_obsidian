@@ -40,17 +40,23 @@ project_link: "[[unoUtil]]"
 
 ## 2. ⚙️ 주요 API 및 프로퍼티 명세
 
-### `AN_MU_DROP(obj_tire, **kwargs)`
-* **기능**: 상위 타이어 분석기 인스턴스와 결속하여 분석기 메모리 상태를 초기화합니다 (순환 참조 방지 `weakref` 수립).
+### `AnMuDrop(obj_tire, level=None, **kwargs)`
+* **기능**: 상위 타이어 분석기 인스턴스와 결속하여 분석기 메모리 상태 및 로깅 레벨을 초기화합니다 (순환 참조 방지 `weakref` 수립).
+* **인자**:
+  - `obj_tire` (`VTAccBrkTire`): 상위 타이어 분석기 인스턴스.
+  - `level` (`Union[int, str, None]`): 로깅 레벨 (기본값: `None`, 부모 `obj_tire.level` 자동 상속).
+  - `**kwargs`: `print`, `flag_print` (하위 호환, `level`로 자동 매핑).
 
 #### 핵심 프로퍼티:
 * **`df` (pd.DataFrame)**: [온디맨드 자동 복원] 군집화 라벨과 판정 분기가 매핑 완료된 주행 물리 시계열 데이터프레임.
 * **`summary` (pd.DataFrame)**: [온디맨드 자동 복원] 휠 전체 평균 마찰 저하 손실 제동거리 및 임계속도 등의 콤팩트 요약 테이블.
 * **`summary_detail` (pd.DataFrame)**: [온디맨드 자동 복원] 바퀴 포지션별(FL, FR 등) 개별 분기 임계 속도 및 감속 세그먼트 상세 요약 통계 테이블.
 * **`has_data` (bool)**: 현재 휘발성 대용량 원본 시계열(`_df`) 캐시가 RAM 상에 보존되어 있는지 판별하는 플래그.
+* **`level`**: 현재 적용 중인 로깅 레벨.
+* **`logger`**: 피클 직렬화 안전성을 보장하는 동적 바인딩 로거.
 
 #### 핵심 메서드:
-* **`analysis(col_mudrop_wheelacc=None, **kwargs)`**: 휠 가속 채널을 입력받아 K-Means 군집화 및 수막 감속 분기 정량 수치 적분을 수행합니다.
+* **`analysis(col_mudrop_wheelacc=None, level=None, **kwargs)`**: 휠 가속 채널을 입력받아 K-Means 군집화 및 수막 감속 분기 정량 수치 적분을 수행합니다.
 * **`clear_cache()`**: 대용량 `_df` 캐시를 소거하여 RAM을 즉시 확보합니다 (메모리 누수 원천 방어).
 
 ---

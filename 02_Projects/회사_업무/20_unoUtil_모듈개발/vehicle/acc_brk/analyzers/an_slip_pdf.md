@@ -12,7 +12,7 @@
 ### 2.1. `AnSlipPdf` 클래스
 ```python
 class AnSlipPdf(BaseMemory):
-    def __init__(self, obj_tire: Any, **kwargs: Any) -> None: ...
+    def __init__(self, obj_tire: Any, level: Union[int, str, None] = None, **kwargs: Any) -> None: ...
 ```
 
 * **상속**: `unoUtil.vehicle.acc_brk.base_memory.BaseMemory`
@@ -21,8 +21,10 @@ class AnSlipPdf(BaseMemory):
   * `pdf` (`pd.DataFrame`): 슬립률(X축) 대 확률 밀도(Y축) 격자 데이터프레임 (휘발성 캐시).
   * `summary` (`pd.DataFrame`): 최빈 슬립률, 평균, 표준편차, 제동 효율 최종 요약 통계 테이블 (영구 보존).
   * `has_data` (`bool`): 메모리 캐시 적재 여부.
+  * `level`: 현재 적용 중인 로깅 레벨 (부모 `obj_tire.level` 상속).
+  * `logger`: 피클 직렬화 안전성을 보장하는 동적 바인딩 로거.
 * **주요 메서드**:
-  * **`analysis(slip_range=None, col_slip_pdf_wheelslip=None, **kwargs)`**:
+  * **`analysis(slip_range=None, col_slip_pdf_wheelslip=None, level=None, **kwargs)`**:
     * 휠 속도 센서 오차 자동 보정 및 커널 밀도 분포 추정, 목표 대역(예: 0~20%) 내 점유 효율 산출.
   * **`clear_cache()`**:
     * 시계열 및 PDF 캐시를 즉각 소거하여 RAM 사용량 최소화.

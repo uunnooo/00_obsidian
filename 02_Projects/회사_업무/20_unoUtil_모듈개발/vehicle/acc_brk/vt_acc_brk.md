@@ -22,10 +22,10 @@ project_link: "[[unoUtil]]"
 >   - [[42_실차_평가_시스템_엔터프라이즈_로깅_및_모니터링_아키텍처]] (엔터프라이즈 로깅, 무중단 시각화)
 >   - [[43_차세대_실차_가속제동_통합_컨테이너_및_환경보정_아키텍처]] (비파괴 슬림 피클링, 온디맨드 복원, CORRECT)
 > - **하위 핵심 모듈**:
->   - [[VT_ACCBRK_PROJECT]]: 프로젝트 단위 다중 타이어 취합, 선형 보간 성능 보정(Control Tire), 비교 시각화 엔진
->   - [[VT_ACCBRK_TIRE]]: 단일 타이어 동역학 분석, Wavelet 노이즈 제거, 6대 전문 서브 분석 모듈
->   - [[_CORRECT_]]: 콘트롤 타이어 및 환경 인자 기반 보정 알고리즘
->   - [[_PLOTTER_PROJECT]] / [[_PLOTTER_TIRE]]: 전용 시각화 대시보드 플로터
+>   - [[VTAccBrkProject]]: 프로젝트 단위 다중 타이어 취합, 선형 보간 성능 보정(Control Tire), 비교 시각화 엔진
+>   - [[VTAccBrkTire]]: 단일 타이어 동역학 분석, Wavelet 노이즈 제거, 6대 전문 서브 분석 모듈
+>   - [[Correct]]: 콘트롤 타이어 및 환경 인자 기반 보정 알고리즘
+>   - [[PlotterProject]] / [[PlotterTire]]: 전용 시각화 대시보드 플로터
 
 # 🏛️ 차량 제동/가속(ACCBRK) 자동화 분석 시스템 마스터 기술 백서 (Confidential)
 

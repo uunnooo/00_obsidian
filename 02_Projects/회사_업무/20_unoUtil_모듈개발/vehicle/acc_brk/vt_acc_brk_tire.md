@@ -87,23 +87,27 @@ graph TD
 
 ## 3. 클래스 인터페이스 및 메서드 상세 명세
 
-### 3.1 생성자: `__init__(df_raw, **kwargs)`
+### 3.1 생성자: `__init__(data=None, sample_rate=100, level=logging.DEBUG, **kwargs)`
 - **기능**: 계측된 원시 테이블을 주입받아 multiindex 평탄화, Wavelet 평활 가속도 보정, 기상 정보 결합 및 미소 이동거리 적산을 완료하여 준비 계층 상태로 셋업합니다.
 - **주요 인자**:
-  - `df_raw` (`pd.DataFrame`): GNSS/IMU 계측 시계열 데이터.
-  - `sr` (`int`): 계측 샘플 레이트 (기본값: `100` Hz).
+  - `data` (`pd.DataFrame`): GNSS/IMU 계측 시계열 데이터 (구버전 호환: `df_raw`).
+  - `sample_rate` (`int`): 계측 샘플 레이트 (기본값: `100` Hz, 구버전 호환: `sr`).
+  - `level` (`Union[int, str]`): 로깅 출력 레벨 (기본값: `logging.DEBUG`).
   - `weather` (`pd.DataFrame`): 웨더 스테이션 온도/습도 마스터 정보.
   - `item` (`str`): 시험 구분 (`'brk'` 제동 또는 `'acc'` 가속).
   - `surface` (`str`): 시험장 노면 상태 (`'dry'`, `'wet'`, `'snow'`, `'con'`).
   - `local_pos` (`str` / `dict`, optional): 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 회전각.
+  - `**kwargs`: `print`, `flag_print` (하위 호환, `level`로 자동 매핑).
 
-### 3.2 핵심 구간 분석: `analysis(test_vel, sel_mode=None, valid_count=None, outlier=None, local_pos=None, **kwargs)` -> `VT_ACCBRK_TIRE`
+### 3.2 핵심 구간 분석: `analysis(test_vel, sel_mode=None, valid_count=None, outlier=None, local_pos=None, level=None, **kwargs)` -> `VTAccBrkTire`
 - **기능**: 차속 변화율 노드를 정밀 슬라이싱하여 제동/가속 유효 런을 선별하고, 이상치 제거 및 상위 런을 병합하여 6대 서브 분석 모듈에 수치를 피팅 연산합니다.
 - **인자**:
   - `test_vel` (`list[int]`): 분석 대상 목표 [시작 속도, 종료 속도].
   - `sel_mode` (`str` / `list[int]`): `'max_min'`, `'minimum_std'` 통계 모드 지정 또는 분석가 수동 지정 런 리스트.
+  - `valid_count` (`int`): 선별할 유효 세션 수 (기본값: 6).
   - `outlier` (`list[int]`): 분석 연산에서 완전 배제할 비정상 주행 런 번호 딕셔너리/리스트.
-  - `local_pos` (`str` / `dict`, optional): 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 회전각 ('technoring', 'technotrack' 또는 `{'reflong': float, 'reflat': float, 'rotate': float}`).
+  - `local_pos` (`str` / `dict`, optional): 로컬 직교 좌표계(`PosX`, `PosY`) 변환 기준 위치 및 회전각.
+  - `level` (`Union[int, str]`, optional): 이번 분석 호출에 한해 적용할 로깅 레벨. 생략 시 인스턴스 `self.level` 사용.
 
 ### 3.3 서브 분석 모듈 및 시각화 가이드
 

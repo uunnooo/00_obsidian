@@ -43,16 +43,22 @@ project_link: "[[unoUtil]]"
 
 ## 2. ⚙️ 주요 API 및 프로퍼티 명세
 
-### `AN_ACCELERATION(obj_tire, **kwargs)`
-* **기능**: 상위 타이어 분석기 인스턴스와 결속하여 분석기 메모리 공간을 초기화합니다. (상위 분석기와의 결합은 순환 참조 방지를 위해 약한 참조 `weakref` 처리됨).
+### `AnAcceleration(obj_tire, level=None, **kwargs)`
+* **기능**: 상위 타이어 분석기 인스턴스와 결속하여 분석기 메모리 공간 및 로깅 레벨을 초기화합니다. (상위 분석기와의 결합은 순환 참조 방지를 위해 약한 참조 `weakref` 처리됨).
+* **인자**:
+  - `obj_tire` (`VTAccBrkTire`): 상위 타이어 분석기 인스턴스.
+  - `level` (`Union[int, str, None]`): 로깅 레벨 (기본값: `None`, 부모 `obj_tire.level` 자동 상속).
+  - `**kwargs`: `print`, `flag_print` (하위 호환, `level`로 자동 매핑).
 
 #### 핵심 프로퍼티:
 * **`df` (pd.DataFrame)**: [온디맨드 자동 복원] 세션별 차속 대역 매핑 완료된 종가속도 시계열 원본 데이터프레임.
 * **`summary` (pd.DataFrame)**: [온디맨드 자동 복원] 속도 구간별 평균 가속도 요약 통계 테이블.
 * **`has_data` (bool)**: 현재 휘발성 대용량 원본 시계열(`_df`) 캐시가 RAM 상에 적재되어 있는지를 나타내는 정합성 플래그.
+* **`level`**: 현재 적용 중인 로깅 레벨.
+* **`logger`**: 피클 직렬화 안전성을 보장하는 동적 바인딩 로거.
 
 #### 핵심 메서드:
-* **`analysis(interval=10.0, **kwargs)`**: 실계측 원본 데이터프레임 필터링을 수행하고 지정 속도 인터벌 단위로 통계 계산을 격차 전개합니다.
+* **`analysis(interval=10.0, level=None, **kwargs)`**: 실계측 원본 데이터프레임 필터링을 수행하고 지정 속도 인터벌 단위로 통계 계산을 전개합니다.
 * **`clear_cache()`**: 대용량 `_df` 캐시를 소거하여 RAM을 즉시 해제합니다.
 
 ---

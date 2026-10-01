@@ -12,7 +12,7 @@
 ### 2.1. `AnSlipModeSkewness` 클래스
 ```python
 class AnSlipModeSkewness(BaseMemory):
-    def __init__(self, obj_tire: Any, **kwargs: Any) -> None: ...
+    def __init__(self, obj_tire: Any, level: Union[int, str, None] = None, **kwargs: Any) -> None: ...
 ```
 
 * **상속**: `unoUtil.vehicle.acc_brk.base_memory.BaseMemory`
@@ -22,8 +22,10 @@ class AnSlipModeSkewness(BaseMemory):
   * `summary` (`pd.DataFrame`): 2D 최단 오차 변위 및 편차량 최종 요약 테이블 (영구 보존).
   * `summary_detail` (`pd.DataFrame`): 각 휠별 왜도 성분 벡터 상세 데이터프레임 (영구 보존).
   * `has_data` (`bool`): 캐시 적재 여부.
+  * `level`: 현재 적용 중인 로깅 레벨 (부모 `obj_tire.level` 상속).
+  * `logger`: 피클 직렬화 안전성을 보장하는 동적 바인딩 로거.
 * **주요 메서드**:
-  * **`analysis(slip_mode_vel_range=None, col_slip_mode_wheelslip=None, **kwargs)`**:
+  * **`analysis(slip_mode_vel_range=None, col_slip_mode_wheelslip=None, level=None, **kwargs)`**:
     * 2차원 커널 확률 밀도를 구성하고 Mode 대비 Mean 편차 거리를 기하 연산.
   * **`clear_cache()`**:
     * 히트맵 및 시계열 캐시를 즉시 비워 대용량 메모리 점유 방지.
