@@ -27,16 +27,32 @@ tags:
 | 파일명 | 역할 및 핵심 기능 | 상세 문서 링크 |
 | :--- | :--- | :--- |
 | `schema.py` | 47대 SSOT 표준 컬럼 명세, 중복 컬럼 충돌 방어, `harmonize_snow_dataframe` 단일 관문 | [[schema\|schema 매뉴얼]] |
+| `preprocessor.py` | 기온 정상/이상 구간, 강설 여부, 타이어 카테고리별 사전 독립 선처리 필터 (`filter_snow_conditions`) | [[preprocessor\|preprocessor 매뉴얼]] |
 | `physics.py` | Sonntag 빙점하 포화수증기압, 절대습도(AH), 과포화도(AHE), 정적/동적 접지압, 밀도 추정 | [[physics\|physics 매뉴얼]] |
 | `surface_interpolator.py` | 6채널 센서 오프셋 정합, 3D 격자 보간 복원, 시험 묶음 시작 시각 기반 단일 세션 결합 (`SnowSurfaceInterpolator`) | [[surface_interpolator\|surface_interpolator 매뉴얼]] |
 | `surface_animator.py`| Plotly 기반 4D 시공간 슬라이더 애니메이션 대시보드 및 HTML 인터랙티브 뷰어 | [[surface_animator\|surface_animator 매뉴얼]] |
-| `correction_model.py`| 6대 ML 회귀 모델(RF, SVR, Ridge, Lasso, ElasticNet, KNN) 차분 학습 및 예측 코어 엔진 | [[correction_model\|correction_model 매뉴얼]] |
+| `correction_model.py`| [방법 1] 6대 ML 회귀 모델(RF, SVR, Ridge, Lasso, ElasticNet, KNN) 차분 학습 및 예측 코어 엔진 | [[correction_model\|correction_model 매뉴얼]] |
+| `slope_model.py` | [방법 2] 동일 스펙(`SPEC_NO`) 중심화 1변수 독립 물리 기울기($k_{\text{air}}, k_{\text{ah}}$) 및 기준 환경 정규화 엔진 (`SnowSlopeModel`, `SnowSlopePlotter`) | [[slope_model\|slope_model 매뉴얼]] |
 | `correction_validator.py`| 1st vs 2nd 세트 매칭 대조표(Excel) 산출, MAE/표준편차 개선율 검증 | [[correction_validator\|correction_validator 매뉴얼]] |
-| `correction_plotter.py` | Figure 1~3 (Actual vs Pred, 1st vs 2nd 오버플롯, 노면-기상 2D 등고선 맵) 렌더링 | [[correction_plotter\|correction_plotter 매뉴얼]] |
+| `correction_plotter.py` | No Redundant Prefix Law 준수 Figure 1~3 (차분산점도, 1st vs 2nd 복원 오버플롯, 2D 등고선 맵) 렌더링 (`SnowCorrectionPlotter`) | [[correction_plotter\|correction_plotter 매뉴얼]] |
 
 ---
 
 ## 📜 2. 버전 이력 및 주요 개발 현황 (Changelog)
+
+### [2026-10-02] v1.5.0 - 선처리 모듈(preprocessor) 분리, 방법 2 동일스펙 독립기울기 엔진(slope_model) 정식 편입, No Redundant Prefix Law 표준화
+- **선처리 전담 모듈 (`preprocessor.py`) 신규 분리 및 설계**:
+  - `filter_snow_conditions()` 함수 구현: 모델 내부의 하드코딩 필터링을 완전히 제거하고, 단일 책임 원칙(SRP)에 따라 데이터 선처리를 분리하여 모델 범용성 확보.
+  - 기온 구간(`temp_mode='in_range'` vs `'out_of_range'`), 강설 여부(`snowfall_mode='exclude_snow'` vs `'snow_only'`), 타이어 카테고리 선처리 완비.
+- **방법 2 전용 엔진 (`slope_model.py`) 신규 구현 및 정식 편입**:
+  - `SnowSlopeModel`: 동일 스펙(`SPEC_NO`) 중심화 기반 1변수 독립 OLS 기울기($k_{\text{air}}, k_{\text{ah}}$) 및 $p$-value 산출, 기준 환경($-8^\circ\text{C}, 1.5\text{ g/m}^3$) 일괄 보정 (`correct_dataframe`).
+  - `SnowSlopePlotter`: 동일 스펙 물리 기울기 산점도(`slope_scatter`), 기준 환경 대비 2D 등고선 맵(`correction_map`), 동일 스펙 분산 감소율 박스플롯(`variance_reduction`) 지원.
+- **클래스 역할 내포 시 메서드 접두사 중복 방지 원칙 (No Redundant Prefix Law) 전면 적용**:
+  - `SnowCorrectionPlotter` 및 `SnowSlopePlotter` 내의 모든 메서드에서 `plot_` 접두사를 영구 삭제 (`delta_prediction_scatter`, `scatter_restoration`, `scatter_overplot`, `correction_map`, `slope_scatter`, `variance_reduction`).
+  - 과도기적 레거시 alias 완전 폐기 및 직교적 v2 단일 규격(SSOT) 확립.
+- **과거 7개년 스노우 제동 데이터 전면 재구축 및 8대 데이터셋/시각화 완료**:
+  - `run_full_snow_correction_matrix.py` 파이프라인 전면 리팩토링 및 정상 가동 (Exit Code 0).
+  - 방법 1 vs 방법 2 4대 시나리오별 비교 매트릭스 완성 및 8대 데이터셋(pkl/xlsx), 90여 종의 시각화 차트 옵시디언 볼트 실시간 배포 완료.
 
 ### [2026-10-01] v1.4.0 - 센서 연산 완전 분리, char_* 단일 표준화 및 3중 결측/이상치(np.clip) 방어 가드
 - **센서 하드웨어 연산 완전 제거 및 관심사 분리(SoC)**:
