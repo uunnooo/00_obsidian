@@ -58,6 +58,8 @@ class SnowSlopeModel:
   기준 환경($-8^\circ\text{C}, 1.5\text{ g/m}^3$) 대비 2D 등고선 보정 맵 렌더링.
 * `variance_reduction(data, top_n=5, save=False, close=True, **kwargs)`:
   동일 스펙 상위 N개에 대해 보정 전 vs 보정 후 제동거리 절대값 박스플롯 렌더링.
+* `scatter_restoration(df_comp, overplot=True, show_connection=True, save=False, close=True, **kwargs)`:
+  [Figure 2] 1차 기준(Ref) 대비 2차 원본(Raw)과 방법 2 보정본(Corrected) 일치도 복원 산점도를 1:1 대각선($y=x$) 규격으로 렌더링 (방법 1의 Figure 2와 100% 동일 규격).
 * `deviation_boxplot(data, top_n=5, save=False, close=True, **kwargs)`:
   [추천 1] 동일 스펙 평균 대비 편차($\pm 1.5\text{ m}$)로 축을 10배 확대(Zero-Centered Zoom-in)하여 산포가 0으로 압축되는 효과를 렌더링.
 * `residual_dependency(data, save=False, close=True, **kwargs)`:
