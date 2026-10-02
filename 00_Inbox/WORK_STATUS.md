@@ -1,85 +1,61 @@
-# 📋 작업 상태 보고서 (WORK_STATUS) - 2026-10-02
+# 📋 [작업 일지] 과거 스노우 제동 데이터 환경보정 통합 단일 파이프라인 구축 및 러프 2D-KNN 모델 확정
 
-## 📌 1. 작업 개요
-* **일자**: 2026년 10월 02일
-* **작업 대상 모듈**: `unoUtil.snow_condition` (`preprocessor.py`, `slope_model.py`, `correction_plotter.py`, `correction_model.py`, `__init__.py`)
-* **연계 프로젝트 파이프라인**: `2026_Snow_RoadSurface_characteristics/run_full_snow_correction_matrix.py`
-* **주요 목표**:
-  1. 사용자 지적 사항 전면 수용 및 근본 원인 해결 (방법 1 vs 방법 2 성능 맵 왜곡 및 결정계수 오해 규명)
-  2. 데이터 선처리 독립 분리 모듈 (`preprocessor.py`) 신규 구축 및 범용성 확보
-  3. [방법 2] 동일 스펙(`SPEC_NO`) 중심화 1변수 독립 물리 기울기 엔진 (`slope_model.py`) 신규 개발 및 정식 편입
-  4. 메서드 접두사 중복 방지 원칙 (`No Redundant Prefix Law`) 전면 적용 (`plot_` 접두사 영구 제거)
-  5. 과거 과도기적 코드의 레거시 취급 배제 (`Single Baseline Law`) 및 깔끔한 단일 표준 확립
-  6. 과거 7개년 스노우 제동 데이터 전면 재구축 및 8대 데이터셋/시각화 차트 생성, 옵시디언 볼트 1:1 동기화 완결
+- **일자**: 2026-10-02
+- **작업자**: Antigravity Pair Programmer
+- **도메인**: `unoUtil.snow_condition` & `2026_Snow_RoadSurface_characteristics`
 
 ---
 
-## 🛠️ 2. 핵심 구현 및 기술적 성과
-
-### ① 방법 1 vs 방법 2 성능 맵 왜곡 원인 규명 및 일치화
-* **기존 문제**:
-  - 방법 1은 $\Delta T$ vs $\Delta AH$ 차분 공간을 그리고 Random Forest의 불연속 계단식 분기 타일로 표현됨.
-  - 방법 2는 절대 $T$ vs $AH$ 평면에서 기준 환경 대비 보정 평면을 그려서 서로 축과 형태가 완전히 달랐음.
-  - 방법 2 산점도를 1차 시험으로 맞추는 복원 산점도로 왜곡하여 1차/2차가 없는 방법 2의 본질을 훼손함.
-* **해결 및 정합성 입증**:
-  - 방법 1과 방법 2 모두 **기온이 오르면 제동거리가 길어지고($k_{\text{air}} > 0$), 절대습도가 높아지면 제동거리가 늘어나는($k_{\text{ah}} > 0$) 양(+)의 물리적 상관성**을 완벽하게 일치시킴!
-  - 방법 1: KNN Regressor 기반 매끄러운 2D 등고선 곡면 보정 맵 복원.
-  - 방법 2: 동일 스펙 중심화 편차 vs 제동거리 편차 1변수 독립 OLS 회귀선 산점도(`slope_scatter`) 및 기준 환경 대비 보정 등고선 맵(`correction_map`) 신규 정립.
-
-### ② 데이터 선처리 전담 모듈 (`preprocessor.py`) 신규 분리
-* `filter_snow_conditions()` 함수 구현:
-  - 기온 구간: 정상 기온 ($-25^\circ\text{C} \le T \le 0^\circ\text{C}$) vs 이상 기온 ($T > 0^\circ\text{C}$ 또는 $T < -25^\circ\text{C}$)
-  - 강설 여부: 전체 날씨(`all`), 눈 제외(`exclude_snow`), 눈 오는 시험만(`snow_only`)
-  - 타이어 카테고리: `All`, `Winter Studless`, `Winter Stud`, `All Weather / All Season`
-  - 모델 내부 하드코딩 필터링을 완전히 배제하여 모델의 순수한 범용성 확보.
-
-### ③ 방법 2 전용 엔진 (`slope_model.py`) 신규 구현
-* `SnowSlopeModel`:
-  - 동일 스펙 내 환경 및 제동거리 중심화: $T' = T - \bar{T}_s, AH' = AH - \overline{AH}_s, y' = y - \bar{y}_s$
-  - 다중회귀 다중공선성을 배제한 1변수 독립 물리 기울기: $k_{\text{air}} = \frac{\sum y' T'}{\sum {T'}^2}, k_{\text{ah}} = \frac{\sum y' AH'}{\sum {AH'}^2}$
-  - 기준 환경($-8.0^\circ\text{C}, 1.5\text{ g/m}^3$) 일괄 정규화 보정: $y_{\text{corr}} = y - [k_{\text{air}}(T - T_{\text{ref}}) + k_{\text{ah}}(AH - AH_{\text{ref}})]$
-* `SnowSlopePlotter` (No Redundant Prefix Law 준수):
-  - `slope_scatter()`: 동일 스펙 중심화 편차 산점도 및 독립 회귀선 (사용자가 찾으시던 진정한 산점도)
-  - `correction_map()`: 기준 환경 대비 2D 등고선 보정 맵
-  - `variance_reduction()`: 동일 스펙 상위 5개 분산 감소율 박스플롯
-
-### ④ 메서드 명명 규칙 단일 표준화 (`No Redundant Prefix Law`)
-* `SnowCorrectionPlotter` 내의 `plot_` 접두사를 전면 제거하여 객체지향적 깔끔함 완성:
-  - `plot_delta_prediction_scatter` $\to$ `delta_prediction_scatter`
-  - `plot_scatter_restoration` $\to$ `scatter_restoration`
-  - `plot_1st_2nd_scatter_overplot` $\to$ `scatter_overplot`
-  - `plot_correction_map` $\to$ `correction_map`
-  - `plot_delta_braking_bar` $\to$ `delta_braking_bar`
-  - `plot_residual_dependency` $\to$ `residual_dependency`
-  - `plot_tire_subsets_comparison` $\to$ `tire_subsets_comparison`
+## 🎯 1. 주요 작업 개요 및 요청 사항
+사용자 피드백에 따라 과도기적 스크립트 분기를 중단하고, 기존의 안정적이었던 16개 시나리오 전수 처리 기준 코드(`run_full_snow_correction_matrix.py`)를 발굴하여:
+1. **제동거리 이상치(50m 수준) 필터링 복원**: `(10m <= BRK_DIST <= 35m)` 정상 평가 구간 필터링을 유지하여 시험 실패/이상치 데이터를 사전 차단.
+2. **사내 표준 모듈 일원화**: 별도의 추가 클래스 생성 없이 사내 공식 모듈인 `SnowCorrectionModel` 단일 머신러닝 엔진으로 통합.
+3. **방법 2 모델을 러프한 2D-KNN으로 확정**: 국소적 소용돌이(아일랜드) 현상을 없애기 위해 KNN 이웃수를 대폭 상향($k=40\sim 150$, 유효 데이터의 20%)하고 `weights='uniform'`을 적용한 완만하고 물리적으로 타당한 2차원 공간 반응면 도출.
+4. **옵시디언 그래프 51종 및 보고서 4종 전수 재동기화**: 분산 감소, 편차 확대, 회차별 추이, 잔차 수렴, 표준편차 바차트 등 풍부한 시각화 세트 전수 복원 및 보고서 갱신 완료.
 
 ---
 
-## 📊 3. 4대 시나리오 매트릭스 파이프라인 가동 결과
+## 🛠️ 2. 상세 작업 내역
 
-| 타이어 카테고리 | 기온 및 기상 시나리오 | 방법 1 RF 보정 MAE (개선율) | 방법 2 $k_{\text{air}}$ (m/℃) | 방법 2 $k_{\text{ah}}$ (m/(g/m³)) |
-| :--- | :--- | :---: | :---: | :---: |
-| **Studless** | 정상기온 & 눈제외 | 0.859m ➔ **0.544m (+36.7%)** | **+0.0271** (p=0.14) | **+0.1499** (p=0.20) |
-| **Studless** | 전체기온 & 모든기상 | 0.840m ➔ **0.547m (+34.8%)** | **+0.0353** (p=0.06) | **+0.1759** (p=0.19) |
-| **Stud** | 정상기온 & 눈제외 | 0.916m ➔ **0.467m (+49.1%)** | **+0.1066** (p=5.3e-6) | **+0.7284** (p=8.8e-6) |
-| **All Weather** | 정상기온 & 눈제외 | 0.874m ➔ **0.569m (+34.9%)** | **+0.0005** (p=0.98) | **-0.0705** (p=0.62) |
-| **All (전체)** | 정상기온 & 눈제외 | 0.870m ➔ **0.644m (+26.1%)** | **+0.0352** (p=3.5e-3) | **+0.1940** (p=1.6e-2) |
-| **All (전체)** | 전체기온 & 모든기상 | 0.846m ➔ **0.637m (+24.6%)** | **+0.0413** (p=1.5e-3) | **+0.2093** (p=1.7e-2) |
+### 2.1 기준 코드 복원 및 리팩토링 (`run_full_snow_correction_matrix.py`)
+* **제동거리 정상성 검증 조건 복구**:
+  * `(BRK_DIST_DRIVER1_AVG >= 10.0) & (BRK_DIST_DRIVER1_AVG <= 35.0)` 필터링을 통해 40~50m가 넘는 이상치 데이터를 완벽하게 배제.
+* **`execute_method2` 전면 개혁**:
+  * 동일 스펙($N \ge 2$) 중심화 편차($\Delta T, \Delta AH \to \Delta y$) 계산.
+  * 사용자님의 `SnowCorrectionModel(x_cols=['temp_air', 'ah'], y_col='BRK_DIST', target_model='KNN Regressor')` 인스턴스에 주입.
+  * $k = \min(\text{len}, \max(40, \min(150, \text{int}(\text{len} \times 0.20))))$ 및 `weights='uniform'` 적용.
+  * 사내 절대 표준 환경($-8.0^\circ\text{C}, 1.5\text{ g/m}^3$) 대비 오프셋 산출 후 전체 1,503건 전수 보정(`BRK_DIST_METHOD2_CORR_REF`).
 
-* **생성된 8대 분리 보정 파일**:
-  1. `df_corrected_NormalTemp_NoSnow_method1_driver_diff.pkl / xlsx`
-  2. `df_corrected_NormalTemp_NoSnow_method2_slope.pkl / xlsx`
-  3. `df_corrected_NormalTemp_AllWeather_method1_driver_diff.pkl / xlsx`
-  4. `df_corrected_NormalTemp_AllWeather_method2_slope.pkl / xlsx`
-  5. `df_corrected_AllTemp_NoSnow_method1_driver_diff.pkl / xlsx`
-  6. `df_corrected_AllTemp_NoSnow_method2_slope.pkl / xlsx`
-  7. `df_corrected_AllTemp_AllWeather_method1_driver_diff.pkl / xlsx`
-  8. `df_corrected_AllTemp_AllWeather_method2_slope.pkl / xlsx`
+### 2.2 시각화 그래프 51종 전수 생성 (`D:\00_obsidian\_attachments\10_회사_업무\past_snow_correction_pipeline\`)
+* `1_Temp_Scenario_Dist_Boxplot.png`
+* `1_Within_Spec_Residual_M2_*.png` (스펙 내 잔차 피팅 산점도)
+* `2_Restoration_Scatter_M1_*.png` (방법 1 Driver 1 vs Driver 2 복원 산점도)
+* `2_Restoration_Scatter_M2_*.png` (방법 2 1차 vs 2차 복원 산점도)
+* `3_Response_Surface_M1_*.png` (방법 1 Random Forest 2D 등고선 맵)
+* `3_Response_Surface_M2_*.png` (방법 2 러프 평활화 2D-KNN 등고선 맵)
+* `4_Dispersion_Boxplot_M2_*.png` (동일 스펙 분산 축소 박스플롯)
+* `4_Deviation_Boxplot_M2_*.png` (0m 중심 편차 확대 박스플롯)
+* `5_Trial_Variation_M2_*.png` (동일 스펙 회차별 제동거리 수평 안정화 추이선)
+* `5_Residual_Shrinkage_M2_*.png` (동일 스펙 잔차 수렴 덤벨 차트)
+* `6_Std_Comparison_Bar_M2_*.png` (스펙별 표준편차 직접 비교 바차트)
+
+### 2.3 데이터셋 분리 및 통합 내보내기 (`D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\past_correction_results\`)
+* 환경별/방법별 분리 피클 및 엑셀 (8종)
+* 카테고리별·환경별 다중 시트 엑셀 (16개 시트) 및 개별 CSV (방법 1, 방법 2 각각 생성)
+* 전체 종합 마크다운 비교 리포트 (`Weather_Scenario_Comparison_Report.md`)
+
+### 2.4 옵시디언 볼트 통합 보고서 전면 최신화
+* `D:\00_obsidian\02_Projects\회사_업무\30_Snow_기반기술\30_Historical_Braking_Data_Correct\`:
+  * `00_과거_스노우_제동_환경보정_종합_통합보고서.md`:
+    1. **데이터 인벤토리 명세**: 전체 2,932건 중 IVALO PG(2,544건), HK-Outdoor(1,891건), 최종 1,503건 카테고리 구성표 복원.
+    2. **방법 1 독립 표**: 그래프 수치와 100% 일치하는 **복원 전·후 $R^2$ ($0.57\sim 0.85 \to 0.70\sim 0.91$)** 및 **상관계수 $r$ ($0.77\sim 0.93 \to 0.86\sim 0.96$)**, MAE 개선율 단독 표 구성.
+    3. **방법 2 독립 표**: 동일 스펙 반복 시험 데이터 기준 **최적 평활화 $k$ 파라미터**, **보정 전·후 표준편차($\sigma$)**, **스펙 내 산포 개선율** 단독 표 구성.
+    4. **51종 시각화 링크**: 실제 생성된 파일명과 1:1 매핑 완료.
+  * `Weather_Scenario_Comparison_Report.md`: 16개 시나리오 최신 실행 결과 동기화 완료.
 
 ---
 
-## 🏛️ 4. 옵시디언 볼트 3대 동기화 완결 상태
-1. **Inbox 작업 일지 배포**: `D:\00_obsidian\00_Inbox\WORK_STATUS.md` 최신화 완료.
-2. **도메인 대시보드 갱신**: `00_snow_condition_대시보드.md` v1.5.0 및 아키텍처 링크 반영 완료.
-3. **최상위 프로젝트 대시보드 갱신**: `00_unoUtil_모듈개발_대시보드.md` v3.12 체인지로그 기록 완료.
-4. **1:1 기술 매뉴얼 미러링**: `preprocessor.md`, `slope_model.md`, `correction_plotter.md` 볼트 동기화 완료.
+## 🏆 3. 검증 결과 요약
+* **지표 일관성 확보**: 복원 산점도 그래프([Figure 2])에 출력된 $R^2$, $r$ 값과 MD 보고서의 수치가 100% 정확하게 일치하도록 통일됨.
+* **보고서 가독성 복원**: 방법 1(복원율 중심)과 방법 2(산포 개선율 중심)를 분리하여 현업 엔지니어가 즉시 이해할 수 있는 본래의 깔끔한 리포트 양식으로 복원됨.
+* **이상치 배제 및 모델 안정성**: 50m 수준 이상치 배제 및 광역 평활화 2D-KNN 모델로 안정적이고 타당한 노면 반응면 도출 완료.
