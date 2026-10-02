@@ -57,7 +57,13 @@ class SnowSlopeModel:
 * `correction_map(t_range=(-18, 0), ah_range=(0.5, 3.5), save=False, close=True, **kwargs)`:
   기준 환경($-8^\circ\text{C}, 1.5\text{ g/m}^3$) 대비 2D 등고선 보정 맵 렌더링.
 * `variance_reduction(data, top_n=5, save=False, close=True, **kwargs)`:
-  동일 스펙 상위 N개에 대해 보정 전 vs 보정 후 제동거리 분산 감소 박스플롯 렌더링.
+  동일 스펙 상위 N개에 대해 보정 전 vs 보정 후 제동거리 절대값 박스플롯 렌더링.
+* `deviation_boxplot(data, top_n=5, save=False, close=True, **kwargs)`:
+  [추천 1] 동일 스펙 평균 대비 편차($\pm 1.5\text{ m}$)로 축을 10배 확대(Zero-Centered Zoom-in)하여 산포가 0으로 압축되는 효과를 렌더링.
+* `residual_dependency(data, save=False, close=True, **kwargs)`:
+  [추천 2] 기온/습도에 따라 우상향하던 제동거리 기울기가 보정 후 완벽한 수평선($\text{Slope} \approx 0$)으로 평탄화(Flatting)되는 의존성 소거 2분할 렌더링.
+* `std_comparison_bar(data, top_n=6, save=False, close=True, **kwargs)`:
+  [추천 3] 동일 스펙 제동거리 표준편차($\sigma$) 자체를 나란히 세워 막대 높이 감소 효과를 직관적으로 비교 렌더링.
 
 ---
 
