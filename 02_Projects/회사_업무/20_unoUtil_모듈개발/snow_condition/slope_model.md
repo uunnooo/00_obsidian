@@ -54,16 +54,18 @@ class SnowSlopeModel:
 ### `SnowSlopePlotter` (No Redundant Prefix Law 준수)
 * `slope_scatter(save=False, close=True, **kwargs)`:
   동일 스펙 중심화 편차 vs 제동거리 편차 산점도 및 독립 회귀 직선 2분할 렌더링.
-* `correction_map(t_range=(-18, 0), ah_range=(0.5, 3.5), save=False, close=True, **kwargs)`:
-  기준 환경($-8^\circ\text{C}, 1.5\text{ g/m}^3$) 대비 2D 등고선 보정 맵 렌더링.
-* `variance_reduction(data, top_n=5, save=False, close=True, **kwargs)`:
-  동일 스펙 상위 N개에 대해 보정 전 vs 보정 후 제동거리 절대값 박스플롯 렌더링.
 * `scatter_restoration(df_comp, overplot=True, show_connection=True, save=False, close=True, **kwargs)`:
   [Figure 2] 1차 기준(Ref) 대비 2차 원본(Raw)과 방법 2 보정본(Corrected) 일치도 복원 산점도를 1:1 대각선($y=x$) 규격으로 렌더링 (방법 1의 Figure 2와 100% 동일 규격).
+* `correction_map(mode='delta', dt_range=(-3, 3), dah_range=(-1.5, 1.5), v_range=(-1.5, 1.5), ...)`:
+  [Figure 3] 환경 인자 편차 대비 2D 등고선 보정 맵 렌더링 (방법 1과 100% 동일한 편차 좌표계 및 $\pm 1.5\text{ m}$ 컬러바 스케일로 1:1 비교 보장).
+* `variance_reduction(data, top_n=5, save=False, close=True, **kwargs)`:
+  동일 스펙 상위 N개에 대해 보정 전 vs 보정 후 제동거리 절대값 박스플롯 렌더링.
 * `deviation_boxplot(data, top_n=5, save=False, close=True, **kwargs)`:
   [추천 1] 동일 스펙 평균 대비 편차($\pm 1.5\text{ m}$)로 축을 10배 확대(Zero-Centered Zoom-in)하여 산포가 0으로 압축되는 효과를 렌더링.
-* `residual_dependency(data, save=False, close=True, **kwargs)`:
-  [추천 2] 기온/습도에 따라 우상향하던 제동거리 기울기가 보정 후 완벽한 수평선($\text{Slope} \approx 0$)으로 평탄화(Flatting)되는 의존성 소거 2분할 렌더링.
+* `trial_variation(data, top_n=4, save=False, close=True, **kwargs)`:
+  [Figure 5] 동일 스펙 시험 회차별 제동거리 안정화 추이선 (날씨로 인해 요동치던 제동거리가 보정 후 수평선으로 안정화되는 과정을 대표 스펙별 꺾은선으로 비교).
+* `residual_shrinkage(data, min_count=3, max_specs=12, save=False, close=True, **kwargs)`:
+  [Figure 5-B] 동일 스펙 잔차 수렴 덤벨 차트 (스펙별 시험 점들의 잔차가 0m 수평 기준선으로 바짝 수축하는 모습을 파노라마 형태로 조망).
 * `std_comparison_bar(data, top_n=6, save=False, close=True, **kwargs)`:
   [추천 3] 동일 스펙 제동거리 표준편차($\sigma$) 자체를 나란히 세워 막대 높이 감소 효과를 직관적으로 비교 렌더링.
 
