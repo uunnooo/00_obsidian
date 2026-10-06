@@ -55,7 +55,9 @@ class SnowSlopeModel:
 * `slope_scatter(save=False, close=True, **kwargs)`:
   동일 스펙 중심화 편차 vs 제동거리 편차 산점도 및 독립 회귀 직선 2분할 렌더링.
 * `scatter_restoration(df_comp, overplot=True, show_connection=True, save=False, close=True, **kwargs)`:
-  [Figure 2] 1차 기준(Ref) 대비 2차 원본(Raw)과 방법 2 보정본(Corrected) 일치도 복원 산점도를 1:1 대각선($y=x$) 규격으로 렌더링 (방법 1의 Figure 2와 100% 동일 규격).
+  [Figure 2] 1차 vs 2차 시험 간 복원/일치도 산점도 렌더링 (No Redundant Prefix Law 준수).
+  - **양방향 절대 보정 모드 (`1st_Corr(m)` 컬럼 감지 시)**: 1차와 2차 시험을 각각 사내 공통 표준 환경(@ Std: -8℃, 1.5g/m³)으로 절대 보정한 후 $y=x$ 대각선 완전 일치선으로의 수렴 벡터(화살표 및 반투명 궤적)를 렌더링.
+  - **상대 복원 모드 (`1st_Ref(m)` 컬럼 감지 시)**: 1차 기준 시험 대비 2차 시험을 1차 시험 당시 환경으로 상대 복원하여 $y=x$ 일치도를 렌더링 (방법 1 호환 규격).
 * `correction_map(mode='delta', dt_range=(-3, 3), dah_range=(-1.5, 1.5), v_range=(-1.5, 1.5), ...)`:
   [Figure 3] 환경 인자 편차 대비 2D 등고선 보정 맵 렌더링 (방법 1과 100% 동일한 편차 좌표계 및 $\pm 1.5\text{ m}$ 컬러바 스케일로 1:1 비교 보장).
 * `variance_reduction(data, top_n=5, save=False, close=True, **kwargs)`:
