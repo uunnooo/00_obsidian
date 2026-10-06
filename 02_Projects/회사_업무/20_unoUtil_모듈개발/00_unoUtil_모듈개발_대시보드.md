@@ -54,7 +54,7 @@ aliases:
 
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
-> [!NOTE]- 📜 v1.0 ~ v3.4 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
+> [!NOTE]- 📜 v1.0 ~ v3.14 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
 > | **v3.14** | 2026-10-06 | uno &<br/>Gemini | ❄️ **스노우 제동 환경보정 방법 2 1차/2차 양방향 절대 보정(CORR_D1, CORR_D2, CORR_AVG) 파이프라인 완성 및 Figure 2 수렴 산점도 연동**<br/>• **방법 2 양방향 절대 보정 엔진 완성**: 1차와 2차 시험을 각각 사내 공통 기준 환경($-8.0^\circ\text{C}, 1.5\text{ g/m}^3$)으로 독립 절대 보정하여 `BRK_DIST_METHOD2_CORR_D1`, `BRK_DIST_METHOD2_CORR_D2`, `BRK_DIST_METHOD2_CORR_AVG` 산출 완비<br/>• **Figure 2-M2 산점도 수렴 벡터 연동**: `SnowSlopePlotter.scatter_restoration`에 양방향 절대 보정 모드 구현 (1차 및 2차의 보정 전 $\to$ 보정 후 $y=x$ 완전 일치선으로의 수렴 벡터 렌더링, 온습도 표준 환경 라벨링 정합)<br/>• **실증 검증 및 16개 시트 다중 엑셀/피클 배포**: 1,043쌍 검증 결과 2D-KNN 광역 평활화로 양측 절대 보정 시 오차 누적 없이 MAE $0.822\text{m} \to \mathbf{0.804\text{m}}$(+7.6% 개선), $R^2: 0.837 \to \mathbf{0.844}$, $r: 0.921 \to \mathbf{0.923}$ 달성 및 16개 시트 다중 엑셀(`df_corrected_method2_by_category_env.xlsx`) 일괄 재배포 완결 | ✅ 완료 |
