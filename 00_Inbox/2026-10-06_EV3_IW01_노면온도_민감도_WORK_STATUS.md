@@ -47,6 +47,7 @@ tags:
 * **Control 대비 민감도 높음 ($m_T > m_C$)**: 선순위(오전/저온) 주행 시 유리 (분모 팽창 방지).
 * **Control 대비 민감도 낮음 ($m_T < m_C$)**: 후순위(오후/고온) 주행 시 유리 (콘트롤 열화로 인한 분자 팽창 혜택 수혜).
 * 인포그래픽 가이드 차트(`Control_Interpolation_Sensitivity_Bias_Guide.png`) 생성 및 옵시디언 동기화 완료.
+* **실전 수치 예시 탑재**: 본래 동일 성능(30m)인 타이어가 시험 순서(선순위 vs 후순위)에 따라 $98.1\% \text{ vs } 104.7\%$ ($\Delta 6.6\%p$)로 등급이 역전되는 극적 시뮬레이션 명세표 보고서 반영 완료.
 
 ---
 
@@ -60,7 +61,11 @@ tags:
    * `D:\00_obsidian\_attachments\10_회사_업무\EV3_Lane7_Dry_Scatter.png`
    * `D:\00_obsidian\_attachments\10_회사_업무\EV3_temperature_sensitivity_comparison.png`
    * `D:\00_obsidian\_attachments\10_회사_업무\Control_Interpolation_Sensitivity_Bias_Guide.png`
-3. **정량 데이터 CSV 파일 배포 (Excel 호환 UTF-8-BOM)**:
+3. **정량 데이터 CSV 및 시뮬레이션 Excel 파일 배포**:
+   * `D:\00_obsidian\02_Projects\회사_업무\10_Braking_AutoBuild\Control_Interpolation_Simulation_CT_IW01_QW01.xlsx`
+   * `D:\00_obsidian\02_Projects\회사_업무\10_Braking_AutoBuild\Control_Interpolation_Simulation_CT_IW01_QW01.csv`
+   * `D:\uno\1. 2026\1. BRK\Autobuild IW01_EV3\Control_Interpolation_Simulation_CT_IW01_QW01.xlsx`
+   * `D:\uno\1. 2026\1. BRK\Autobuild IW01_EV3\Control_Interpolation_Simulation_CT_IW01_QW01.csv`
    * `D:\00_obsidian\02_Projects\회사_업무\10_Braking_AutoBuild\EV3_Temperature_Sensitivity_Summary.csv`
    * `D:\00_obsidian\02_Projects\회사_업무\10_Braking_AutoBuild\EV3_Braking_Raw_Test_Data.csv`
    * `D:\uno\1. 2026\1. BRK\Autobuild IW01_EV3\EV3_Temperature_Sensitivity_Summary.csv`
