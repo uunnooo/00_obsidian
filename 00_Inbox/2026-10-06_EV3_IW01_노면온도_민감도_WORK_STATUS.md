@@ -42,6 +42,12 @@ tags:
 * **콘티넨탈 TS (`ex/CT/TS`)**: 7월과 8월 사이의 시험장 마찰계수 환경 시프트(-3~5m)가 결합되어 외견상 음의 기울기를 보이나, 동차수(8월 30차) 기준 Lane 1에서 26.75m로 현용 IW01-X19(26.76m)와 동등한 최상위권 젖은 노면 제동력을 증명.
 * **신규 개발품 (QW01-A, QW01-B)**: QW01-A는 고온 노면에서 페이드 없는 접지력을 유지했고, QW01-B는 Lane 1에서 **$26.54 \sim 26.83\text{ m}$라는 독보적 1위의 절대 제동거리**를 기록.
 
+### ④ 콘트롤 타이어 시계열 보간(Interpolation)에 따른 순서별 유불리 왜곡 메커니즘 규명
+* 상대 제동 지수($\text{Index} = \frac{D_{\text{Control, interp}}}{D_{\text{Test, meas}}} \times 100\%$) 산출 시 분자(콘트롤 보간치) vs 분모(테스트 실측치)의 민감도 차이에 따른 순서 왜곡 모델링.
+* **Control 대비 민감도 높음 ($m_T > m_C$)**: 선순위(오전/저온) 주행 시 유리 (분모 팽창 방지).
+* **Control 대비 민감도 낮음 ($m_T < m_C$)**: 후순위(오후/고온) 주행 시 유리 (콘트롤 열화로 인한 분자 팽창 혜택 수혜).
+* 인포그래픽 가이드 차트(`Control_Interpolation_Sensitivity_Bias_Guide.png`) 생성 및 옵시디언 동기화 완료.
+
 ---
 
 ## 3. 📂 배포 및 연동 파일 현황
@@ -53,6 +59,7 @@ tags:
    * `D:\00_obsidian\_attachments\10_회사_업무\EV3_Lane4_Wet_Low_Scatter.png`
    * `D:\00_obsidian\_attachments\10_회사_업무\EV3_Lane7_Dry_Scatter.png`
    * `D:\00_obsidian\_attachments\10_회사_업무\EV3_temperature_sensitivity_comparison.png`
+   * `D:\00_obsidian\_attachments\10_회사_업무\Control_Interpolation_Sensitivity_Bias_Guide.png`
 3. **정량 데이터 CSV 파일 배포 (Excel 호환 UTF-8-BOM)**:
    * `D:\00_obsidian\02_Projects\회사_업무\10_Braking_AutoBuild\EV3_Temperature_Sensitivity_Summary.csv`
    * `D:\00_obsidian\02_Projects\회사_업무\10_Braking_AutoBuild\EV3_Braking_Raw_Test_Data.csv`
