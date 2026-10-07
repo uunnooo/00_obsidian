@@ -63,6 +63,7 @@ flowchart TD
 
 | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 | :---: | :---: | :---: | :--- | :---: |
+| **v2.2** | 2026-10-07 | uno &<br/>Gemini | 🎯 **콘트롤 보간(Interpolation) 순서 왜곡 규명 및 스펙별(CT-TS, IW01, QW01) 실전 시뮬레이션 완비**<br/>• 콘트롤 타이어 시계열 선형 보간($C_1 \rightarrow T_1 \dots T_n \rightarrow C_2$) 시 분자($D_C$) vs 분모($D_T$)의 온도 민감도($m$) 차이에 따른 시험 순서 왜곡 모델링 정립<br/>• **Control 대비 고민감(CT-TS)**: 오후 분모 급팽창으로 지수 하락 감점 ➔ 선순위(오전) 유리<br/>• **Control 대비 저민감(IW01-X19)**: 오후 콘트롤 열화 반사이익으로 지수 뻥튀기 ➔ 후순위(오후) 유리 (+3.0%p 이득)<br/>• **고온점착형(QW01)**: 오후 제동거리 단축으로 지수 대폭등 ➔ 후순위(오후) 극단적 유리 (+7.9%p 폭등, 최대 9.8%p 등급 역전)<br/>• 3패널 전용 인포그래픽(`Control_Interpolation_Sensitivity_Bias_Guide.png`) 제작 및 옵시디언 영구 임베드<br/>• 서식 완비 엑셀 시뮬레이터(`Control_Interpolation_Simulation_CT_IW01_QW01.xlsx` / `.csv`) 제작 배포<br/>• 전수 실측 데이터셋(`EV3_Braking_Raw_Test_Data.csv`) 및 요약표(`EV3_Temperature_Sensitivity_Summary.csv`) 배포 완료 | ✅ 완료 |
 | **v2.1** | 2026-10-06 | uno &<br/>Gemini | 🌡️ **EV3_IW01 노면온도 민감도(Sensitivity) 및 스펙별 산점도 분석 체계 수립**<br/>• 노면온도 $1^\circ\text{C}$당 제동거리 변화량($m, \text{m/}^\circ\text{C}$) 및 $10^\circ\text{C}$ 상승 시 변화량($\Delta D_{10^\circ\text{C}}$) 정량화<br/>• 외측 범례(Outside Legend) 스카터 플랏 4종 및 노면별 민감도 바 차트 생성<br/>• 미쉐린 AP7의 Wet 저마찰 고온 취약성($+1.57\text{ m/}10^\circ\text{C}$) vs 국산 현용 IW01-X19의 압도적 열안정성($+0.56\text{ m/}10^\circ\text{C}$) 규명<br/>• 콘티넨탈 TS의 시험 차수 간 편차(Day-to-day Shift) 이상치 규명<br/>• 종합 마크다운 보고서(`[[20_EV3_IW01_노면온도_민감도_종합분석]]`) 발행 및 첨부 이미지 연동 | ✅ 완료 |
 | **v2.0** | 2026-09-17 | uno &<br/>Gemini | 🏎️ **EV3_IW01 11대 테마 분석 및 83종 차트 생태계 완성**<br/>• 11대 테마, 13대 전문 분석 모듈, 12개 시트 통합 마스터 엑셀(`EV3_IW01_Integrated_Braking_Analysis_Report.xlsx`) 구축<br/>• 고속 vs 저속 감속도 차이($\Delta g$) vs 상대지수 상관분석 엔진 신설 (Lane 7 유의 양의 상관성 규명)<br/>• 표면 기여도 의뢰번호 병기 라벨링 및 4대 주력 스펙군 시각 하이라이트 팔레트 적용<br/>• 83종 고해상도 차트 생성 및 마크다운 기술 백서(`[[10_EV3_IW01_Integrated_Braking_Analysis_Report]]`) 전수 임베딩 | ✅ 완료 |
 | **v1.9** | 2026-09-17 | uno &<br/>Gemini | 📝 **용어 표준화 및 베이스라인 실측거리 병기**<br/>• '열화/내구성' 용어 배제 ➔ '반복 횟수별 성능 변화', '성능 변동량', '변동 기울기'로 전면 개편<br/>• Surface_Ctrl_Baseline 차트(`01_01`~`01_06`) 막대에 실측거리 `(xx.xx m)` 병기 및 X축 마진 확장 | ✅ 완료 |
@@ -176,15 +177,35 @@ flowchart TD
 >   * `09_05_Speed_Zone_AccDiff_vs_Index_Correlation.png` (4대 노면 2x2 종합 산점도 및 신뢰구간 밴드 차트)
 >   * `09_05_AccDiff_vs_Index_lane1.png` ~ `lane8.png` (노면별 단독 상관분석 고해상도 차트 4종)
 
+> [!NOTE]- ⑬ 콘트롤 타이어 시계열 선형 보간(Interpolation)에 따른 시험 순서별 유불리 왜곡 메커니즘 및 극적 지수 역전 시뮬레이션 [클릭하여 펼치기]
+> * **핵심 문제의식:** 실차 제동 시험 시 일중 환경 변화(기온/노면온도 상승)를 보정하기 위해 사용하는 콘트롤 타이어 시계열 선형 보간($C_1 \rightarrow T \rightarrow C_2$)에서, 콘트롤 타이어와 테스트 타이어 간의 **노면온도 민감도($m$) 차이로 인해 시험 순서(선순위 vs 후순위)에 따라 상대 지수가 최대 수 %p 왜곡되는 공학적 결함**을 규명.
+> * **수학적/물리적 메커니즘:** 상대 지수 공식 $\text{Index} = \frac{D_{\text{Control, interp}}}{D_{\text{Test, meas}}} \times 100\%$에서 일중 온도가 오르면 콘트롤($W330$)의 열화로 분자($D_C$)가 지속적으로 팽창함.
+>   1. **Control 대비 고민감 ($m_T > m_C$, 예: CT-TS, $+2.0\text{ m}/10^\circ\text{C}$):** 오후에 분모($D_T$)가 분자보다 급격히 팽창하여 지수 하락($100.0\% \rightarrow 98.1\%$) $\rightarrow$ **오전 선순위(저온) 주행 시 유리**.
+>   2. **Control 대비 저민감 ($m_T < m_C$, 예: 현용 IW01-X19, $+0.5\text{ m}/10^\circ\text{C}$):** 온도가 올라도 분모는 버티는데 분자(콘트롤)만 커져 지수 상승($100.0\% \rightarrow 103.0\%$) $\rightarrow$ **오후 후순위(고온) 주행 시 유리 (+3.0%p 가산점 수혜)**.
+>   3. **고온 점착/개선형 ($m_T < 0$, 예: QW01, $-0.9\text{ m}/10^\circ\text{C}$):** 고온에서 실측거리는 단축되고 분자는 커져 **오후 후순위 주행 시 지수 대폭등 ($100.0\% \rightarrow 107.9\%$, +7.9%p 폭등, 최대 9.8%p 등급 역전)**.
+> * **실무 대응책 수립:** 단순 콘트롤 보간 지수에만 의존할 경우 시험 순서에 의해 개발 성패가 왜곡되므로, **순환 주행(ABBA / Latin Square)** 및 **타이어 고유 민감도($m$)를 직접 반영한 절대 노면온도 다중회귀 보정식** 병행 도입 명문화.
+> * **전용 산출물:**
+>   * 3패널 인포그래픽: `![[Control_Interpolation_Sensitivity_Bias_Guide.png]]`
+>   * 엑셀 시뮬레이터: `[[Control_Interpolation_Simulation_CT_IW01_QW01.xlsx]]`
+
 ---
 
 ## 📊 4. 엑셀 및 마크다운 보고서 자동화 산출물
 
-1. **📑 [[02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report|10_EV3_IW01_Integrated_Braking_Analysis_Report.md]] (통합 마크다운 마스터 리포트)**
+1. **📑 [[02_Projects/회사_업무/10_Braking_AutoBuild/20_EV3_IW01_노면온도_민감도_종합분석|20_EV3_IW01_노면온도_민감도_종합분석.md]] (노면온도 민감도 전문 분석 마스터 리포트)**
+   * **형태:** 노면온도 민감도($m$), 스카터 플랏, 외산 비교, 이상치 규명, 콘트롤 보간 유불리 왜곡 메커니즘을 총망라한 전문 공학 기술 백서.
+   * **핵심 분석:** 미쉐린 AP7($+1.57\text{ m}/10^\circ\text{C}$) vs 국산 현용 IW01-X19($+0.56\text{ m}/10^\circ\text{C}$) 열안정성 대조, 콘티넨탈 TS 환경 시프트 규명, 시험 순서별 지수 왜곡 시뮬레이션.
+   * **시각화/데이터:** 6종 고해상도 차트 임베드, CSV 2종 다운로드 링크 및 엑셀 시뮬레이터 수록.
+2. **📑 [[02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report|10_EV3_IW01_Integrated_Braking_Analysis_Report.md]] (11대 테마 통합 마크다운 마스터 리포트)**
    * **형태:** 단일 완성형 공학 기술 백서 (옵시디언 볼트 및 로컬 프로젝트 동시 배포).
    * **데이터 투명성:** 엑셀 12대 시트의 모든 세부 산출 근거 표(표 45개 이상) 전수 수록.
    * **시각화 무결성:** 83개 고해상도 넘버링 차트 완벽 임베딩.
-2. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` (12대 시트 통합 마스터 엑셀 리포트)**
+3. **📊 `Control_Interpolation_Simulation_CT_IW01_QW01.xlsx` (콘트롤 보간 유불리 시뮬레이터 엑셀)**
+   * **구성:** CT-TS, IW01-X19, QW01 스펙별 오전(선순위) vs 오후(후순위) 지수 왜곡 격차 자동 계산, 정렬 서식 및 유불리 원인 명세 완비.
+4. **📋 정량 데이터셋 2종 (Excel 호환 UTF-8-BOM CSV)**
+   * `EV3_Temperature_Sensitivity_Summary.csv`: 노면별 스펙 그룹 통계 요약 (N, 온도범위, 평균제동거리, $m$, $\Delta D_{10^\circ\text{C}}$, $r$, $R^2$, 등급).
+   * `EV3_Braking_Raw_Test_Data.csv`: 85개 전체 실측 제동 시험 포인트 전수 명세표.
+5. **📑 `EV3_IW01_Integrated_Braking_Analysis_Report.xlsx` (12대 시트 통합 마스터 엑셀 리포트)**
    * **Executive_Summary 시트:** 전 테마 핵심 공학적 소견 종합 및 시트 구성 가이드.
    * **Test_Campaign_Overview 시트:** 전체 시험 캠페인 매트릭스 및 전수 평가 명세.
    * **Surface_Ctrl_Baseline 시트:** 노면별 및 로컬 콘트롤 기준 성능 편차 (스펙/몰드/패턴 계층 분석).
@@ -198,9 +219,9 @@ flowchart TD
    * **Speed_Zone_Analysis 시트:** 고속 vs 저속 성능 분할표 및 감속도 차이(Δg) vs 상대지수 상관성 분석표/차트 신설.
    * **Surface_Contribution 시트:** 노면별 기여율, 감속도 레벨 차이, Mu-Drop 영향도 및 의뢰서별 속도 프로파일 대조 (스펙 하이라이트).
    * **Tire_Speed_Zone_Analysis 시트:** 타이어 스펙별 고속 vs 저속 종합 매트릭스 및 노면별 명세표.
-3. **📊 `Braking_Performance_Calibration_Validation_Report.xlsx` (종합 검증 보고서)**
-4. **🌡️ `Control_Tire_Temperature_Dependency_Report.xlsx` (온도/역전 정밀 진단서)**
-5. **🗺️ `Braking_GPS_Spatial_QC_Report.xlsx` (GPS 공간 QC 보고서)**
+6. **📊 `Braking_Performance_Calibration_Validation_Report.xlsx` (종합 검증 보고서)**
+7. **🌡️ `Control_Tire_Temperature_Dependency_Report.xlsx` (온도/역전 정밀 진단서)**
+8. **🗺️ `Braking_GPS_Spatial_QC_Report.xlsx` (GPS 공간 QC 보고서)**
 
 ---
 
