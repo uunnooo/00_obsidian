@@ -78,6 +78,45 @@ tags:
   - `run_full_snow_correction_matrix.py` 파이프라인 전면 리팩토링 및 정상 가동 (Exit Code 0).
   - 방법 1 vs 방법 2 4대 시나리오별 비교 매트릭스 완성 및 8대 데이터셋(pkl/xlsx), 90여 종의 시각화 차트 옵시디언 볼트 실시간 배포 완료.
 
+### [2026-10-08] v3.19 - SVR 3대 핵심 하이퍼파라미터 그리드 서치 최적 튜닝 및 주력 보정 모델(primary_model='SVR') 승격
+- **75개 파라미터 조합 그리드 서치 최적화**:
+  - 외삽 말림 방지($h \ge +3.5\text{mm} \to +0.67\text{m}$ 안정 유지)와 실차 1차 vs 2차 복원 성능(MAE 개선율)의 최적 균형점인 **`C=2.0, gamma=0.07, epsilon=0.10`** 확정 도출.
+- **실차 복원 성능 대폭 향상 실증**:
+  - 95개 세트 실차 복원 MAE $0.872\text{m} \to \mathbf{0.528\text{m}}$ (**+39.2% 개선**), $R^2: 0.5804 \to \mathbf{0.7672}$, 추세선 기울기 $\text{Slope}: 0.61 \to \mathbf{0.70}$.
+  - 스펙별 타이어 분산 검증: Tire C2 오차 개선율 **88.7%**, Tire T4 **80.4%**, Tire T3 **47.6%** 복원.
+- **주력 모델 공식 승격**:
+  - `SnowCorrectionModel` 기본 SVR 파라미터 탑재 및 `c_run_snow_correction_pipeline.py`의 `primary_model='SVR'` 승격 완결.
+- **영구 지식 리소스 구축**:
+  - SVR 수학적 원리, 커널 트릭 텐트 메커니즘, 전수 하이퍼파라미터 및 측정 불확도 연계 기법을 집대성한 [[32_서포트_벡터_머신_및_회귀(SVM_SVR)_원리와_하이퍼파라미터_가이드]] 신설 연동.
+
+### [2026-10-08] v3.18 - SVR RBF 외삽 말림(Curling) 규명 및 완만화(gamma=0.05) 규제 정식 반영
+- **외삽 영역 지수 감쇠 말림 현상 규명**:
+  - 최외곽($\Delta \text{char\_height} \ge +2.5\text{mm}$)에서 가우시안 커널 감쇠로 등고선이 안쪽으로 닫히며 0m로 추락하던 비물리적 오류 원인 완전 규명.
+- **완만화 규제 탑재**:
+  - `SnowCorrectionModel.train_models`에 `svr_params` 인자 추가 및 기본 완만화 규격(`gamma=0.05`) 탑재로 외곽에서도 $+0.80\sim 0.89\text{m}$ 정상 유지 및 열린 유선형 등고선 곡면 확립.
+
+### [2026-10-08] v3.17 - 3대 모델 1차 vs 2차 복원 수렴도 산점도 비교 플롯 및 Windows 파일 잠금 방어 체계 완비
+- **복원 수렴도 산점도 Side-by-Side 비교 플로터 구현**:
+  - `SnowCorrectionPlotter.scatter_restoration_comparison` 신규 구현으로 1행 3열 비교 플롯 자동 렌더링 (`2_Final_Correction_1st_vs_2nd_Comparison.png`).
+  - SVR이 MAE $0.872\text{m} \to \mathbf{0.452\text{m}}$ (+48.20% 개선, 1등 🥇), 순위 보존도 Kendall $\tau=\mathbf{0.4076}$ (1등 🥇) 입증.
+- **Windows 파일 잠금 방어 체계 (`_safe_savefig`) 완비**:
+  - Matplotlib 렌더링 후 파일 핸들 점유에 따른 `OSError [Errno 22]` 완전 차단.
+
+### [2026-10-08] v3.16 - Random Forest 완만화 및 3대 핵심 모델(RF vs SVR vs KNN) 2D 등고선 비교 체계 구축
+- **Random Forest 파라미터 완만화(Regularization) 및 외삽 왜곡 해소**:
+  - `max_depth=3, min_samples_leaf=4, min_samples_split=8` 규제를 적용하여 3~4mm 외삽 구간 비물리적 역전 해소.
+- **3대 모델 2D 등고선 보정 맵 1:1 비교 플로터 구현**:
+  - `SnowCorrectionPlotter.correction_map_comparison` 신규 구현 (`3_Snow_Correction_3Models_Contour_Comparison.png`).
+  - 5-Fold CV에서 RF는 암기 과적합이었으며 미관측 데이터에 대한 일반화 성능은 SVR이 1위(CV $R^2=0.4848$)임을 규명.
+
+### [2026-10-08] v3.15 - SnowSurfaceInterpolator 데이터 무손실 원칙 복원 및 노면 등고선 세션 간 1:1 비교 전역 고정 스케일 체계 확립
+- **데이터 무손실 원칙 복원 (`range_height=None, range_temp=None`)**:
+  - `SnowSurfaceInterpolator.__init__`에서 3.0mm 하드코딩 클리핑 범위를 전면 제거하고 기본값을 `None`으로 개편. 실제 1.6~18.8mm 침하 깊이 및 노면 온도차를 100% 무손실 보존.
+- **통합 제동-노면 데이터셋(`1. df_combine_test_surface_spec.pkl`) 무손실 복원**:
+  - `b_combine_surface_performance_spec.py` 재실행으로 `char_height` 최대값 8.40mm 정상 복원.
+- **노면 등고선 세션 간 1:1 비교 전역 고정 스케일 시각화 (`SnowSurfaceInterpolator.plot`)**:
+  - 트랙 위치: X축 `[0.0, 400.0]m`, Y축 `[45.0, 90.0]m`, 컬러바: 침하 깊이 `[0.0, 12.0]mm` (25단계), 노면 온도차 `[-0.5, 3.5]℃` (25단계) 고정. `cond_id` 인자 지원.
+
 ### [2026-10-01] v1.4.0 - 센서 연산 완전 분리, char_* 단일 표준화 및 3중 결측/이상치(np.clip) 방어 가드
 - **센서 하드웨어 연산 완전 제거 및 관심사 분리(SoC)**:
   - `SnowSurfaceInterpolator` 내부에서 센서 하드웨어에 종속되던 계산 로직(`Height1~6` 차이 수식, `Temp1~2` 뺄셈, `h_left`, `h_right`, `h_out`, `h_tire` 등)을 100% 완전 삭제.

@@ -46,8 +46,14 @@
 * **보안 & 결측치 처리**: `x_cols`와 `y_col`의 결측치(NaN)를 자동 감지하여 드롭하며, All NaN 컬럼이나 0행 데이터 유입 시 명시적 `ValueError`를 발생시켜 모델 오류를 사전 차단합니다.
 * **반환값**: `pd.DataFrame` (차분 데이터셋, 컬럼명: `diff_{col}`)
 
-### 3. `train_models(df_diff=None)`
+### 3. `train_models(df_diff=None, knn_neighbors=None, knn_weights='uniform', rf_params=None, svr_params=None)`
 * **설명**: 6대 회귀 모델(Random Forest, KNN, SVR, Ridge, Lasso, ElasticNet)을 동시 학습하고 결정계수($R^2$), MAE, RMSE 지표를 산출하여 최적 모델을 자동 선정합니다.
+* **RF 완만화 규제(Regularization)**: 
+  * 과적합과 외곽 외삽 왜곡(소수 이상치로 인한 계단식 단절 현상)을 방지하기 위해 기본값으로 완만화 파라미터(`max_depth=3`, `min_samples_leaf=4`, `min_samples_split=8`, `n_estimators=100`)가 적용되어 있습니다.
+  * `rf_params` 딕셔너리를 통해 커스텀 하이퍼파라미터 주입이 가능합니다.
+* **SVR 외삽 말림(Curling) 방지 완만화 규제**:
+  * RBF 커널의 치명적 한계인 **최외곽(Extrapolation) 가우시안 급격 감쇠 및 0m 회귀(등고선이 안쪽으로 둥글게 닫히는 현상)**를 차단하기 위해 기본값으로 완만화 규격(`C=1.0`, `epsilon=0.1`, `gamma=0.05`)이 적용되어 있습니다.
+  * `svr_params` 딕셔너리를 통해 커스텀 하이퍼파라미터 주입이 가능합니다.
 * **반환값**: `Dict[str, Dict[str, float]]` (모델별 평가 지표)
 
 ### 4. `predict_delta(*args, **kwargs)`
