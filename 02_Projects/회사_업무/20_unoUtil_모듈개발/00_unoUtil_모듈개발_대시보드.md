@@ -57,6 +57,7 @@ aliases:
 > [!NOTE]- 📜 v1.0 ~ v3.22 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
+> | **v3.24** | 2026-10-12 | uno &<br/>Gemini | ⏱️ **가감속/제동(`vt_acc_brk`) 및 파일리더(`file_reader`) 시간 결함 감사 및 슬립률·타임존 무결성 정상화**<br/>• **VBOX GPS 시간 파싱 및 타임존 오프셋 핵심 버그 해결**: VBOX `time` 컬럼 수치화 시 선행 0 탈락(예: `053648.72` $\to$ `53648.72`)에 따른 `zfill(6)` 누락 결함 수정 $\to$ 53시로 오판되어 Seconds 단위로 빠져 엉뚱한 심야 시각(23:54)이 되던 오류를 원천 차단하고 UTC 05:36 $\to$ KST 14:36(오후 2시 36분) 정상 계산 완료<br/>• **타임존 오프셋 가산 및 자정 통과 시 일자(`Day`) 자동 롤오버 보존**: UTC 저녁 시간대 시험에 타임존(+9h) 가산 시 익일 날짜 자동 승격(`return_datetime=True`) 및 단일 주행 중 자정 통과 시 `pd.date_range` 타임스탬프 자동 증가 검증 완료<br/>• **슬립률 분포 분석 구간 기본값 개선 (`an_slip_pdf.py`, `an_skewness.py`)**: 하드코딩된 임의 속도(80~5kph)를 제거하고 시험 속도(`test_vel`, 예: 100~1kph)를 기본 분석 구간으로 동적 연동, 정지 부근(0kph) 분모 0 발산 방지를 위한 최소 속도(min_vel=1kph) 가드 및 상세 주석 명시<br/>• **자동 `am`/`pm` 접미사 제거 및 `cond` 수동 처리 규격화**: 13시 분기 기반 임의 접미사 부여 로직 전면 삭제, 수동 입력 없을 시 파일명 및 그래프 타이틀에 `_None`, `_am`, `_pm`이 일절 표기되지 않는 클린 파일명 체계 확립 | ✅ 완료 |
 > | **v3.23** | 2026-10-12 | uno &<br/>Gemini | 🗄️ **unoUtil.database 스펙 결합 모듈(`connect_spec_with_req_set`) 정합 및 스노우 파이프라인 직결 연계 완결**<br/>• **오리지널 함수 자산 존중 및 SSOT 일원화**: 사용자가 이전에 완성해 둔 모듈 인터페이스(`connect_spec_with_req_set`)를 그대로 존중하여 `unoUtil.database` 정식 모듈로 수납하고, 스노우 프로젝트(`b_combine_surface_performance_spec.py`)에서 직접 임포트하여 노면-제동-스펙 3대 축을 단일 파이프라인으로 연결<br/>• **정의된 핵심 스펙 인자 슬림 결합 규격 확립**: 불필요한 시험 컬럼을 배제하고 `tb_pl_dw_spec_plm_tire_bas`의 핵심 스펙 인자(`SPEC_CD`, `PTTRNM`, `TIRE_NCSW`, `TIRE_APTRT`, `TIRE_RMICH`)만 정규화하여 55열 통합 데이터셋으로 초경량화 완성<br/>• **오프라인 캐싱 및 예외 방어 강화**: `save` 파라미터 기반 gzip 압축 피클 캐싱 지원으로 오프라인 및 로컬 재실행 안정성 확보 | ✅ 완료 |
 > | **v3.22** | 2026-10-12 | uno &<br/>Gemini | 🧹 **옵시디언 볼트 슬림화(볼트 다이어트) 및 소스 코드 매뉴얼 격리 보존 원칙 (Code Manual Isolation Law) 확립**<br/>• **개별 1:1 모듈 매뉴얼(87종) 볼트 전면 퇴출**: 옵시디언 내 불필요하게 복사되어 볼트 비대화 및 이중 동기화 부채를 유발하던 87개 저수준 `.md` 매뉴얼을 전면 삭제하고, Git 형상 관리가 적용되는 소스 코드 저장소(`D:\uno\Python\Projects\unoUtil\`)로 단일 진실 공급원(SSOT) 일원화<br/>• **마스터 MOC 허브 3열 규격표 로컬 코드 직결 리팩토링**: 볼트 내부 위키링크(`[[모듈명]]`)로 인한 고아 링크 및 인덱싱 오염을 원천 차단하고, 11대 도메인 87개 모듈을 실제 소스 코드 경로(`file:///D:/uno/Python/Projects/unoUtil/...`)로 1초 만에 바로 열 수 있는 고속 하이퍼링크 체계로 개편<br/>• **전역 거버넌스 헌장 4대 규칙집(SSOT) 일괄 정합**: `AGENTS.md`, `PYTHON_CODE_AGENT.md`, `code-audit-obsidian-docs/SKILL.md`, `obsidian-wiki-sync/SKILL.md`에서 개별 매뉴얼 볼트 미러링 조항을 전면 폐기하고, "코드 매뉴얼은 코드 저장소에서만 단독 관리하고 볼트에는 단일 마스터 대시보드와 공학 지식(`04_Resources`)만 관리한다"는 헌장 제5조 명문화 | ✅ 완료 |
 > | **v3.21** | 2026-10-08 | uno &<br/>Gemini | 🏆 **SnowCorrectionModel 과적합(Overfitting) 배제 및 물리적 설명 가능성을 위한 광역 러프(완만화) 규격 확정**<br/>• **공학적 통찰 기반 과적합 탈피 결단**: 수치적 MAE만 쥐어짜다 발생하는 국소 구역 쪼개짐, 계단식 타일링 및 동심원 분화구(아일랜드)를 전면 배제하고, 물리적으로 타당하고 매끄러운 광역 반응면을 확보하기 위해 광역 러프(완만화) 규격 채택<br/>• **Random Forest 러프 규격 정립**: `max_depth=3, min_samples_leaf=6, min_samples_split=12, n_estimators=100` 반영 $\to$ 모자이크 타일링을 없애고 직관적인 3~4개 거시 구역으로 정돈, 외삽(+3.5mm) $+0.92\text{m}$ 안정 유지, 실차 복원 MAE $0.872\text{m} \to \mathbf{0.460\text{m}}$ (**+47.3% 개선**), $R^2: 0.580 \to \mathbf{0.813}$<br/>• **KNN Regressor 광역 평활화 규격 정립**: `n_neighbors=25` (전체의 약 26%), `weights='uniform'` 탑재 $\to$ 거리 가중치에 의해 생기던 국소 동심원 아일랜드 및 도넛 분화구를 100% 완전 소멸시키고 완만한 광역 평균 경사면 구축, 실차 복원 MAE $0.872\text{m} \to \mathbf{0.613\text{m}}$ (**+29.7% 개선**), $R^2: 0.580 \to \mathbf{0.758}$<br/>• **SVR 주력 모델 확정 및 3대 모델 2D 등고선 맵 최신화**: `3_Snow_Correction_3Models_Contour_Comparison.png` 및 `2_Final_Correction_1st_vs_2nd_Comparison.png` 일괄 갱신 완료 | ✅ 완료 |
@@ -297,6 +298,21 @@ aliases:
   - `code-audit-obsidian-docs/SKILL.md` (제2장 2항 개정 - 개별 코드 매뉴얼 격리 보존)
   - `obsidian-wiki-sync/SKILL.md` (제3장 3항 개정 - 저수준 매뉴얼 유입 원천 차단)
 
+### [2026-10-12] v3.24 - 가감속/제동(vt_acc_brk) 및 파일리더(file_reader) 결함 감사 및 시간·슬립률 무결성 정상화
+- **VBOX GPS 시간 파싱 및 타임존 오프셋 핵심 버그 해결 (`datetime_helper.py`, `file_data_reader.py`)**:
+  - `07_C2.VBO` 파일의 GPS 원시 시각 `053648.720` (UTC 05:36:48) 파싱 시, Pandas float 변환으로 인한 앞자리 0 탈락(`53648.72`) 상태에서 `zfill(6)` 없이 앞 2자리를 잘라 53시 $\ge$ 24로 인식하여 VBOX 포맷 판정에서 탈락하던 치명적 결함 수정.
+  - VBOX 판정 탈락 후 초(Seconds since midnight) 단위로 오판되어 +9시간 가산 후 23시 54분이라는 엉뚱한 심야 시각이 산출되던 문제를 `str_val.zfill(6)` 의무화 및 VBOX 고유 컬럼 감지로 원천 해결 (UTC 05:36 $\to$ 한국 시각 14:36 완벽 계산).
+- **타임존 가산 및 자정 통과 시 일자(Day) 자동 롤오버 보존**:
+  - `resolve_base_time`에 `return_datetime=True` 옵션을 지원하여, 야간 시험에 +9시간을 더해 자정을 넘어가더라도 익일 날짜가 `FileDataReader.save_date` 및 `Datetime` 컬럼에 온전히 보존되도록 개선.
+  - 단일 주행 중 자정 통과 시에도 `build_datetime_series`의 `pd.date_range` C-엔진을 통해 연속 타임스탬프에서 일자가 자연스럽게 증가함을 검증 완료.
+- **슬립률 분포 분석 구간 기본값 개선 (`an_slip_pdf.py`, `an_skewness.py`)**:
+  - 하드코딩된 임의 속도(80~5kph) 대신 사용자가 설정한 시험 속도(`test_vel`, 예: 100~1kph)를 기본 분석 구간으로 동적 연동.
+  - 0kph 정지 부근에서 발생하는 휠 슬립률 분모 0 발산 및 휠 락 노이즈를 방어하기 위해 최소 속도(min_vel=1kph) 가드를 필수 보장하고 상세 공학적 사유를 주석/닥스트링에 명시.
+- **자동 `am`/`pm` 접미사 제거 및 `cond` 수동 처리 규격화 (`vt_acc_brk.py`, `vt_acc_brk_tire.py`, `plotter_*.py`)**:
+  - 13시 분기 기반 임의 `am`/`pm` 자동 생성 로직을 완전히 삭제하고 수동 지정만 지원.
+  - 미지정 시 파일명이나 플롯 타이틀에 `_am`, `_pm`, `_None`이 일절 포함되지 않도록 클린 명명 체계 정합.
+- **BMW 320d ADAC Dry 실차 통합 분석 파이프라인 (Case 4) 무결성 통과 (Exit Code 0)**.
+
 ### [2026-10-08] v3.15 - SnowSurfaceInterpolator 데이터 무손실 원칙 복원 및 노면 등고선 세션 간 1:1 비교 전역 고정 스케일 체계 확립
 - **데이터 무손실 원칙 복원 (`range_height=None, range_temp=None`)**:
   - `SnowSurfaceInterpolator.__init__`에서 3.0mm 하드코딩 클리핑 범위를 전면 제거하고 기본값을 `None`으로 개편.
@@ -349,5 +365,5 @@ aliases:
 - **Exit Code 0 무결성 통과**: `c_run_snow_correction_pipeline.py` 가동 전수 통과 (3초 완결).
 
 ---
-**Last Updated**: 2026-10-08  
-**Standard**: unoUtil Clean Architecture v3.15 & Single Baseline Law & Single Master MOC Law
+**Last Updated**: 2026-10-12  
+**Standard**: unoUtil Clean Architecture v3.24 & Single Baseline Law & Single Master MOC Law
