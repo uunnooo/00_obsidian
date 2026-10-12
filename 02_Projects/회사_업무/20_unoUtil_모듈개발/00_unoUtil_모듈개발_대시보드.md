@@ -54,9 +54,10 @@ aliases:
 
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
-> [!NOTE]- 📜 v1.0 ~ v3.15 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
+> [!NOTE]- 📜 v1.0 ~ v3.22 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
+> | **v3.22** | 2026-10-12 | uno &<br/>Gemini | 🧹 **옵시디언 볼트 슬림화(볼트 다이어트) 및 소스 코드 매뉴얼 격리 보존 원칙 (Code Manual Isolation Law) 확립**<br/>• **개별 1:1 모듈 매뉴얼(87종) 볼트 전면 퇴출**: 옵시디언 내 불필요하게 복사되어 볼트 비대화 및 이중 동기화 부채를 유발하던 87개 저수준 `.md` 매뉴얼을 전면 삭제하고, Git 형상 관리가 적용되는 소스 코드 저장소(`D:\uno\Python\Projects\unoUtil\`)로 단일 진실 공급원(SSOT) 일원화<br/>• **마스터 MOC 허브 3열 규격표 로컬 코드 직결 리팩토링**: 볼트 내부 위키링크(`[[모듈명]]`)로 인한 고아 링크 및 인덱싱 오염을 원천 차단하고, 11대 도메인 87개 모듈을 실제 소스 코드 경로(`file:///D:/uno/Python/Projects/unoUtil/...`)로 1초 만에 바로 열 수 있는 고속 하이퍼링크 체계로 개편<br/>• **전역 거버넌스 헌장 4대 규칙집(SSOT) 일괄 정합**: `AGENTS.md`, `PYTHON_CODE_AGENT.md`, `code-audit-obsidian-docs/SKILL.md`, `obsidian-wiki-sync/SKILL.md`에서 개별 매뉴얼 볼트 미러링 조항을 전면 폐기하고, "코드 매뉴얼은 코드 저장소에서만 단독 관리하고 볼트에는 단일 마스터 대시보드와 공학 지식(`04_Resources`)만 관리한다"는 헌장 제5조 명문화 | ✅ 완료 |
 > | **v3.21** | 2026-10-08 | uno &<br/>Gemini | 🏆 **SnowCorrectionModel 과적합(Overfitting) 배제 및 물리적 설명 가능성을 위한 광역 러프(완만화) 규격 확정**<br/>• **공학적 통찰 기반 과적합 탈피 결단**: 수치적 MAE만 쥐어짜다 발생하는 국소 구역 쪼개짐, 계단식 타일링 및 동심원 분화구(아일랜드)를 전면 배제하고, 물리적으로 타당하고 매끄러운 광역 반응면을 확보하기 위해 광역 러프(완만화) 규격 채택<br/>• **Random Forest 러프 규격 정립**: `max_depth=3, min_samples_leaf=6, min_samples_split=12, n_estimators=100` 반영 $\to$ 모자이크 타일링을 없애고 직관적인 3~4개 거시 구역으로 정돈, 외삽(+3.5mm) $+0.92\text{m}$ 안정 유지, 실차 복원 MAE $0.872\text{m} \to \mathbf{0.460\text{m}}$ (**+47.3% 개선**), $R^2: 0.580 \to \mathbf{0.813}$<br/>• **KNN Regressor 광역 평활화 규격 정립**: `n_neighbors=25` (전체의 약 26%), `weights='uniform'` 탑재 $\to$ 거리 가중치에 의해 생기던 국소 동심원 아일랜드 및 도넛 분화구를 100% 완전 소멸시키고 완만한 광역 평균 경사면 구축, 실차 복원 MAE $0.872\text{m} \to \mathbf{0.613\text{m}}$ (**+29.7% 개선**), $R^2: 0.580 \to \mathbf{0.758}$<br/>• **SVR 주력 모델 확정 및 3대 모델 2D 등고선 맵 최신화**: `3_Snow_Correction_3Models_Contour_Comparison.png` 및 `2_Final_Correction_1st_vs_2nd_Comparison.png` 일괄 갱신 완료 | ✅ 완료 |
 | **v3.20** | 2026-10-08 | uno &<br/>Gemini | 🏆 **SnowCorrectionModel 기본 주력 모델 SVR 공식 승격 및 RF / KNN 3대 모델 전수 하이퍼파라미터 그리드 서치(Grid Search) 최적화 기본값 반영**<br/>• **기본 모델 SVR 공식 승격**: `SnowCorrectionModel` 초기화 시 `target_model='SVR'` 및 `c_run_snow_correction_pipeline.py` 기본값을 `'SVR'`로 일원화 확정 (RBF 커널 $C=2.0, \gamma=0.07, \epsilon=0.10$으로 외삽 말림 0% 및 연속 매끄러운 물리 곡면 보장)<br/>• **Random Forest 그리드 서치 최적 규격 기본화**: `max_depth=4, min_samples_leaf=3, min_samples_split=6, n_estimators=100` 탑재 $\to$ 과적합/단차를 제거하고 외삽($h \ge +3.5\text{mm}$)에서도 $+0.56\text{m}$ 정상 양수 유지, 실차 복원 MAE $0.872\text{m} \to \mathbf{0.426\text{m}}$ (**+51.2% 개선**), $R^2: 0.580 \to \mathbf{0.831}$<br/>• **KNN Regressor 그리드 서치 최적 규격 기본화**: `n_neighbors=10, weights='distance', p=1` (Manhattan Distance) 탑재 $\to$ 기존 러프 평활화($k=30$, MAE $0.636\text{m}$) 대비 비약적 향상, 실차 복원 MAE $0.872\text{m} \to \mathbf{0.419\text{m}}$ (**+51.9% 개선**), 순위 보존도 Kendall $\tau=\mathbf{0.472}$ (3대 모델 중 최고 순위 보존력)<br/>• **타이어 스펙별 복원 거동 무결성 검증**: 의뢰 25RD110006EF의 C1~T4 전수 1:1 대조로 2차 온습도 상승($\Delta AH \approx +1.02\text{ g/m}^3$)에 따른 전 타이어 일관된 차감 보정($-0.6\sim -0.7\text{m}$) 무결성 확인 및 T1, T2의 실측 역주행 원인(타이어 고유 패턴 특성/1차 런 노이즈) 규명 완결 | ✅ 완료 |
 > | **v3.19** | 2026-10-08 | uno &<br/>Gemini | 🏆 **SnowCorrectionModel SVR 3대 핵심 하이퍼파라미터($C, \gamma, \epsilon$) 그리드 서치(Grid Search) 최적 튜닝 및 주력 보정 모델(`primary_model='SVR'`) 정식 승격**<br/>• **75개 파라미터 조합 그리드 탐색**: 외삽 말림 방지($h \ge +3.5\text{mm} \to +0.67\text{m}$ 안정 유지)와 실차 1차 vs 2차 복원 성능(MAE 개선율)의 최적 균형점인 **`C=2.0, gamma=0.07, epsilon=0.10`** 도출 확정<br/>• **실차 복원율 대폭 향상**: 95개 세트 실차 복원 MAE $0.872\text{m} \to \mathbf{0.528\text{m}}$ (**+39.2% 개선**, 초기 완만화 +35.0% 대비 대폭 향상), $R^2: 0.5804 \to \mathbf{0.7672}$, 추세선 기울기 $\text{Slope}: 0.61 \to \mathbf{0.70}$<br/>• **주력 파이프라인 공식 승격**: `c_run_snow_correction_pipeline.py`의 `primary_model` 기본값을 `'SVR'`로 변경하고 전 단계 재가동 (엑셀 테이블 `corrected_char_brk_dist_comparison_table.xlsx` 및 Figure 1, 2, 3, 4 SVR 기준 산출 완결)<br/>• **스펙별 타이어 분산 검증**: 의뢰 25RD110006EF 대상 Tire C2 오차 개선율 **88.7%**, Tire T4 **80.4%**, Tire T3 **47.6%** 복원 입증 | ✅ 완료 |
@@ -116,112 +117,112 @@ aliases:
 
 ## 🏎️ 3. vehicle 동역학 & 가감속/제동 (VT_ACCBRK) 도메인
 
-> [!NOTE]- 🏎️ vehicle 및 acc_brk 모듈 1:1 매뉴얼 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> [!NOTE]- 🏎️ vehicle 및 acc_brk 모듈 소스 코드 목록 [클릭하여 펼치기]
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`VehicleDynamic`** | 실차 센서 장착점 ➔ 차량 무게중심(CG) 운동역학 변환 및 롤/피치 보정 | [[vehicle_dynamic\|매뉴얼 보기]] |
-> | **`hndl_test`** | 실차 조종안정성(Handling) 계측 데이터 분석 및 요레이트/횡가속도 산출 | [[hndl_test\|매뉴얼 보기]] |
-> | **`test_infor_res`** | 평가 정보(`TestInformation`) 및 결과(`TestResult`) 메타데이터 컨테이너 | [[test_infor_res\|매뉴얼 보기]] |
-> | **`analysis_test_data`**| 제동 및 가속 성능 종합 통계 분석 및 평가 간 비교 엔진 | [[analysis_test_data\|매뉴얼 보기]] |
-> | **`vt_acc_brk`** | 가감속/제동 자동화 파이프라인 마스터 오케스트레이터 | [[vt_acc_brk\|매뉴얼 보기]] |
-> | **`vt_acc_brk_tire`** | 단일 타이어 동역학 분석, Wavelet 가속도 복원, 구간 자동 탐지 | [[vt_acc_brk_tire\|매뉴얼 보기]] |
-> | **`vt_acc_brk_project`**| 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 엔진 | [[vt_acc_brk_project\|매뉴얼 보기]] |
-> | **`correct` / `correct_factors`** | 시험 환경(온도, 노면) 및 콘트롤 타이어 시계열 성능 지수 보정 | [[correct\|correct]] · [[correct_factors\|correct_factors]] |
-> | **`base_memory`** | 대용량 실차 시계열 데이터 초고속 인메모리 관리 및 슬림 피클링 | [[base_memory\|매뉴얼 보기]] |
-> | **`func_acc_brk`** | 제동 분석 전용 시계열 필터링, 데이터 슬라이싱 보조 함수군 | [[func_acc_brk\|매뉴얼 보기]] |
-> | **`analyzers` (6대 서브)**| 가속대역, 감속응답, 슬립속도PDF, Mu-Drop, 왜도, 구간속도분할 전문 분석기 | [[an_acceleration\|가속]] · [[an_response\|응답]] · [[an_slip_pdf\|슬립PDF]] · [[an_mu_drop\|MuDrop]] · [[an_skewness\|왜도]] · [[an_split_speed\|속도분할]] |
-> | **`plotter_tire` / `plotter_project`** | 단일 타이어 분석 차트 및 프로젝트 비교 시계열 플로터 | [[plotter_tire\|타이어플로터]] · [[plotter_project\|프로젝트플로터]] |
+> | **`VehicleDynamic`** | 실차 센서 장착점 ➔ 차량 무게중심(CG) 운동역학 변환 및 롤/피치 보정 | [`vehicle_dynamic.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/vehicle_dynamic.py) |
+> | **`hndl_test`** | 실차 조종안정성(Handling) 계측 데이터 분석 및 요레이트/횡가속도 산출 | [`hndl_test.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/hndl_test.py) |
+> | **`test_infor_res`** | 평가 정보(`TestInformation`) 및 결과(`TestResult`) 메타데이터 컨테이너 | [`test_infor_res.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/test_infor_res.py) |
+> | **`analysis_test_data`**| 제동 및 가속 성능 종합 통계 분석 및 평가 간 비교 엔진 | [`analysis_test_data.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/analysis_test_data.py) |
+> | **`vt_acc_brk`** | 가감속/제동 자동화 파이프라인 마스터 오케스트레이터 | [`vt_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk.py) |
+> | **`vt_acc_brk_tire`** | 단일 타이어 동역학 분석, Wavelet 가속도 복원, 구간 자동 탐지 | [`vt_acc_brk_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk_tire.py) |
+> | **`vt_acc_brk_project`**| 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 엔진 | [`vt_acc_brk_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk_project.py) |
+> | **`correct` / `correct_factors`** | 시험 환경(온도, 노면) 및 콘트롤 타이어 시계열 성능 지수 보정 | [`correct.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/correct.py) · [`correct_factors.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/correct_factors.py) |
+> | **`base_memory`** | 대용량 실차 시계열 데이터 초고속 인메모리 관리 및 슬림 피클링 | [`base_memory.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/base_memory.py) |
+> | **`func_acc_brk`** | 제동 분석 전용 시계열 필터링, 데이터 슬라이싱 보조 함수군 | [`func_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/func_acc_brk.py) |
+> | **`analyzers` (6대 서브)**| 가속대역, 감속응답, 슬립속도PDF, Mu-Drop, 왜도, 구간속도분할 전문 분석기 | [`analyzers/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/analyzers/) |
+> | **`plotter_tire` / `plotter_project`** | 단일 타이어 분석 차트 및 프로젝트 비교 시계열 플로터 | [`plotter_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/plotter_tire.py) · [`plotter_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/plotter_project.py) |
 
 ---
 
 ## 🚀 4. file_reader 이기종 계측 데이터 리더 도메인
 
 > [!NOTE]- 🚀 file_reader 파서 및 리더 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`file_data_reader`** | VBox(`.vbo`), Dewesoft(`.dwd`), RaceLogic(`.vbb`), 텍스트 이기종 자동 판별 통합 리더 | [[file_data_reader\|매뉴얼 보기]] |
-> | **`parsers` (5대 서브)** | `base_parser`, `vbo_parser`, `vbb_parser`, `dwd_parser`, `text_parser` 전용 엔진 | [[base_parser\|기반]] · [[vbo_parser\|VBO]] · [[vbb_parser\|VBB]] · [[dwd_parser\|DWD]] · [[text_parser\|TEXT]] |
-> | **`datetime_helper`** | GPS 시각 동기화, UTC-KST 변환 및 시계열 타임스탬프 정규화 | [[datetime_helper\|매뉴얼 보기]] |
-> | **`standard_channel_pattern`** | 사내 계측 채널명 정규표현식 매핑 사전 및 표준 칼럼 변환 | [[standard_channel_pattern\|매뉴얼 보기]] |
-> | **`DWDataReader` / `vbbTopython`** | Dewesoft C-DLL 바인딩 및 VBB 바이너리 파이썬 변환 엔진 | [[dwdReader\|dwdReader]] · [[VBBReader\|VBBReader]] |
+> | **`file_data_reader`** | VBox(`.vbo`), Dewesoft(`.dwd`), RaceLogic(`.vbb`), 텍스트 이기종 자동 판별 통합 리더 | [`file_data_reader.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/file_reader/file_data_reader.py) |
+> | **`parsers` (5대 서브)** | `base_parser`, `vbo_parser`, `vbb_parser`, `dwd_parser`, `text_parser` 전용 엔진 | [`parsers/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/file_reader/parsers/) |
+> | **`datetime_helper`** | GPS 시각 동기화, UTC-KST 변환 및 시계열 타임스탬프 정규화 | [`datetime_helper.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/file_reader/datetime_helper.py) |
+> | **`standard_channel_pattern`** | 사내 계측 채널명 정규표현식 매핑 사전 및 표준 칼럼 변환 | [`standard_channel_pattern.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/file_reader/standard_channel_pattern.py) |
+> | **`DWDataReader` / `vbbTopython`** | Dewesoft C-DLL 바인딩 및 VBB 바이너리 파이썬 변환 엔진 | [`DWDataReader/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/file_reader/DWDataReader_v5_0_8/) · [`vbbTopython/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/file_reader/vbbTopython/) |
 
 ---
 
 ## 🎨 5. graphics 실차 시각화 및 인터랙션 도메인
 
 > [!NOTE]- 🎨 graphics 플로터, 컨트롤러, 웹 시각화 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`plotter`** | Matplotlib 기반 실차 주행 시계열 표준 플로팅 엔진 (비차단 원칙) | [[plotter\|매뉴얼 보기]] |
-> | **`pair_plot`** | 다변량 센서 신호 상관관계 매트릭스 시각화 | [[pair_plot\|매뉴얼 보기]] |
-> | **`surface_3d`** | 노면 높이 및 3차원 공간 특성 서피스 렌더러 | [[surface_3d\|매뉴얼 보기]] |
-> | **`text_offset`** | 차트 주석 텍스트 겹침 방지 자동 오프셋 계산기 | [[text_offset\|매뉴얼 보기]] |
-> | **`cursor_mode` / `range_selector`** | GUI 인터랙티브 마우스 커서 측정 및 특정 구간 드래그 선택기 | [[cursor_mode\|커서]] · [[range_selector\|구간선택]] |
-> | **`plotly_tools`** | 웹 기반 반응형 Plotly 대화형 차트 생성 툴킷 | [[plotly_tools\|매뉴얼 보기]] |
+> | **`plotter`** | Matplotlib 기반 실차 주행 시계열 표준 플로팅 엔진 (비차단 원칙) | [`plotter.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/graphics/plotters/plotter.py) |
+> | **`pair_plot`** | 다변량 센서 신호 상관관계 매트릭스 시각화 | [`pair_plot.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/graphics/plotters/pair_plot.py) |
+> | **`surface_3d`** | 노면 높이 및 3차원 공간 특성 서피스 렌더러 | [`surface_3d.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/graphics/plotters/surface_3d.py) |
+> | **`text_offset`** | 차트 주석 텍스트 겹침 방지 자동 오프셋 계산기 | [`text_offset.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/graphics/plotters/text_offset.py) |
+> | **`cursor_mode` / `range_selector`** | GUI 인터랙티브 마우스 커서 측정 및 특정 구간 드래그 선택기 | [`controls/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/graphics/controls/) |
+> | **`plotly_tools`** | 웹 기반 반응형 Plotly 대화형 차트 생성 툴킷 | [`plotly_tools.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/graphics/web/plotly_tools.py) |
 
 ---
 
 ## 🎯 6. curve_fit 커브 피팅 및 타이어 곡선 도메인
 
 > [!NOTE]- 🎯 curve_fit 타이어 특성 피팅 및 결합 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`tire_curve` (`TireCurve`)** | **타이어 종/횡방향 비선형 특성 곡선 피팅 총괄 클래스 (단일 진실 공급원 - SSOT)** | [[tire_curve\|매뉴얼 보기]] |
-> | **`fit_least_squares`** | Scipy 비선형 최소자승 가중치/Huber loss 추정기 (`EstimatorLeastSquares`) | [[fit_least_squares\|매뉴얼 보기]] |
-> | **`curve_combiner`** | 다구간 스플라인 결합, 변곡점 검출 및 국소 트렌드 라인 복합 파이프라인 | [[curve_combiner\|매뉴얼 보기]] |
+> | **`tire_curve` (`TireCurve`)** | **타이어 종/횡방향 비선형 특성 곡선 피팅 총괄 클래스 (단일 진실 공급원 - SSOT)** | [`tire_curve.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/tire_curve/tire_curve.py) |
+> | **`fit_least_squares`** | Scipy 비선형 최소자승 가중치/Huber loss 추정기 (`EstimatorLeastSquares`) | [`fit_least_squares.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/tire_curve/fit_least_squares.py) |
+> | **`curve_combiner`** | 다구간 스플라인 결합, 변곡점 검출 및 국소 트렌드 라인 복합 파이프라인 | [`curve_combiner.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/tire_curve/curve_combiner/curve_combiner.py) |
 
 ---
 
 ## 📐 7. models 공학 지배 수식 도메인
 
 > [!NOTE]- 📐 models 순수 공학 수학 지배 방정식 및 신경망 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`magic_formula`** | Pacejka Magic Formula 타이어 횡력/종력 비선형 모델 수식 (SSOT) | [[magic_formula\|매뉴얼 보기]] |
-> | **`bicycle_model`** | 2자유도 차량 평면 횡방향 자전거 모델 수식 시뮬레이션 (`BicycleModel`) | [[bicycle_model\|매뉴얼 보기]] |
-> | **`fit_nn`** | PyTorch / Scikit-Learn 기반 차량 동역학 신경망 모델러 | [[fit_nn\|매뉴얼 보기]] |
+> | **`magic_formula`** | Pacejka Magic Formula 타이어 횡력/종력 비선형 모델 수식 (SSOT) | [`magic_formula.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/models/mathematical/magic_formula.py) |
+> | **`bicycle_model`** | 2자유도 차량 평면 횡방향 자전거 모델 수식 시뮬레이션 (`BicycleModel`) | [`bicycle_model.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/models/mathematical/bicycle_model.py) |
+> | **`fit_nn`** | PyTorch / Scikit-Learn 기반 차량 동역학 신경망 모델러 | [`fit_nn.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/models/neural_net/fit_nn.py) |
 
 ---
 
 ## 📶 8. signal_process 신호 후처리 및 정제 도메인
 
 > [!NOTE]- 📶 post_process 4대 필터 및 FFT 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`filters`** | Zero-Phase 이동평균 필터 및 Butterworth 저역통과 필터 | [[filters\|매뉴얼 보기]] |
-> | **`resample`** | 비수치 메타데이터 손실 없는 시계열 고속 리샘플링 | [[resample\|매뉴얼 보기]] |
-> | **`outliers`** | 이상치 자동 검출 및 연속 결측 구간 정제 | [[outliers\|매뉴얼 보기]] |
-> | **`scaler`** | MinMax, Standard, Robust 시계열 신호 정규화 | [[scaler\|매뉴얼 보기]] |
-> | **`extended_isolation_forest`** | 고차원 센서 이상치 탐지를 위한 EIF 알고리즘 | [[extended_isolation_forest\|매뉴얼 보기]] |
-> | **`find_fft` / `single_track` / `tf_estimate`**| 주파수 스펙트럼 분석, 단일 트랙 FFT, 전달함수(TF) 추정 | [[find_fft\|FFT]] · [[single_track\|트랙]] · [[tf_estimate\|전달함수]] |
+> | **`filters`** | Zero-Phase 이동평균 필터 및 Butterworth 저역통과 필터 | [`filters.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/signal_process/post_process/filters.py) |
+> | **`resample`** | 비수치 메타데이터 손실 없는 시계열 고속 리샘플링 | [`resample.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/signal_process/post_process/resample.py) |
+> | **`outliers`** | 이상치 자동 검출 및 연속 결측 구간 정제 | [`outliers.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/signal_process/post_process/outliers.py) |
+> | **`scaler`** | MinMax, Standard, Robust 시계열 신호 정규화 | [`scaler.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/signal_process/post_process/scaler.py) |
+> | **`extended_isolation_forest`** | 고차원 센서 이상치 탐지를 위한 EIF 알고리즘 | [`extended_isolation_forest.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/signal_process/post_process/extended_isolation_forest.py) |
+> | **`find_fft` / `single_track` / `tf_estimate`**| 주파수 스펙트럼 분석, 단일 트랙 FFT, 전달함수(TF) 추정 | [`fft/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/signal_process/fft/) |
 
 ---
 
 ## 🛠️ 9. utils & logger 공통 유틸리티 도메인
 
 > [!NOTE]- 🛠️ utils 및 로깅 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`logger`** | 사내 프레임워크 표준 계층형 로깅 엔진 (Print 전면 퇴출) | [[logger\|매뉴얼 보기]] |
-> | **`progress_bar`** | 콘솔 렌더링 칼정렬 및 깜빡임 없는 프로그레스 바 | [[progress_bar\|매뉴얼 보기]] |
-> | **`console_style` / `styles`** | ANSI 컬러 터미널 출력 포맷터 | [[console_style\|console_style]] · [[styles\|styles]] |
-> | **`dataframe_utils`** | 고속 판다스 조작, 데이터프레임 무결성 검증 유틸리티 | [[dataframe_utils\|매뉴얼 보기]] |
-> | **`excel`** | OpenPyXL 기반 대용량 서식화 엑셀 시트 자동 생성기 | [[excel\|매뉴얼 보기]] |
-> | **`files`** | 재귀적 파일 탐색, 디렉터리 안전 생성/삭제 유틸리티 | [[files\|매뉴얼 보기]] |
-> | **`weather`** | 평가 일자/위치 기반 기상 데이터 수집 및 보간 | [[weather\|매뉴얼 보기]] |
-> | **`window_handler` / `window_msg`** | 윈도우 OS 시스템 알림창 및 팝업 메시지 제어 | [[window_handler\|핸들러]] · [[window_msg\|메시지]] |
+> | **`logger`** | 사내 프레임워크 표준 계층형 로깅 엔진 (Print 전면 퇴출) | [`logger.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/logger/logger.py) |
+> | **`progress_bar`** | 콘솔 렌더링 칼정렬 및 깜빡임 없는 프로그레스 바 | [`progress_bar.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/logger/progress_bar.py) |
+> | **`console_style` / `styles`** | ANSI 컬러 터미널 출력 포맷터 | [`console_style.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/utils/console_style.py) · [`styles.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/logger/styles.py) |
+> | **`dataframe_utils`** | 고속 판다스 조작, 데이터프레임 무결성 검증 유틸리티 | [`dataframe_utils.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/utils/dataframe_utils.py) |
+> | **`excel`** | OpenPyXL 기반 대용량 서식화 엑셀 시트 자동 생성기 | [`excel.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/utils/excel.py) |
+> | **`files`** | 재귀적 파일 탐색, 디렉터리 안전 생성/삭제 유틸리티 | [`files.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/utils/files.py) |
+> | **`weather`** | 평가 일자/위치 기반 기상 데이터 수집 및 보간 | [`weather.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/utils/weather.py) |
+> | **`window_handler` / `window_msg`** | 윈도우 OS 시스템 알림창 및 팝업 메시지 제어 | [`window_handler.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/logger/window_handler.py) · [`window_msg.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/utils/window_msg.py) |
 
 ---
 
 ## 🤖 10. ai/database/statistics/gps 기타 도메인
 
 > [!NOTE]- 🤖 AI, DB, 통계, GPS 모듈 목록 [클릭하여 펼치기]
-> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 1:1 기술 매뉴얼 링크 |
+> | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`ai` (4대 모듈)** | 비선형 모델, 종방향 가속도 피팅, 최적화 모델, 딥러닝 피팅 | [[dynamic_model\|동적모델]] · [[fit_mf_ax\|MF가속]] · [[fit_minimize_optimization\|최적화]] · [[fit_nn\|신경망]] |
-> | **`database` (5대 쿼리)** | PLM 및 사내 DW 시험 마스터, 조건, 결과 테이블 연동 SQL | [[auth_conn\|인증]] · [[load_plm\|PLM]] · [[q1_hkt_rnd_dw__test__tb_th_req_master_mst\|마스터]] · [[q2_hkt_rnd_dw__test__tb_th_rslt_odr_cdn_bas\|조건]] · [[q3_hkt_rnd_dw__test__tb_th_req_item_bas\|항목]] |
-> | **`uno_statistics` / `uncertainty`**| 기술통계 요약(`summary`) 및 ISO GUM 표준 측정불확도 자동 평가 엔진 | [[summary\|통계요약]] · [[uncertainty\|측정불확도]] · [[uncertainty_theory\|불확도이론]] |
-> | **`gps` (`gps_to_xy`)** | WGS84 위경도 좌표를 평면 직각 데카르트 좌표계(XY)로 투영 | [[gps_to_xy\|매뉴얼 보기]] |
+> | **`ai` (4대 모듈)** | 비선형 모델, 종방향 가속도 피팅, 최적화 모델, 딥러닝 피팅 | [`ai/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/ai/) |
+> | **`database` (5대 쿼리)** | PLM 및 사내 DW 시험 마스터, 조건, 결과 테이블 연동 SQL | [`database/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/database/) |
+> | **`uno_statistics` / `uncertainty`**| 기술통계 요약(`summary`) 및 ISO GUM 표준 측정불확도 자동 평가 엔진 | [`uno_statistics/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/uno_statistics/) |
+> | **`gps` (`gps_to_xy`)** | WGS84 위경도 좌표를 평면 직각 데카르트 좌표계(XY)로 투영 | [`gps_to_xy.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/gps/gps_to_xy.py) |
 
 ---
 
@@ -230,16 +231,18 @@ aliases:
 
 ## ❄️ 11. snow_condition 노면 환경 & 머신러닝 보정 도메인
 
-> [!NOTE]- ❄️ snow_condition 7대 핵심 모듈 목록 [클릭하여 펼치기]
-> | 모듈명 | 핵심 클래스 / 역할 | 1:1 기술 매뉴얼 링크 |
+> [!NOTE]- ❄️ snow_condition 9대 핵심 모듈 목록 [클릭하여 펼치기]
+> | 모듈명 | 핵심 클래스 / 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`schema`** | SSOT 47대 표준 컬럼 및 DataFrame 정규화 단일 관문 (`harmonize_snow_dataframe`) | [[schema|매뉴얼 보기]] |
-> | **`physics`** | Sonntag 빙점하 수증기압, 과포화도, 타이어 접지압 물리 역학 수식 | [[physics|매뉴얼 보기]] |
-> | **`surface_interpolator`** | 센서 좌표계 복원, 3D 시공간 격자 보간 및 시험 묶음 시작 시각 기반 결합 (`SnowSurfaceInterpolator`) | [[surface_interpolator|매뉴얼 보기]] |
-> | **`surface_animator`** | Plotly 4D 시공간 인터랙티브 노면 환경 애니메이션 (`SurfaceAnimator`) | [[surface_animator|매뉴얼 보기]] |
-> | **`correction_model`** | 6대 머신러닝 회귀 학습 및 데이터 보정 코어 엔진 (`SnowCorrectionModel`) | [[correction_model|매뉴얼 보기]] |
-> | **`correction_validator`** | 1st vs 2nd 대조표 산출, 엑셀 내보내기, 오차 감소율 통계 (`SnowCorrectionValidator`) | [[correction_validator|매뉴얼 보기]] |
-> | **`correction_plotter`** | 다형성 비교 플롯, 오버플랏 산점도, 2D 등고선 보정 맵 (`SnowCorrectionPlotter`) | [[correction_plotter|매뉴얼 보기]] |
+> | **`schema`** | SSOT 47대 표준 컬럼 및 DataFrame 정규화 단일 관문 (`harmonize_snow_dataframe`) | [`schema.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/schema.py) |
+> | **`preprocessor`** | 로컬 노면 계측 데이터 자동 수집 및 시간-공간 1차 정제 엔진 | [`preprocessor.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/preprocessor.py) |
+> | **`physics`** | Sonntag 빙점하 수증기압, 과포화도, 타이어 접지압 물리 역학 수식 | [`physics.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/physics.py) |
+> | **`surface_interpolator`** | 센서 좌표계 복원, 3D 시공간 격자 보간 및 시험 묶음 결합 (`SnowSurfaceInterpolator`) | [`surface_interpolator.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/surface_interpolator.py) |
+> | **`surface_animator`** | Plotly 4D 시공간 인터랙티브 노면 환경 애니메이션 (`SurfaceAnimator`) | [`surface_animator.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/surface_animator.py) |
+> | **`correction_model`** | 6대 머신러닝 회귀 학습 및 데이터 보정 코어 엔진 (`SnowCorrectionModel`) | [`correction_model.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/correction_model.py) |
+> | **`slope_model`** | 노면 경사도 수치 지형 모델링 및 중력 분력 제동 보정 엔진 (`SnowSlopeModel`) | [`slope_model.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/slope_model.py) |
+> | **`correction_validator`** | 1st vs 2nd 대조표 산출, 엑셀 내보내기, 오차 감소율 통계 (`SnowCorrectionValidator`) | [`correction_validator.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/correction_validator.py) |
+> | **`correction_plotter`** | 다형성 비교 플롯, 오버플랏 산점도, 2D 등고선 보정 맵 (`SnowCorrectionPlotter`) | [`correction_plotter.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/snow_condition/correction_plotter.py) |
 > 
 > ```mermaid
 > classDiagram
@@ -279,6 +282,19 @@ aliases:
 ---
 
 ## 📜 13. 버전 이력 및 주요 개발 현황 (Changelog)
+
+### [2026-10-12] v3.22 - 옵시디언 볼트 슬림화(볼트 다이어트) 및 소스 코드 매뉴얼 격리 보존 원칙 (Code Manual Isolation Law) 확립
+- **개별 1:1 모듈 매뉴얼(87종) 볼트 전면 퇴출 및 코드 저장소 SSOT 일원화**:
+  - 파이썬 함수/클래스 단위의 저수준 기술 매뉴얼(`.md`) 87종을 옵시디언 볼트에서 완전 삭제하고, 소스 코드 저장소(`D:\uno\Python\Projects\unoUtil\`) 내부에 코드(`.py`)와 함께 영구 보존.
+  - 옵시디언 볼트의 비대화 및 이중 동기화 부채를 원천 해소하고, 옵시디언 본연의 역할(마스터 MOC, 공학 이론, 종합 분석 보고서, 타임라인 관리)로 회귀.
+- **마스터 MOC 허브 3열 인덱싱 로컬 코드 직결 리팩토링**:
+  - 기존 옵시디언 내부 위키링크(`[[모듈명]]`)로 인한 깨진 링크 및 고아 노드 발생을 방지하고, 11대 도메인 87개 모듈의 실제 소스 파일(`file:///D:/uno/Python/Projects/unoUtil/...`)로 직접 연결되는 고속 하이퍼링크 체계 완비.
+  - ❄️ snow_condition 도메인의 `preprocessor.py` 및 `slope_model.py` 누락 항목을 전면 보강하여 9대 핵심 모듈 체계 정립.
+- **전역 거버넌스 헌장 4대 규칙집(SSOT) 개정 완료**:
+  - `AGENTS.md` (제4장 ⑤항 신설 - 소스 코드 단위 저수준 매뉴얼 옵시디언 유입 금지)
+  - `PYTHON_CODE_AGENT.md` (제5.1장 4항 개정 - 개별 코드 매뉴얼 격리 보존 원칙)
+  - `code-audit-obsidian-docs/SKILL.md` (제2장 2항 개정 - 개별 코드 매뉴얼 격리 보존)
+  - `obsidian-wiki-sync/SKILL.md` (제3장 3항 개정 - 저수준 매뉴얼 유입 원천 차단)
 
 ### [2026-10-08] v3.15 - SnowSurfaceInterpolator 데이터 무손실 원칙 복원 및 노면 등고선 세션 간 1:1 비교 전역 고정 스케일 체계 확립
 - **데이터 무손실 원칙 복원 (`range_height=None, range_temp=None`)**:
