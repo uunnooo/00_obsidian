@@ -143,3 +143,18 @@ satisfaction: 4                # 자기 만족도 점수 (1~5)
   * `D:\00_obsidian\.agents\skills\code-audit-obsidian-docs\SKILL.md` (품질 검수)
   * `D:\00_obsidian\.agents\skills\obsidian-wiki-sync\SKILL.md` (세션 위키 동기화)
   * `D:\00_obsidian\.agents\skills\obsidian-inbox-processor\SKILL.md` (인박스 정리)
+  * `D:\00_obsidian\.agents\skills\cross-device-agent-setup\SKILL.md` (크로스 PC 환경 셋업)
+
+---
+
+## 🖥️ 6. 크로스 PC 단일 SSOT 연동 원칙 (Cross-Device SSOT Pointer Law)
+
+사용자는 사무실, 재택, 노트북 등 복수의 컴퓨터를 오가며 작업하므로, **모든 규칙과 스킬의 단일 진실 공급원(SSOT)은 기기 간 동기화되는 옵시디언 볼트(`D:\00_obsidian\.agents\`)에만 영구 보존**합니다.
+
+1. **로컬 머신 설정 파일(`~/.gemini/GEMINI.md`)의 단순 포인터화 원칙**:
+   * 각 컴퓨터의 로컬 홈 디렉토리에 존재하는 `GEMINI.md`는 기기 간 동기화되지 않는 로컬 고유 파일입니다.
+   * 로컬 `GEMINI.md`에 세부 작업 규칙(Changelog 작성법, Inbox 배포 등)을 분산 중복 기재하면 컴퓨터 변경 시 이전 로컬 파일의 구버전 룰과 볼트 최신 룰 간에 충돌이 발생합니다.
+   * 따라서 각 PC의 `~/.gemini/GEMINI.md`는 반드시 **"모든 규칙과 스킬은 옵시디언 볼트(D:\00_obsidian)의 규정을 100% 따른다"는 표준 위임 포인터**로만 유지해야 합니다.
+2. **새 컴퓨터 환경 원클릭 자동 셋업 (`cross-device-agent-setup` 스킬)**:
+   * 사용자가 새로운 컴퓨터나 다른 PC에서 처음 에이전트를 켤 때, *"옵시디언과 동기화해줘"*, *"셋업 옵시디언과 동기화 해줘"*, *"옵시디언 동기화해줘"*, *"컴퓨터 바뀌었어"* 라고 지시하면,
+   * 에이전트는 `cross-device-agent-setup` 스킬을 기동하여 해당 PC의 로컬 `~/.gemini/GEMINI.md`를 표준 SSOT 위임 포인터로 1초 만에 자동 생성하고 환경 무결성을 즉시 검증합니다.
