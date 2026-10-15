@@ -116,7 +116,29 @@ function agy-raw {
 
 ---
 
-## 🔗 5. 연관 문서
+## 🛠️ 5. 외부 에디터(External Editor / PyCharm) 연동 및 멈춤 방지 가이드
+
+### ① 터미널 일시 정지(Blocking) 발생 원인
+* Gemini CLI / Antigravity 운용 중 작업 계획(Plan Mode) 검토나 긴 텍스트 입력(`Ctrl+G`, `Ctrl+X`) 트리거 시, CLI는 외부 에디터를 호출합니다.
+* 이때 기본 에디터(`preferredEditor` 또는 환경변수 `EDITOR`)가 지정되어 있지 않으면, CLI는 **"에디터를 선택하라"는 다이얼로그를 띄우며 사용자의 입력을 무한 대기(일시 정지)**하게 됩니다.
+
+### ② 파이참(PyCharm) 환경변수 영구 등록 원리
+* JetBrains IDE(PyCharm)는 CLI 설정 파일의 내장 키 목록에 직접 포함되어 있지 않으므로, 윈도우 사용자 환경변수 **`EDITOR`** 및 **`VISUAL`**을 통해 1순위로 호출되도록 연동합니다.
+* 반드시 **`--wait`** 플래그를 포함해야 파이참의 해당 탭이 닫힐 때까지 CLI가 동기식으로 대기한 뒤 수정 사항을 안전하게 수납합니다.
+
+```cmd
+:: 윈도우 CMD / PowerShell 공용 영구 등록 명령어
+setx.exe EDITOR "\"D:\JetBrains\Apps\PyCharm\bin\pycharm64.exe\" --wait"
+setx.exe VISUAL "\"D:\JetBrains\Apps\PyCharm\bin\pycharm64.exe\" --wait"
+```
+
+### ③ 무오염·안전성 보증 (No Workspace Pollution)
+* **임시 폴더 격리**: 프로젝트 폴더나 소스 레포지토리에 임시 파일이 생성되지 않으며, OS 시스템 임시 폴더(`%TEMP%\...`)의 1회용 버퍼 파일만 사용합니다.
+* **자동 정리**: 파이참에서 파일 저장(`Ctrl+S`) 후 탭 닫기(`Ctrl+F4`)를 수행하면 CLI가 내용을 즉시 읽어 들인 후 임시 파일은 자동 소멸됩니다.
+
+---
+
+## 🔗 6. 연관 문서
 - 🤖 [[30_Antigravity_CLI_옵시디언_위키_동기화_매뉴얼|Antigravity CLI 옵시디언 위키 동기화 매뉴얼]]
 - 📋 [[10_AI_에이전트_명령어_및_스킬_가이드|AI 에이전트 명령어 및 스킬 운용 가이드]]
 - 🧭 [[AGENTS|옵시디언 PARA + LLM 위키 시스템 운용 룰북 (AGENTS.md)]]

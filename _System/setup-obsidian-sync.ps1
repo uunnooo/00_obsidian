@@ -36,28 +36,39 @@ if (-not (Test-Path $GlobalConfigSkills)) {
     New-Item -ItemType Directory -Path $GlobalConfigSkills -Force | Out-Null
 }
 
-$SourceSkillDir = Join-Path $VaultRoot ".agent\skills\obsidian-wiki-sync"
-$TargetSkillDir = Join-Path $GlobalConfigSkills "obsidian-wiki-sync"
+$SkillsBase = Join-Path $VaultRoot ".agents\skills"
+$CoreSkills = @(
+    "code-audit-obsidian-docs",
+    "obsidian-inbox-processor",
+    "obsidian-wiki-sync",
+    "cross-device-agent-setup"
+)
 
-# 4. Junction / Copy Skill
-Write-Host "[3/4] Registering global skill..." -ForegroundColor Yellow
-if (Test-Path $SourceSkillDir) {
-    if (Test-Path $TargetSkillDir) {
-        Remove-Item -Path $TargetSkillDir -Recurse -Force | Out-Null
+# 4. Junction / Copy 4 Core Skills
+Write-Host "[3/4] Registering 4 global core skills..." -ForegroundColor Yellow
+foreach ($skill in $CoreSkills) {
+    $SourceSkillDir = Join-Path $SkillsBase $skill
+    $TargetSkillDir = Join-Path $GlobalConfigSkills $skill
+
+    if (Test-Path $SourceSkillDir) {
+        if (Test-Path $TargetSkillDir) {
+            Remove-Item -Path $TargetSkillDir -Recurse -Force | Out-Null
+        }
+        
+        $linked = $false
+        try {
+            New-Item -ItemType Junction -Path $TargetSkillDir -Target $SourceSkillDir -Force | Out-Null
+            Write-Host "  -> Junction link: $skill" -ForegroundColor Green
+            $linked = $true
+        } catch {
+            Copy-Item -Path $SourceSkillDir -Destination $TargetSkillDir -Recurse -Force
+            Write-Host "  -> Copied: $skill" -ForegroundColor Green
+        }
+    } else {
+        Write-Warning "Skill source directory not found: $SourceSkillDir"
     }
-    
-    $linked = $false
-    try {
-        New-Item -ItemType Junction -Path $TargetSkillDir -Target $SourceSkillDir -Force | Out-Null
-        Write-Host "[4/4] Junction link created successfully!" -ForegroundColor Green
-        $linked = $true
-    } catch {
-        Copy-Item -Path $SourceSkillDir -Destination $TargetSkillDir -Recurse -Force
-        Write-Host "[4/4] Skill copied successfully!" -ForegroundColor Green
-    }
-} else {
-    Write-Error "Skill source directory not found: $SourceSkillDir"
 }
+Write-Host "[4/4] All 4 core skills registered successfully!" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Cyan
