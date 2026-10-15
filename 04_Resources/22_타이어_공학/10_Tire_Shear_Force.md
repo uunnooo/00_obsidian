@@ -62,7 +62,7 @@ graph TD
 
 트레드 블록은 힘을 받을 때 즉시 미끄러지지 않고, 고무의 탄성에 의해 먼저 전단 변형($L_{sh}$)을 일으킵니다:
 
-![[_attachments/10_회사_업무/30_10_Tire_Shear_Force_diagram.png|550]]
+![[_attachments/10_회사_업무/30_Tire_shear_Force_diagram.png|550]]
 
 ---
 
