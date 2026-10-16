@@ -1,4 +1,4 @@
-﻿---
+---
 id: "vault_main_dashboard"
 title: "Second Brain 종합 메인 대시보드"
 type: resource
