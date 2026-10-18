@@ -13,9 +13,13 @@ const todayStr = tp.date.now("YYYY-MM-DD");
 const moduleInput = await tp.system.prompt("unoUtil 모듈명을 입력하세요 (예: snow_condition, vt_acc_brk):", "module_name");
 const moduleName = moduleInput ? moduleInput.trim() : "module_name";
 
-// 2. 자동 작명 및 이동
+// 2. 자동 작명 및 전용 폴더 이동
 const newFileName = `${moduleName}_사전`;
 await tp.file.rename(newFileName);
+const targetFolder = "02_Projects/회사_업무/20_unoUtil_모듈개발/10_도메인_지식_사전";
+if (tp.file.folder(true) !== targetFolder) {
+    await tp.file.move(`${targetFolder}/${newFileName}`);
+}
 -%>
 ---
 id: "unoutil_dict_<% moduleName %>"
