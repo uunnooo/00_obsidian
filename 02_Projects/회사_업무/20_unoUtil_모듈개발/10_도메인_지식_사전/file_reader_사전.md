@@ -79,11 +79,11 @@ flowchart TD
 | :--- | :--- | :--- |
 | `file_data_reader.py` | `FileDataReader` | 파일 포맷 자동 감지, 최적 파서 디스패칭 및 통합 파사드 |
 | `base_parser.py` | `BaseParser`, `MeasurementData` | 파서 추상 규격 정의 및 헤더/데이터 캡슐화 컨테이너 |
-| `vbo_parser.py` | `VBOParser` | Racelogic ASCII VBO 헤더, 채널, 위성수 파싱 |
+| `vbo_parser.py` | `VBOParser` | Racelogic ASCII VBO 헤더, 채널, 위성수 파싱 및 12시간제(AM/PM) 시각 변환 |
 | `vbb_parser.py` | `VBBParser` | Racelogic 바이너리 VBB 프레임 디코딩 및 고속 언팩 |
 | `dwd_parser.py` | `DWDParser` | Dewesoft C-DLL 인터페이스 연동 및 동기/비동기 채널 추출 |
 | `text_parser.py` | `TextParser` | 일반 CSV, TSV 텍스트 파일 고속 인메모리 파서 |
-| `datetime_helper.py` | `DateTimeHelper` | UTC 시간 $\to$ 로컬 타임존 변환 및 시계열 타임스탬프 정규화 |
+| `datetime_helper.py` | `DateTimeHelper` | VBO 헤더 7단계 스마트 날짜 판정(미래 날짜 배제 Gate), UTC $\to$ 로컬 타임존 변환 및 절대 시계열 생성 |
 | `standard_channel_pattern.py` | `STANDARD_CHANNEL_MAP` | 헝가리안 및 이종 계측 채널명을 사내 표준 컬럼으로 1:1 매핑 |
 
 ---
@@ -126,3 +126,15 @@ assert "LongitudinalAccel" in df.columns, "표준 종가속도 채널 누락"
 ### 5.2. 특수 채널명 미인식 및 대소문자 불일치
 * **증상**: 센서 이름이 임의로 지정되어(`Lat_Acc_FL`, `V_GPS`) 표준 채널로 변환되지 않는 현상.
 * **조치**: `FileDataReader(custom_channel_map={"Lat_Acc_FL": "LateralAccel"})` 인자를 통해 실무자 커스텀 매핑 사전을 즉시 주입.
+
+### 5.3. VBO 헤더 날짜(DD/MM vs MM/DD) 모호성 및 7단계 지능형 자동 판정
+* **증상**: 미국식 로케일 VBox Touch 장비에서 계측된 `01/06/2026`(1월 6일 계측) 파일이 유럽식으로 오판되어 `2026-06-01`(6월 1일, 한여름)로 왜곡 파싱되는 결함 발생.
+* **원인**: Racelogic 원천 규격은 영국식(`DD/MM/YYYY`)이나, 사용자/펌웨어 설정에 따라 미국식(`MM/DD/YYYY`)이 혼용되며, 월과 일이 모두 12 이하일 때 단순 고정 파싱 시 구분이 불가능함.
+* **해결 조치 (7단계 스마트 파이프라인)**:
+  1. `num1 > 12` 또는 `num2 > 12`: 명확한 날짜 즉시 확정.
+  2. **미래 날짜 배제 Gate (핵심 물리 조건)**: 파일 시스템 `mtime` 날짜 및 오늘(`today`) 대비 미래인 후보는 물리적 불가능이므로 즉시 탈락 $\to$ 유효한 과거 날짜로 일/월 자동 스왑 확정.
+  3. **파일명 정규식 크로스체크**: 파일명 내 `YYMMDD`/`YYYYMMDD` 패턴 매칭.
+  4. **형제 파일(Sibling) 학습**: 동일 폴더 내 다른 `.vbo` 파일들의 명확한 헤더 포맷 학습.
+  5. **상위 디렉터리 연/월 매칭**: 경로 내 `202601`, `2601`, `Jan` 등의 토큰 대조.
+  6. **`mtime` 시간차 최소화**: 실제 계측일과 파일 수정일 간 오차 최소화.
+  7. **Racelogic 기본 폴백**: DD/MM 채택.
