@@ -4,7 +4,7 @@ title: "snow_condition 모듈 사전"
 type: resource
 category_main: 회사_업무
 category_sub: unoUtil_사전
-date: 2026-10-18
+date: 2026-10-19
 status: 상시운용
 tags:
   - 회사_업무
@@ -48,6 +48,7 @@ aliases:
 
 * 📄 **보정 알고리즘 총론**: [[30_Snow_제동성능보정_알고리즘|Snow 제동성능 보정 알고리즘 원리]]
 * 📄 **디지털 트윈 아키텍처**: [[31_스노우_노면_디지털트윈_및_제동성능_보정_위키|스노우 노면 디지털 트윈 및 제동 성능 보정 종합 위키]]
+* 📄 **기상·노면 인자 조합 비교 보고서**: [[25_2026_스노우_기상및노면인자별_보정모델_3종_통합종합비교보고서|스노우 기상 및 노면 인자별 보정모델 3종 통합 종합 비교보고서]]
 * 📄 **머신러닝 SVR 이론**: [[32_서포트_벡터_머신_및_회귀(SVM_SVR)_원리와_하이퍼파라미터_가이드|SVR 회귀 원리 및 초평면 마진 최적화]]
 * 📄 **눈 결정 및 물리역학**: [[10_눈_결정_형성과정_및_물리특성|눈 결정 형성과정과 성장 특성]]
 * 📄 **설질 5대 변형 기작**: [[11_설질변화_유형_및_변형기작|5대 설질 변화 메커니즘 (압력, 융해-재동결, 습윤, 구조, 파괴)]]
@@ -80,9 +81,9 @@ flowchart TD
 | `physics.py` | `calc_sonntag_vapor_pressure` | 온·습도 기반 Sonntag 절대습도($g/m^3$) 및 접지압 계산 |
 | `surface_interpolator.py` | `SnowSurfaceInterpolator` | 3D 트랙 센서 공간 격자 보간 및 시공간 1-Run 결합 |
 | `surface_animator.py` | `SnowSurfaceAnimator` | Plotly 기반 3차원 트랙 시계열 애니메이션 렌더러 |
-| `correction_model.py` | `SnowCorrectionModel` | 6대 머신러닝 기반 환경 차분 예측 및 보정 거리 산출 |
+| `correction_model.py` | `SnowCorrectionModel` | 6대 머신러닝 기반 환경 차분 예측 및 다중 스케일(`StandardScaler`) 자동 정규화 보정 산출 |
 | `correction_validator.py` | `SnowCorrectionValidator` | 1st Ref 대비 2nd Raw/Corr 오차율 및 순위 보존도 산출 |
-| `correction_plotter.py` | `SnowCorrectionPlotter` | Non-blocking 검증 산점도 및 다중 모델 Side-by-Side 대조 차트 |
+| `correction_plotter.py` | `SnowCorrectionPlotter` | Non-blocking 검증 산점도, 기상/노면 동적 축 스케일링 및 다중 모델 Side-by-Side 대조 차트 |
 | `slope_model.py` | `SnowSlopeModel` | 센서가 부재한 과거 7개년 데이터 전담 2D-KNN/LOESS 공간 보정 |
 
 ---
@@ -111,19 +112,22 @@ df = harmonize_snow_dataframe(raw_df)
 interpolator = SnowSurfaceInterpolator(grid_res=(100, 20))
 merged_df = interpolator.fit_transform(df)
 
-# 3. 환경 차분 머신러닝 보정 (RandomForest / SVR 선택 가능)
-model = SnowCorrectionModel(model_type="random_forest", n_estimators=200)
-corrected_df = model.fit_predict(merged_df, target_col="BrakingDistance")
+# 3. 환경 차분 머신러닝 보정 (노면 센서 보유 시 ['char_height', 'cd_test_ah'] / 기상 단독 시 ['cd_test_temp', 'cd_test_hum'])
+model = SnowCorrectionModel(x_cols=["char_height", "cd_test_ah"], y_col="char_brk_dist")
+df_diff = model.calc_difference_dataset(merged_df)
+model.train_models(df_diff)
+corrected_df = model.correct_dataframe(merged_df)
 
 # 4. 정량 검증 (1st vs 2nd 세트 오차 개선율 산출)
-validator = SnowCorrectionValidator()
-report_df = validator.evaluate(corrected_df)
-print(f"평균 오차 개선율: {report_df['improvement_pct'].mean():.2f}%")
+df_comp = model.validator.calc_corrected_comparison_table(corrected_df)
+summary = model.validator.calc_error_reduction_summary(df_comp)
 
 # 5. Non-blocking 멀티 모델 대조 시각화
-plotter = SnowCorrectionPlotter()
-fig, ax = plotter.plot_restoration_scatter(
+model.plot.scatter_restoration_comparison(
     corrected_df, save=Path("reports/snow_corr_scatter.png"), close=True
+)
+model.plot.correction_map_comparison(
+    save=Path("reports/snow_corr_contour.png"), close=True
 )
 ```
 
@@ -137,4 +141,13 @@ fig, ax = plotter.plot_restoration_scatter(
 
 ### 5.2. 모델 과적합 및 외삽(Extrapolation) 방어
 * **증상**: 학습 데이터 범위를 벗어난 극단적 외기온($<-25^\circ\text{C}$ 또는 $>0^\circ\text{C}$)에서 보정 거리가 발산.
-* **조치**: `SnowCorrectionModel(clip_range=(-2.5, 2.5))` 인자를 설정하여 차분 보정 폭($\Delta D$)의 물리적 최대치를 강제 클램핑. 센서가 없는 과거 데이터셋에는 `SnowSlopeModel`을 적용하여 2D-KNN 러프 평활화로 전환.
+* **조치**: `SnowCorrectionModel`의 트리 깊이 규제(`max_depth=3`, `min_samples_leaf=4`) 및 SVR 완만화 대역폭(`gamma=0.07`)을 기본 적용. 센서가 없는 과거 데이터셋에는 `SnowSlopeModel`을 적용하여 2D-KNN 러프 평활화로 전환.
+
+### 5.3. 기상 인자 조합 시 열역학 다중공선성(VIF) 회피 및 다중 스케일 자동 정규화 (`v3.47`)
+* **열역학 다중공선성(`VIF`) 주의**:
+  * 기온($T$)과 절대습도($AH$)는 Sonntag 포화수증기압 방정식($AH \propto e_s(T) \cdot RH / T$)에 의해 동계 시험장 환경에서 피어슨 상관계수 $r = +0.970$ (**`VIF = 16.89`**)의 강한 다중공선성을 띠어 2차원 평면에서 1차원 직선 띠로 붕괴됩니다.
+  * 따라서 **노면 센서가 없는 기상 단독 보정 시에는 반드시 `[cd_test_temp, cd_test_hum]` (`[기온 + 상대습도]`, `VIF = 2.53`) 조합을 사용**해야 열적 융해 효과($\Delta T$)와 대기 습윤도($\Delta RH$)를 독립 분리할 수 있습니다 (`Random Forest` 기준 물리 제동거리 `MAE = 0.495 m` [+43.6%], 시험타이어 지수 `MAE = 2.732 %p` [+20.6%] 달성).
+  * 반면 **노면 계측 데이터 보유 시에는 직교성이 가장 높은 `[char_height, cd_test_ah]` (`[눌림량 + 절대습도]`, `VIF = 1.07`)** 조합이 차분 회귀 결정계수(`RF R² = 0.5913`, `SVR R² = 0.4580`) 및 `SVR` 복원력(`0.538 m`)에서 최적입니다.
+* **다중 스케일 피처 자동 정규화 (`StandardScaler`)**:
+  * `SnowCorrectionModel.train_models()`는 입력 피처 간 표준편차 스케일이 큰 조합($\max(\sigma_X) > 2.5$, 예: $\Delta T, \Delta RH \approx \pm 15$)이 감지되면 자동으로 `SVR`($\gamma_{\text{eff}} = 0.07 \times 1.28^2 \approx 0.1147$)과 `KNN Regressor`에 `StandardScaler` 파이프라인을 결합하여 거리 왜곡과 등고선 말림을 원천 차단합니다.
+
