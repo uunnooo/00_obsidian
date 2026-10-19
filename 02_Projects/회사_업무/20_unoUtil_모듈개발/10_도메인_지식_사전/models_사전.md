@@ -80,7 +80,7 @@ flowchart TD
 
 | 서브모듈 파일명 | 담당 클래스 / 함수 | 핵심 책임 및 역할 |
 | :--- | :--- | :--- |
-| `mathematical/magic_formula.py` | `calc_magic_formula` | Pacejka B, C, D, E 계수 기반 타이어 마찰력/횡력 산출 (SSOT) |
+| `mathematical/magic_formula.py` | `calc_magic_formula`, `calc_constrained_magic_formula` | Pacejka B, C, D, E 표준 수식 및 원점 초기 강성($K = B \cdot C \cdot D$) 등식 구속 3-파라미터 타이어 마찰력/횡력 산출 (SSOT) |
 | `mathematical/bicycle_model.py` | `BicycleModel` | 조향각 및 전후륜 횡력 기반 요레이트($\gamma$), 횡가속도($a_y$) 미분방정식 수치적분 |
 | `neural_net/fit_nn.py` | `TireDynamicNN` | PyTorch 기반 다변량 비선형 차량 거동 신경망 추론기 |
 
@@ -93,14 +93,21 @@ flowchart TD
 models 패키지를 활용한 Pacejka MF 수식 평가 및 2-DoF 자전거 모델 시뮬레이션
 """
 import numpy as np
-from unoUtil.models.mathematical import calc_magic_formula, BicycleModel
+from unoUtil.models.mathematical import (
+    calc_magic_formula,
+    calc_constrained_magic_formula,
+    BicycleModel,
+)
 
-# 1. Pacejka MF 순수 수식 호출 (슬립율 0~0.5 범위)
+# 1. Pacejka MF 순수 수식 및 초기 강성(K) 구속 수식 호출 (슬립율 0~0.5 범위)
 slip_ratio = np.linspace(0, 0.5, 50)
 mu_pred = calc_magic_formula(
     x=slip_ratio, B=10.0, C=1.65, D=1.05, E=-0.5
 )
-print(f"Pacejka 최대 마찰계수: {np.max(mu_pred):.3f}")
+mu_constrained = calc_constrained_magic_formula(
+    x=slip_ratio, C=1.35, D=0.45, E=0.2, K=12.5
+)
+print(f"Pacejka 최대 마찰계수: {np.max(mu_pred):.3f}, 구속 모델: {np.max(mu_constrained):.3f}")
 
 # 2. 2-DoF 자전거 모델 시뮬레이터 인스턴스 생성
 vehicle = BicycleModel(
