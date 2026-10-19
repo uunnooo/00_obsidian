@@ -61,7 +61,8 @@ aliases:
 ```mermaid
 flowchart TD
     subgraph Layer1 [1계층: 도메인 파사드 (Domain Facade)]
-        TC["TireCurve (cf_tire.py)\n(원점 구속, 초기 강성 B*C*D 물리 파라미터 제어)"]
+        TC["TireCurve (cf_tire.py)\n(method: constrained_mf | split_blend | combiner | least_squares | optimize)"]
+        KInit["calc_initial_stiffness\n(RANSAC 원점 통과 초기 탄성 강성 K 추정)"]
     end
 
     subgraph Layer2 [2계층: 범용 수학 추정기 (Estimators Protocol)]
@@ -71,10 +72,11 @@ flowchart TD
     end
 
     subgraph Layer3 [3계층: 순수 수식 SSOT (models/)]
-        MF["magic_formula.py (Pacejka MF)"]
-        Linear["선형 초기 구간 수식"]
+        MF["magic_formula.py\n(magic_formula / constrained_magic_formula)"]
+        Linear["선형 초기 구간 (y = K * x)"]
     end
 
+    TC --> KInit
     TC --> Layer2
     Layer2 --> Layer3
 ```
@@ -83,7 +85,8 @@ flowchart TD
 
 | 파일명 | 담당 클래스 / 함수 | 핵심 책임 및 역할 |
 | :--- | :--- | :--- |
-| `cf_tire.py` | `TireCurve` | 타이어 도메인 최상위 파사드 (원점 구속, 물리 파라미터 추출) |
+| `cf_tire.py` | `TireCurve`, `calc_initial_stiffness`, `plot_tire_set_curve_comparison` | 타이어 도메인 최상위 파사드 (5대 피팅 엔진: `constrained_mf`, `split_blend`, `combiner`, `least_squares`, `optimize` 및 세트별 통합 비교 시각화) |
+| `magic_formula.py` | `magic_formula`, `constrained_magic_formula` | 표준 4파라미터 Pacejka MF 및 초기 강성 구속($B = \frac{K}{C \cdot D}$) 3파라미터 Pacejka MF 수식 SSOT |
 | `least_squares_estimator.py` | `LeastSquaresEstimator` | Scipy `curve_fit` 기반 잔차 제곱합 최소화 및 이상치 방어(Huber Loss) |
 | `optimize_estimator.py` | `OptimizeEstimator` | 경계 조건(Bounds) 및 구속 조건을 갖는 범용 파라미터 최적화기 |
 | `combiner_estimator.py` | `CombinerEstimator` | 전반 선형 구간과 후반 곡선 구간의 최적 접합점 탐색 및 $C^1$ 연속 에르미트 스플라인 합성 |
@@ -94,30 +97,23 @@ flowchart TD
 
 ```python
 """
-TireCurve를 활용한 타이어 슬립-마찰계수 비선형 피팅
+TireCurve를 활용한 실차 타이어 슬립-마찰계수 다중 모델 피팅 (해법 C & 해법 A-v2)
 """
 from pathlib import Path
-import numpy as np
-from unoUtil.curve_fit import TireCurve
+from unoUtil.curve_fit import TireCurve, plot_tire_set_curve_comparison
 
-# 1. 실측 슬립율(x) 및 마찰계수(y) 데이터 준비
-slip_ratio = np.linspace(0, 0.5, 100)
-mu_raw = 1.1 * np.sin(np.arctan(15 * slip_ratio)) + np.random.normal(0, 0.02, 100)
+# 1. 해법 C (2단계 강성 구속 단일 MF: B = K / (C * D)) 정식 피팅
+tc_cmf = TireCurve(tire=tire, method="constrained_mf").fit()
 
-# 2. TireCurve 피팅 실행 (에르미트 합성 전략 적용)
-tc = TireCurve(model="magic_formula", method="combiner")
-tc.fit(slip_ratio, mu_raw)
+# 2. 해법 A-v2 (사용자 제안 2D 분포 분할 시그모이드 블렌딩) 피팅
+tc_sb = TireCurve(tire=tire, method="split_blend").fit()
 
 # 3. 핵심 물리 파라미터 추출
-print(f"피팅 RMSE: {tc.rmse:.4f}")
-print(f"최대 마찰계수 (Mu_Peak): {tc.peak_mu:.3f} (at slip={tc.peak_slip:.3f})")
-print(f"초기 제동 강성 (B*C*D): {tc.initial_stiffness:.2f}")
+print(f"[Constrained MF] K={tc_cmf.stiffness:.2f}, Peak Mu={tc_cmf.peak_value:.3f}, RMSE={tc_cmf.rmse:.4f}")
+print(f"[2D Split-Blend] K={tc_sb.stiffness:.2f}, Peak Mu={tc_sb.peak_value:.3f}, RMSE={tc_sb.rmse:.4f}, x_trans={tc_sb.meta['x_trans']:.4f}")
 
 # 4. 검증 시각화 차트 자동 저장 (Non-blocking)
-fig, ax = tc.plot(
-    save=Path("reports/tire_curve_fit.png"),
-    close=True,
-)
+tc_cmf.plot(save=Path("reports/tire_curve_fit.png"), binned=True, close=True)
 ```
 
 ---
@@ -148,29 +144,38 @@ fig, ax = tc.plot(
 
 ---
 
-## 🔬 6. 실차 계측 데이터 MF 한계 극복 3대 전략 및 해법 C (2026-10-19 신규 확립)
+## 🔬 6. 실차 계측 데이터 MF 한계 극복: 해법 C (`constrained_mf`) & 해법 A-v2 (`split_blend`) 정식 엔진 탑재 (v3.44 ~ v3.45 완결)
 
 ### 6.1. 실차 데이터에서 표준 MF 최적화가 무너지는 3대 메커니즘
 1. **데이터 제어 집중 몰림 (Data Clumping)**:
-   - ABS/TCS 제어로 인해 전체 데이터의 80~90%가 피크 슬립($10 \sim 25\%$) 주변에 집중되어, 최소자승법(Least Squares)이 초반 저슬립($0 \sim 3\%$)의 탄성 강성선을 완전히 무시하고 원점에서 $y pprox 0.13g$로 붕 떠버림.
+   - ABS/TCS 제어로 인해 전체 데이터의 80~90%가 피크 슬립($10 \sim 25\%$) 주변에 집중되어, 최소자승법(Least Squares)이 초반 저슬립($0 \sim 3\%$)의 탄성 강성선을 완전히 무시하고 원점에서 $y \approx 0.13g$로 붕 떠버림.
 2. **초반 기울기와 피크 폭의 수학적 양립 불가**:
-   - $B$를 키워 원점 기울기($B \cdot C \cdot D$)를 맞추면 $rctan(Bx)$가 $x < 0.01$에서 조기 포화($\pi/2$)되어 피크가 사각 박스처럼 왜곡됨.
-3. **가속 초기 지연 (Chassis & Drivetrain Compliance)**:
-   - 휠이 먼저 돌고 차체가 뒤늦게 반응하여 $x \in [0, 0.03]$ 대역에서 가속도가 0 근처에 머무는 지연 현상.
+   - $B$를 키워 원점 기울기($B \cdot C \cdot D$)를 맞추면 $\arctan(Bx)$가 $x < 0.01$에서 조기 포화($\pi/2$)되어 피크가 사각 박스처럼 왜곡됨.
+3. **가속 초기 지연 및 극저속 휠스핀 노이즈**:
+   - 출발 직후 극저속($V < 8\,\text{km/h}$) 구간에서 분모 $V$가 작아 슬립율이 $100 \sim 278\%$로 폭주하므로, `TireCurve._extract_data_from_tire`에서 가속 시 $V \ge 8.0\,\text{km/h}$, 제동 시 $V \ge 3.0\,\text{km/h}$ 및 $0 < x \le 1.0$ 스마트 필터링을 기본 적용함.
 
-### 6.2. 3대 대안 실증 비교 분석 및 결론
-| 피팅 모델 | 초기 강성 ($K$) | 피크 마찰 ($\mu_{\max}$) | 피크 슬립 ($S_{	ext{peak}}$) | 전체 오차 (RMSE) | 판정 및 특이사항 |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **Baseline (기존 표준 MF)** | $0.62\,	ext{g/s}$ | $0.181\,	ext{g}$ | $0.291$ | 0.0235 | ❌ 초기 강성 붕괴, 원점에서 붕 뜸 |
-| **해법 A (시그모이드 블렌딩)** | **$4.84\,	ext{g/s}$** | **$0.181\,	ext{g}$** | **$0.291$** | **0.0248** | ⚠️ 전이부($x pprox 0.05$)에서 상단 불룩함(Hump) 발생 |
-| **해법 B (격자 빈 중앙값 MF)** | $0.59\,	ext{g/s}$ | $0.181\,	ext{g}$ | $0.279$ | 0.0237 | ❌ 저슬립 데이터 희소로 중앙값이 $0.14g$로 과대 왜곡 |
-| **해법 C (2단계 강성 구속 MF)** | **$4.70\,	ext{g/s}$** | **$0.176\,	ext{g}$** | **$0.350 	o 0.28$** | **0.0252** | 🏆 **최우수 공식 모델**: 원점 정합 + 데이터 정중앙 관통 |
+### 6.2. 해법 C (`method="constrained_mf"`) — 2단계 강성 구속 단일 Magic Formula
+1. **1단계 (`calc_initial_stiffness`)**: 저슬립 탄성 영역($0 \le x \le 0.035$)에서 원점 구속 RANSAC(상위 분위수 탄성 엔벨로프 추종)으로 초기 탄성 강성 $K = \frac{dy}{dx}\big|_{x=0}$를 확정합니다.
+2. **2단계 (`constrained_magic_formula`)**: MF 수식의 등식 제약 $B = \frac{K}{C \cdot D}$를 주입하여 3파라미터($C, D, E$) 단일 MF를 최적화합니다:
+   $$y(x) = D \cdot \sin \left( C \cdot \arctan \left( \frac{K}{CD} x - E \left( \frac{K}{CD} x - \arctan\left(\frac{K}{CD} x\right) \right) \right) \right)$$
 
-### 6.3. 해법 C (Two-Stage Constrained MF) 공식 수식
-1. **1단계**: 저슬립 대역($x \le 0.035$)에서 RANSAC 강건 회귀로 원점 통과 초기 강성 $K = rac{dy}{dx}ig|_{x=0}$ 확정
-2. **2단계**: MF 수식의 등식 제약 $B = rac{K}{C \cdot D}$를 주입하여 3파라미터($C, D, E$) 단일 MF 최적화:
-   $$y(x) = D \cdot \sin \left( C \cdot rctan \left( rac{K}{CD} x - E \left( rac{K}{CD} x - rctan\left(rac{K}{CD} xight) ight) ight) ight)$$
+### 6.3. 해법 A-v2 (`method="split_blend"`) — 사용자 제안 2D 분포 분할 시그모이드 블렌딩
+- **기존 해법 A(v1)의 Hump(불룩함) 원인**: 전 대역 데이터를 한꺼번에 피팅하여 초반($x=0$)에서 $0.13g$로 붕 뜬 오염된 MF 곡선과 직선 $K \cdot x$를 블렌딩하면서 $x \approx 0.04 \sim 0.08$ 전이부가 데이터 구름 상단으로 불룩 솟구침.
+- **해법 A-v2 해결 메커니즘**:
+  1. 1D 히스토그램 KDE 밀도 능선으로부터 제어 클러스터 진입 변곡점 $x_{\text{kde\_onset}}$을 자동 포착합니다.
+  2. 고슬립 클러스터 영역($x \ge x_{\text{kde\_onset}}$) 데이터만으로 순수 4파라미터 MF($y_{\text{MF\_high}}$)를 독립 피팅합니다.
+  3. 저슬립 탄성 직선 $y_{\text{line}}(x) = K \cdot x$와 고슬립 순수 MF $y_{\text{MF\_high}}(x)$가 교차하는 지점을 전이점 $x_{\text{trans}}$로 확정하고, 시그모이드 가중치 $w(x) = \frac{1}{1 + \exp(-(x - x_{\text{trans}})/\tau)}$로 매끄럽게 블렌딩하여 전이부 Hump를 원천 제거합니다:
+     $$y(x) = (1 - w(x)) \cdot (K \cdot x) + w(x) \cdot y_{\text{MF\_high}}(x)$$
 
-### 6.4. 사용자 제안 2D 분포 분할 알고리즘 (해법 A 고도화 미래 방향)
-- 2D 데이터 밀도 능선(Ridge)에서 곡률 변곡점($x_{\text{trans}}$)을 탐색하여,
-- 저슬립 탄성부($x < x_{\text{trans}}$)는 $K \cdot x$ 직선, 곡선부($x \ge x_{\text{trans}}$)는 순수 고슬립 데이터만으로 MF를 독립 피팅한 뒤 블렌딩하여 불룩함(Hump)을 원천 차단하는 차세대 분할 구조.
+### 6.4. 스노우 가속(`Snow_ACC_BRK` 5→40 kph) 및 제동(40→5 kph) 4대 타이어 세트 정량 검증 결과
+| 타이어 세트 | 시험 모드 | 초기 강성 $K$ | 해법 C (`constrained_mf`) $\mu_{\text{peak}}$ / RMSE | 해법 A-v2 (`split_blend`) $\mu_{\text{peak}}$ / RMSE | 비고 |
+| :---: | :---: | :---: | :---: | :---: | :--- |
+| **C1** | ACC (5→40) | **4.57** | 0.1793 / 0.0256 | 0.1769 / 0.0253 | Hump 없이 정중앙 관통 |
+| **T1** | ACC (5→40) | **5.32** | 0.1745 / 0.0295 | 0.1718 / 0.0292 | C1 대비 초기강성 우위 식별 |
+| **T2** | ACC (5→40) | **5.64** | 0.1669 / 0.0302 | 0.1658 / 0.0300 | 피크 마찰 차이 정밀 포착 |
+| **C2** | ACC (5→40) | **5.72** | 0.1833 / 0.0293 | 0.1815 / 0.0290 | 전 세트 중 최고 강성·마찰 |
+| **C1** | BRK (40→5) | **12.92** | 0.3620 / 0.0854 | 0.3759 / 0.0840 | 제동 초기 급경사 완벽 복원 |
+| **T1** | BRK (40→5) | **13.72** | 0.3728 / 0.0859 | 0.3856 / 0.0854 | 두 모델 간 $\Delta \text{RMSE} < 0.0015$ |
+| **T2** | BRK (40→5) | **13.54** | 0.3640 / 0.0834 | 0.3767 / 0.0829 | 전 구간 단조성 및 $C^\infty$ 연속 |
+| **C2** | BRK (40→5) | **15.54** | 0.3836 / 0.0869 | 0.3940 / 0.0870 | 가속·제동 모두 최고 강성 일관성 |
+
