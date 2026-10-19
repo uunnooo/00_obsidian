@@ -48,6 +48,7 @@ aliases:
 > *비선형 회귀 및 타이어 전단 마찰 이론은 `04_Resources`에 영구 보존되어 있습니다.*
 
 * 📄 **메타 추정기 및 에르미트 블렌딩**: [[40_비선형_회귀_메타_추정기_및_에르미트_블렌딩_아키텍처|비선형 회귀 메타 추정기 및 에르미트 블렌딩 아키텍처 (SSOT)]]
+* 📄 **제동 시작점 및 초기 과도 4-랜드마크 복원 공학**: [[31_실차_제동_시작점_자동_탐지_및_과도응답_슬립_복원_공학|실차 제동 시작점 자동 탐지, L0~L3 위상 정합 및 정상 피팅 분리 공학]]
 * 📄 **타이어 전단력 및 접지 마찰**: [[10_Tire_Shear_Force|타이어 접지면 전단력 및 마찰 특성]]
 * 📄 **Pacejka MF 수식 규격**: [[12_차량_시스템_제동성능과_마찰계수_상관관계|Pacejka Magic Formula 및 마찰계수 상관관계]]
 * 📄 **차량 제동 시뮬레이션**: [[10_차량_제동_동역학_시뮬레이션|타이어 슬립 곡선 기반 제동 동역학 시뮬레이션]]
@@ -62,6 +63,8 @@ aliases:
 flowchart TD
     subgraph Layer1 [1계층: 도메인 파사드 (Domain Facade)]
         TC["TireCurve (cf_tire.py)\n(method: constrained_mf | split_blend | combiner | least_squares | optimize)"]
+        LM["calc_brk_transient_landmarks\n(L0→L1→L2→L3 위상 정합, K_pk & dmu/dt 산출, L0~L3 본체 분리)"]
+        BW["calc_bin_density_weights\n(구간 밀도 역가중치 w_i ∝ N_b^-0.65)"]
         KInit["calc_initial_stiffness\n(RANSAC 원점 통과 초기 탄성 강성 K 추정)"]
     end
 
@@ -72,10 +75,12 @@ flowchart TD
     end
 
     subgraph Layer3 [3계층: 순수 수식 SSOT (models/)]
-        MF["magic_formula.py\n(magic_formula / constrained_magic_formula)"]
+        MF["magic_formula.py\n(magic_formula / constrained_magic_formula + Snow Wedge)"]
         Linear["선형 초기 구간 (y = K * x)"]
     end
 
+    TC --> LM
+    TC --> BW
     TC --> KInit
     TC --> Layer2
     Layer2 --> Layer3
@@ -85,7 +90,7 @@ flowchart TD
 
 | 파일명 | 담당 클래스 / 함수 | 핵심 책임 및 역할 |
 | :--- | :--- | :--- |
-| `cf_tire.py` | `TireCurve`, `calc_initial_stiffness`, `plot_tire_set_curve_comparison` | 타이어 도메인 최상위 파사드 (5대 피팅 엔진: `constrained_mf`, `split_blend`, `combiner`, `least_squares`, `optimize` 및 세트별 통합 비교 시각화) |
+| `cf_tire.py` | `TireCurve`, `calc_brk_transient_landmarks`, `calc_bin_density_weights`, `calc_initial_stiffness`, `plot_tire_set_curve_comparison` | 타이어 도메인 최상위 파사드 (5대 피팅 엔진, 제동 초기 4-랜드마크 위상 정합 및 `L0~L3` 과도 데이터 분리, 구간 밀도 역가중치, 스노우 웻지 보정, 제외 데이터 마커 분리 및 포함/제외 비교 시각화) |
 | `magic_formula.py` | `magic_formula`, `constrained_magic_formula` | 표준 4파라미터 Pacejka MF 및 초기 강성 구속($B = \frac{K}{C \cdot D}$) 3파라미터 Pacejka MF 수식 SSOT |
 | `least_squares_estimator.py` | `LeastSquaresEstimator` | Scipy `curve_fit` 기반 잔차 제곱합 최소화 및 이상치 방어(Huber Loss) |
 | `optimize_estimator.py` | `OptimizeEstimator` | 경계 조건(Bounds) 및 구속 조건을 갖는 범용 파라미터 최적화기 |
@@ -100,20 +105,29 @@ flowchart TD
 TireCurve를 활용한 실차 타이어 슬립-마찰계수 다중 모델 피팅 (해법 C & 해법 A-v2)
 """
 from pathlib import Path
-from unoUtil.curve_fit import TireCurve, plot_tire_set_curve_comparison
+from unoUtil.curve_fit import TireCurve, calc_brk_transient_landmarks, plot_tire_set_curve_comparison
 
-# 1. 해법 C (2단계 강성 구속 단일 MF: B = K / (C * D)) 정식 피팅
-tc_cmf = TireCurve(tire=tire, method="constrained_mf").fit()
+# 1. 해법 C (2단계 강성 구속 단일 MF + L0~L3 과도 루프 분리 + 고슬립 스노우 웻지) 정식 피팅
+tc_cmf = TireCurve(
+    tire=tire,
+    method="constrained_mf",
+    filter_deadzone=True,
+    filter_transient=True,
+    balance_bins=True,
+    enable_wedge=True,
+).fit()
 
 # 2. 해법 A-v2 (사용자 제안 2D 분포 분할 시그모이드 블렌딩) 피팅
 tc_sb = TireCurve(tire=tire, method="split_blend").fit()
 
-# 3. 핵심 물리 파라미터 추출
+# 3. 핵심 물리 파라미터 및 초기 과도 랜드마크 지표 추출
 print(f"[Constrained MF] K={tc_cmf.stiffness:.2f}, Peak Mu={tc_cmf.peak_value:.3f}, RMSE={tc_cmf.rmse:.4f}")
-print(f"[2D Split-Blend] K={tc_sb.stiffness:.2f}, Peak Mu={tc_sb.peak_value:.3f}, RMSE={tc_sb.rmse:.4f}, x_trans={tc_sb.meta['x_trans']:.4f}")
+if tc_cmf.transient_landmarks is not None:
+    lm = tc_cmf.transient_landmarks
+    print(f"[Transient Landmarks] k_L1={lm['k_L1_med']:.3f}, K_pk={lm['K_pk_med']:.2f}, dmu/dt={lm['dmu_dt_med']:.2f} g/s")
 
-# 4. 검증 시각화 차트 자동 저장 (Non-blocking)
-tc_cmf.plot(save=Path("reports/tire_curve_fit.png"), binned=True, close=True)
+# 4. 검증 시각화 차트 자동 저장 (제외 데이터 ✕/△ 분리 표시 + 초기 포함/제외 곡선 동시 오버레이)
+tc_cmf.plot(save=Path("reports/tire_curve_fit.png"), binned=True, compare_unfiltered=True, close=True)
 ```
 
 ---
@@ -167,15 +181,39 @@ tc_cmf.plot(save=Path("reports/tire_curve_fit.png"), binned=True, close=True)
   3. 저슬립 탄성 직선 $y_{\text{line}}(x) = K \cdot x$와 고슬립 순수 MF $y_{\text{MF\_high}}(x)$가 교차하는 지점을 전이점 $x_{\text{trans}}$로 확정하고, 시그모이드 가중치 $w(x) = \frac{1}{1 + \exp(-(x - x_{\text{trans}})/\tau)}$로 매끄럽게 블렌딩하여 전이부 Hump를 원천 제거합니다:
      $$y(x) = (1 - w(x)) \cdot (K \cdot x) + w(x) \cdot y_{\text{MF\_high}}(x)$$
 
-### 6.4. 스노우 가속(`Snow_ACC_BRK` 5→40 kph) 및 제동(40→5 kph) 4대 타이어 세트 정량 검증 결과
-| 타이어 세트 | 시험 모드 | 초기 강성 $K$ | 해법 C (`constrained_mf`) $\mu_{\text{peak}}$ / RMSE | 해법 A-v2 (`split_blend`) $\mu_{\text{peak}}$ / RMSE | 비고 |
-| :---: | :---: | :---: | :---: | :---: | :--- |
-| **C1** | ACC (5→40) | **4.57** | 0.1793 / 0.0256 | 0.1769 / 0.0253 | Hump 없이 정중앙 관통 |
-| **T1** | ACC (5→40) | **5.32** | 0.1745 / 0.0295 | 0.1718 / 0.0292 | C1 대비 초기강성 우위 식별 |
-| **T2** | ACC (5→40) | **5.64** | 0.1669 / 0.0302 | 0.1658 / 0.0300 | 피크 마찰 차이 정밀 포착 |
-| **C2** | ACC (5→40) | **5.72** | 0.1833 / 0.0293 | 0.1815 / 0.0290 | 전 세트 중 최고 강성·마찰 |
-| **C1** | BRK (40→5) | **12.92** | 0.3620 / 0.0854 | 0.3759 / 0.0840 | 제동 초기 급경사 완벽 복원 |
-| **T1** | BRK (40→5) | **13.72** | 0.3728 / 0.0859 | 0.3856 / 0.0854 | 두 모델 간 $\Delta \text{RMSE} < 0.0015$ |
-| **T2** | BRK (40→5) | **13.54** | 0.3640 / 0.0834 | 0.3767 / 0.0829 | 전 구간 단조성 및 $C^\infty$ 연속 |
-| **C2** | BRK (40→5) | **15.54** | 0.3836 / 0.0869 | 0.3940 / 0.0870 | 가속·제동 모두 최고 강성 일관성 |
+---
+
+## 🛑 7. 제동 초기 과도 응답 4-랜드마크(`L0~L3`) 위상 정합, 본체 피팅 분리 및 고슬립 스노우 웻지 고도화 (v3.46 완결)
+
+### 7.1. 제동 초기 4-랜드마크(`L0 → L1 → L2 → L3`) 위상 정합 및 2대 물리 지표 (`calc_brk_transient_landmarks`)
+- **4-랜드마크 정의**:
+  - `L0` ($s=0$): 제동 시작점 (`find_brake_start_point` Onset, $\kappa \approx 0, \mu \approx 0$)
+  - `L1` ($s=1$): 휠 관성 토크($I_w\dot{\omega}_w$) 불감대 종료 및 차체 감속도 발현 변곡점 ($\mu \ge 0.035\text{g}$, 평균 $\Delta t_{L1} \approx 50 \sim 80\,\text{ms}$, $\kappa_{L1} \approx 2.2 \sim 2.6\%$)
+  - `L2` ($s=2$): 초기 과도 1차 최대 마찰 피크 ($\mu_{L2} \approx 0.43 \sim 0.45\text{g}$)
+  - `L3` ($s=3$): 1차 ABS 감압 해제 골짜기 (정상 상태 ABS 사이클링 진입점)
+- **초기 응답 2대 지표 동시 산출**:
+  - **피크-코드 강성 ($K_{\text{pk}} = \mu_{L2}/\kappa_{L2}$)**: 휠 관성 딜레이($\kappa_{L1}$)와 순수 탄성 기울기($K_{\text{build}}$)가 결합된 슬립 축 실효 초기 강성.
+  - **시간축 마찰 빌드업 속도 ($d\mu/dt = \Delta\mu_{10\to 90\%}/\Delta t$)**: 휠속도 노이즈와 무관하게 순수 종가속도(`Ax`)와 시간(`Time`)만으로 평가하는 응답 속도 지표.
+
+### 7.2. 초기 과도 루프(`L0~L3`) 전체 분리 후 정상 상태(`L3~`) 본체 피팅 원칙 (`filter_deadzone=True`, `filter_transient=True`)
+- **물리적 분리 사유**: 초반 기울기를 잡기 위해 복원한 `L0 → L3` 구간은 ① `L0 → L1` 관성 불감대($\mu < 0.035\text{g}$ 바닥 수평선)와 ② `L1 → L3` 1차 과도 스파이크($\mu \approx 0.43 \sim 0.45\text{g}$ 저슬립 상단 군집)로 구성되어, 실제 제동 거리의 $90\%$ 이상을 차지하는 `L3` 이후 정상 상태($\mu \approx 0.36 \sim 0.40\text{g}$)와 영역대가 다름.
+- **이원화 파이프라인**:
+  1. `L0 → L3` 데이터는 오직 **초기 종방향 강성($K_{x0}$) 및 과도 응답 지표($K_{\text{pk}}, d\mu/dt$) 추출에만 사용**하고 `self.deadzone_data`(`L0~L1`) 및 `self.transient_data`(`L1~L3`)로 분리 보관.
+  2. 본체 커브 피팅(`constrained_mf`, `split_blend`, `combiner`, `least_squares`)은 **`L0~L3`를 완전히 제거한 `L3` 이후 정상 제동 데이터만으로 수행**하여 피팅 오차(RMSE)를 **$18.5\% \sim 23.7\%$ 대폭 절감**.
+- **시각화 분리 표시 (`compare_unfiltered=True`)**:
+  - 정상 피팅 데이터: 차속(`Vel`) 컬러맵 원형 마커(`●`)
+  - 제외 데이터 ① (`deadzone_data`, `L0~L1`): 빨간색 `✕` 마커 (`#e41a1c`)
+  - 제외 데이터 ② (`transient_data`, `L1~L3`): 주황색 빈 삼각형 `△` 마커 (`#ff7f00`)
+  - 초기 과도 포함 Fit (보라색 파선 `--`) vs 초기 과도 제외 최종 Fit (빨간색 실선 `—`) 동시 오버레이 비교 지원.
+
+### 7.3. 고슬립($\kappa > 0.25$) 이격 해소: 구간 밀도 역가중치(`calc_bin_density_weights`) & 스노우 웻지(`enable_wedge=True`)
+- ABS 제어 집중($85\%$ 이상이 $\kappa < 0.25$)으로 인한 고슬립 과소 대표를 역거듭제곱 가중치($w_i \propto N_b^{-0.65}$)로 보정하고, 스노우 노면 고슬립 눈 쐐기(Snow Wedge) 재상승 항($+ W_{\text{snow}} \cdot \max(0, \kappa - \kappa_{\text{valley}})$)을 결합하여 $\kappa \in [0.25, 0.60]$ 구간의 하향 이격(Gap)을 완전히 해소함.
+
+### 7.4. 스노우 제동(`Snow_ACC_BRK` 40→5 kph) 초기 과도 포함 vs 제외 정량 비교 요약
+| 타이어 세트 | 정상 피팅 (`L3~`) | 제외① 데드존 (`L0~L1`, `✕`) | 제외② 과도루프 (`L1~L3`, `△`) | 초기강성 $K_{\text{pk}}$ / $d\mu/dt$ | 초기 과도 포함 (`L1~L3` 포함) $\mu_{\text{peak}}$ / RMSE | **초기 과도 제외 (`L0~L3` 제거) $\mu_{\text{peak}}$ / RMSE** | **RMSE 감소율** |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **C1** | 2,788 pts | 97 pts | 208 pts | 4.86 / 3.09 g/s | 0.368 (@16.5%) / 0.0651 | **0.366 (@17.5%) / 0.0522** | **-19.8%** |
+| **T1** | 2,730 pts | 101 pts | 209 pts | 5.29 / 3.08 g/s | 0.384 (@16.9%) / 0.0715 | **0.383 (@17.7%) / 0.0555** | **-22.4%** |
+| **T2** | 1,954 pts | 54 pts | 145 pts | 4.46 / 3.24 g/s | 0.404 (@22.9%) / 0.0739 | **0.420 (@30.0%) / 0.0564** | **-23.7%** |
+| **C2** | 3,228 pts | 121 pts | 263 pts | 5.83 / 3.19 g/s | 0.389 (@17.0%) / 0.0729 | **0.388 (@18.0%) / 0.0594** | **-18.5%** |
 

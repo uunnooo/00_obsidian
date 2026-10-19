@@ -54,9 +54,10 @@ aliases:
 
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
-> [!NOTE]- 📜 v1.0 ~ v3.44 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
+> [!NOTE]- 📜 v1.0 ~ v3.45 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :---: | :---: | :---: | :--- | :---: |
+| **v3.46** | 2026-10-19 | uno &<br/>Antigravity | 🎯 **제동(`BRK`) 초기 과도 응답 4-랜드마크(`L0→L1→L2→L3`) 위상 정합(`calc_brk_transient_landmarks`), 2대 물리 지표($K_{\text{pk}}$ & $d\mu/dt$) 산출, 초기 과도 루프(`L0~L3`) 전체 분리 후 정상 상태(`L3~`) 본체 피팅(`filter_transient=True`), 고슬립 표본 밀도 역가중치·스노우 웻지(`enable_wedge=True`) 결합 및 제외 로우 데이터(`✕`/`△`)·포함/제외 비교 시각화(`compare_unfiltered=True`) 완결**<br/>• **제동 초기 과도 응답 4-랜드마크 위상 정합 및 2대 물리 지표 산출 (`calc_brk_transient_landmarks`)**: `unoUtil.signal_process.post_process.filters.moving_average_fast` 및 `get_col_slip`을 활용하여 회차별 `L0`(제동 시작점), `L1`(관성 불감대 종료 변곡점, $\mu \ge 0.035\text{g}$, 평균 $\Delta t_{L1} \approx 50\sim 80\,\text{ms}$), `L2`(1차 최대 마찰 피크), `L3`(1차 ABS 감압 골짜기)를 자동 검출하고 무차원 위상($s \in [0, 3]$)으로 동기화하여 대표 초기 루프를 복원. 슬립 축 유효 초기 강성인 **피크-코드 강성($K_{\text{pk}} = \mu_{L2}/\kappa_{L2}$)** 과 휠속도 노이즈에 무관한 **시간축 마찰 빌드업 속도($d\mu/dt = \Delta\mu_{10\to 90\%}/\Delta t$)** 를 동시 산출하여 타이어 초기 응답성 정량화<br/>• **초기 과도 루프(`L0~L3`) 전체 분리 후 정상 상태(`L3~`) 본체 피팅 (`filter_deadzone=True`, `filter_transient=True`)**: 초반 기울기($K_{x0}$) 추출에 사용된 `L0~L1` 관성 데드존(`self.deadzone_data`)과 `L1~L3` 1차 과도 스파이크(`self.transient_data`)가 저슬립 상단에 이질적 군집을 형성하여 본체 피팅을 왜곡하는 현상을 원천 해결하기 위해, `L0~L3` 전체를 본체 피팅에서 제외하고 `L3` 이후 정상 상태 제동 데이터만으로 피팅하도록 이원화 $\to$ `Snow_ACC_BRK` 4대 세트 전원에서 **피팅 오차(RMSE) $18.5\% \sim 23.7\%$ 대폭 감소** (C1: $0.0651\to 0.0522$, T1: $0.0715\to 0.0555$, T2: $0.0739\to 0.0564$, C2: $0.0729\to 0.0594$) 및 T2 고슬립 포화 마찰 추종성($0.404\text{g} \to 0.420\text{g}$) 완벽 복원<br/>• **고슬립($\kappa > 0.25$) 이격 해소: 구간 밀도 역가중치(`calc_bin_density_weights`) 및 스노우 웻지(`enable_wedge=True`) 결합**: ABS 제어 대역 편중($85\%$ 이상이 $\kappa < 0.25$)을 슬립 구간별 역제곱근 가중치($w_i \propto N_b^{-0.65}$)로 균등화하고, 고슬립 눈 쐐기(Snow Wedge) 선형 재상승 항($+W_{\text{snow}}\cdot\max(0, \kappa-\kappa_{\text{valley}})$)을 결합하여 고슬립 하향 이격(Gap) 완전 해소<br/>• **제외 로우 데이터 마커 분리 표시 및 초기 과도 포함 vs 제외 동시 비교 시각화 (`compare_unfiltered=True`)**: `TireCurve.plot()` 및 `plot_tire_set_curve_comparison()`에서 정상 피팅 데이터(차속 컬러맵 `●`)와 별도로 제외 데이터 ① 관성 데드존(`L0~L1`, 빨간색 `✕`) 및 제외 데이터 ② 초반 과도 스파이크(`L1~L3`, 주황색 `△`)를 분리 표시하고, 초기 과도 포함 Fit(보라색 파선 `--`)과 초기 과도 제외 최종 Fit(빨간색 실선 `—`)을 동시 오버레이 비교 (`04_BRK_TRANSIENT_INCLUDED_VS_EXCLUDED_COMPARISON.png` 등 생성 완료)<br/>• **1:1 코드 매뉴얼(`cf_tire.md` v4.4), 도메인 지식 사전(`curve_fit_사전.md`) 및 제동 영구 지식 위키([[31_실차_제동_시작점_자동_탐지_및_과도응답_슬립_복원_공학]]) 동기화 완료** | ✅ 완료 |
 | **v3.45** | 2026-10-19 | uno &<br/>Antigravity | 🎯 **`TireCurve` 해법 C(2단계 강성 구속 단일 MF: `constrained_mf`) 공식 엔진 편입, 사용자 제안 2D 분포 분할 시그모이드 블렌딩(해법 A-v2: `split_blend`) 정식 구현 및 가속(`Snow_ACC_BRK`)·제동(`Snow_BRK_ABS`) 11종 전 케이스 원클릭 통합 리포팅 파이프라인 완결**<br/>• **해법 C (`method="constrained_mf"`) 공식 엔진 탑재 (`cf_tire.py`, `magic_formula.py`)**: 1단계로 저슬립 탄성 영역($0 \le x \le 0.035$)에서 원점 구속 RANSAC(`calc_initial_stiffness`)으로 초기 탄성 강성 $K = \frac{dy}{dx}\big|_{x=0}$를 확정하고, 2단계로 등식 제약 $B = \frac{K}{C \cdot D}$가 주입된 3파라미터 매직포뮬러(`constrained_magic_formula`)를 최적화하여 원점 정합 및 데이터 정중앙 관통을 보장하는 단일 해석 수식 엔진 완성<br/>• **사용자 제안 해법 A-v2 (`method="split_blend"`) 구현 및 전이부 Hump 원천 차단**: 1D 히스토그램 KDE 밀도 능선에서 제어 클러스터 진입 변곡점($x_{\text{kde\_onset}}$)을 포착하여 고슬립 클러스터($x \ge x_{\text{kde\_onset}}$) 데이터만으로 순수 4파라미터 MF($y_{\text{MF\_high}}$)를 독립 피팅한 뒤, 저슬립 직선($y = K \cdot x$)과의 실제 교차점($x_{\text{trans}}$)에서 시그모이드 가중치로 블렌딩함으로써 구형 해법 A의 전이부 상단 불룩함(Hump) 현상을 100% 제거 (`00_TIRE_CURVE_APPROACHES_C_VS_AV2.png` 4분할 정밀 대조 실증)<br/>• **극저속 휠스핀 노이즈 스마트 컷오프 및 단일 런 폴백 방어선 구축**: `TireCurve._extract_data_from_tire()`에 가속 시험 $V \ge 8.0\text{km/h}$, 제동 시험 $V \ge 3.0\text{km/h}$ 및 $0 < x \le 1.0$ 기본 필터링을 적용하여 출발 직후 분모 $V \to 0$에 의한 슬립 폭주 노이즈를 원천 차단하고, 단일 런 아웃라이어 판정 시 전체 검출 런으로 안전 폴백하는 방어 로직 탑재<br/>• **가속(`Snow_ACC_BRK` 8종) 및 제동(`Snow_BRK_ABS` 3종) 전 케이스 원클릭 리포팅 완결 (`example_acc_brk_start_points.py`)**: 전 11개 케이스에 대해 4대 모델(`constrained_mf`, `split_blend`, `combiner`, `least_squares`) 동시 피팅 검증, 세트별 통합 비교 차트(`curve_fit_comparison_Snow_ACC_5-40_AllSets.png`, `curve_fit_comparison_Snow_BRK_40-5_AllSets.png`) 및 정량 요약 CSV(`tire_curve_11cases_summary.csv`) 생성 완료 (Exit Code 0)<br/>• **1:1 코드 매뉴얼(`cf_tire.md` v4.2) 및 도메인 지식 사전(`curve_fit_사전.md`) 동기화 완료** | ✅ 완료 |
 | **v3.44** | 2026-10-19 | uno &<br/>Gemini | 🎯 **`curve_fit` 실차 데이터(제어 몰림 및 초기 급경사) MF 한계 극복 3대 대안(가중 블렌딩, 격자 빈 대표값, 2단계 강성구속 MF) 실증 비교, v1 원본(2025-12-01 커밋) 성공 커브 발굴 대조, 해법 C(2단계 강성구속 MF) 다각도 전수 검증 및 사용자 제안 2D 분포 분할(A 고도화) 아키텍처 정립 (안티그래비티 앱 연계 완결)**<br/>• **3대 대안 수치 비교 실증**: Baseline($K=0.62$, 강성 붕괴) vs 해법 A($K=4.84$, $\mu=0.181$, RMSE 0.0248) vs 해법 B($K=0.59$, 중앙값 상향 왜곡) vs 해법 C($K=4.70$, $\mu=0.176$, RMSE 0.0252)<br/>• **사용자 핵심 피드백 및 물리적 원인 규명**: 해법 A가 전이부($x \approx 0.04\sim 0.08$)에서 데이터 구름 상단을 스치며 위로 불룩해지는(Hump) 현상 규명(초반 0.13g 붕 뜬 Baseline MF 블렌딩 오염), 비닝 미디언(해법 B)이 저슬립 희소성으로 인해 중앙값이 0.14g로 과대평가되는 왜곡 규명, 해법 C가 원점 $(0, 0)$에서 시작하여 데이터 구름 정중앙을 가장 이상적으로 관통함을 확인<br/>• **v1 오리지널 성공 커브(2025-12-01 커밋 8cd7d5b) 발굴 대조**: 과거 성공 커브(`None-7. Curvefit.png`, `None-5. HermiteConnector.png`)의 실체가 횡력 슬립각 데이터(`ID-X55-P33-JF0_raw_raw.pkl`, $K \approx 20.9$, $\mu=0.82g$)였음을 전수 확인하고 거동 비교 기준선 확립<br/>• **해법 C 다각도 전수 검증 완결**: ① 과거 레거시 2종(SDF 횡력 $K=20.88$, VBO 가속 $K=2.03$), ② 실측 스노우 가속 4대 세트(C1: $K=4.57, \mu=0.178g$ / T1: $K=5.32, \mu=0.175g$ / T2: $K=5.64, \mu=0.167g$ / C2: $K=5.72, \mu=0.184g$ 성능 분별력 완벽 확보), ③ 차속 컷오프(4~12km/h) 전 대역 피팅 곡선 단일화 완벽 수렴 실증<br/>• **사용자 제안 2D 분포 분할(해법 A 고도화) 설계**: 2D 데이터 밀도 능선에서 직선-곡선 전이점($x_{\text{trans}}$)을 포착하여 저슬립 직선부와 순수 곡선부 MF를 분리 피팅 후 결합하는 무결점 아키텍처 정립<br/>• 🚩 **안티그래비티 앱 바통 터치 과제 (TODO)**: ① 해법 C의 $B \cdot C \cdot D = K$ 등식 제약 단일 MF 엔진을 `TireCurve` 공식 옵션으로 정식 탑재, ② 사용자 제안 2D 밀도 분기 기반 직선/곡선 분할 블렌딩(해법 A-v2) 프로토타입 구현 및 해법 C와의 1:1 최종 대조 | ✅ 완료 |
 > | **v3.43** | 2026-10-18<br/>(야간) | uno &<br/>Gemini | 🎯 **`curve_fit` & `CombinerEstimator` 정밀 결함 추적, v1 오리지널 정통 2D 국소 에르미트 탐색 메커니즘 규명, 직선 쉬프트 버그 해소 및 차속 컷오프(4~12km/h) 5x5 매트릭스 진단 파이프라인 완성 (내일 작업 연계 쟁점 정립)**<br/>• **가속 시험 초반 휠스핀 노이즈($V < 6\text{km/h}$)와 차속 컷오프($V \ge 8\text{km/h}$) 효과 실증**: 슬립율 $0 \sim 278\%$ 폭주 및 분모 $V$ 극소 왜곡을 걷어내는 속도별($2 \sim 20\text{km/h}$) 10단계 피팅 비교 완료. $V \ge 8 \sim 10\text{km/h}$에서 타이어 형상이 가장 이상적으로 정돈됨을 입증<br/>• **v1 오리지널 레거시(`master` 브랜치: `unoUtil/curveFit/CurveCombiner/`) 전수 정밀 대조 분석**: 단위 체계(슬립율 $0 \sim 1.0$, 가속도 $[g]$ $\approx \mu$)가 최초 설계부터 SSOT였음을 주석과 코드로 100% 확인. 종방향 가속도 $Ax$에서 `d2y_nor`의 최저점이 원점에 위치하여 `ind_end_line == 0`으로 조기 탈출하던 v1의 숨은 결함을 규명하고 물리적 하한선($x \ge 0.015$)으로 방어. `clothoid_val = 0.03`의 본래 역할이 에르미트 품질 불량 시의 비상 대피소였으며, 직선 끝점 좌우 국소 구간($\Delta x \approx 0.015 \sim 0.035$)에서 2D 탐색 시 `score < 0.03`으로 에르미트가 본래 100% 정상 채택되었음을 수학적으로 증명<br/>• **직선 쉬프트(Left Shift) 버그 완벽 규명 및 RANSAC `model_line.predict(...)` 직접 적용**: 원점 $(0, 0)$을 강제하려 절편 $c$를 누락하여 발생했던 직선의 좌측 쉬프트를 RANSAC 모델 직접 적용으로 100% 해소하여 3열과 4/5열 직선을 완전 일치시킴<br/>• **에르미트 솟구침($y = 1.958\text{g}$) 원인 규명 및 Fritsch-Carlson 단조성 가드 탑재**: 브릿지가 피크점까지 길어져($\Delta x = 0.36$) $\Delta x \cdot m_0 \approx 5.4$로 폭발하던 Runge 현상을 천이 대역($x \le 0.075$) 캡핑 및 Fritsch-Carlson PCHIP 단조성 제약(기울기 $\le 2.5 \times \Delta y / \Delta x$)으로 원천 차단하여 실제 데이터($0.22\text{g}$) 스케일 안착<br/>• **v2 최신 표준 모듈 체계(SSOT) 준수**: 구형 레거시 명칭을 전면 배제하고 `LeastSquaresEstimator`, `scale_data`, `format_fig`, `LOGGER`로 일원화<br/>• **5x5 매트릭스 진단 차트(`00_COMBINER_STEPS_BY_SPEED_MATRIX_V2_OFFICIAL.png`) 및 11개 전 케이스 종합 비교 차트 갱신 완결**<br/>• 🚩 **내일(출근 후) 집중 검토 및 이어갈 잔여 쟁점 (TODO)**: ① "아직도 이상해": 현재 최종 곡선과 로우 데이터의 결합 부위가 사용자의 시각적/동역학적 기대치와 여전히 미세하게 불일치하는 지점 정밀 청취 (직선 구간의 시작점을 원점 0에서 시작하게 할지, RANSAC의 실제 영점 교차점 $x \approx 0.008$에서 시작하게 할지 등), ② 저슬립 영역의 가속도 데이터가 0 근처에 머무는 구동계 토크 지연 구간과 순수 타이어 탄성 강성 직선 간의 물리적 정합 기준선 확립, ③ 제동(`Snow_BRK_ABS`)과 가속(`Snow_ACC_BRK`)의 상호 간섭 없는 단일 파이프라인 최종 점검 | ✅ 완료 |
@@ -210,43 +211,8 @@ aliases:
 
 > [!NOTE]- 🎯 curve_fit 타이어 특성 피팅 및 범용 추정기 모듈 목록 [클릭하여 펼치기]
 > | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
-> | :
-### 🔬 2026-10-18 야간 심층 분석: CurveCombiner 메커니즘 규명 및 내일 작업 연계 보고
-
-#### 1. v1 오리지널 레거시 코드(`master` 브랜치) vs v2 대조 분석 결과
-* **단위 체계 (Units)**:
-  - 입력 슬립율: $0.0 \sim 1.0$ (무차원 비율, Ratio)
-  - 출력 가속도: $[g]$ (차체 중량으로 정규화된 유효 마찰계수 $\mu$와 $1:1$ 동등)
-  - 초기 강성: $K = \Delta Ax / \Delta SR$ $[g / \text{unit slip}]$ (정상 타이어 $K \approx 5.0 \sim 8.0$)
-* **`clothoid_val = 0.03`의 본래 역할**:
-  - 기본(Main)은 무조건 에르미트(Hermite) $C^1$ 연속 접합.
-  - 에르미트 목적함수 점수($\text{Score} = |\Delta m| + 200 \times \text{overshoot} + 50 \times \text{curv}$)가 $0.03$ 이하로 나오면 100% 에르미트 채택.
-  - v1에서는 직선 끝점 좌우 국소 구간($\Delta x \approx 0.015 \sim 0.035$)에서만 2D 탐색을 수행하여 오버슈트 없이 `score < 0.03`을 자력 달성하였음.
-* **v1의 숨은 결함 (`ind_end_line == 0` 조기 탈출)**:
-  - 종방향 가속도($Ax$) 데이터는 $d^2y/dx^2$의 최저점이 인덱스 0에 위치하여, v1 공식(`np.argmin(d2y_nor)`)이 무조건 0을 반환함.
-  - 그 결과 v1 코드 1008행에서 `No Initial Line region -> Using Just MF Fitting`으로 조기 탈출하여 에르미트 접합 근처에도 못 가던 결함 발견 $\to$ 물리적 하한선($x \ge 0.015$)으로 방어선 구축.
-
-#### 2. 오늘 밤 해결된 3대 핵심 결함
-1. **직선 좌측 쉬프트(Left Shift) 결함 해소**:
-   - RANSAC 선형 모델의 절편($c \approx -0.054$)을 지우고 $y = K \cdot x$로 원점에 강제 묶으면서 직선이 위로 $+0.054g$ 붕 뜨고 좌측으로 밀렸던 현상.
-   - `self.model_line.predict(...)`를 직접 적용하여 3열의 RANSAC 직선과 4/5열의 직선을 100% 동일 선상으로 일치 완료.
-2. **에르미트 솟구침($y = 1.958\text{g}$) 결함 해소**:
-   - 끝점을 피크점($x = 0.37$)까지 길게 잡아 $\Delta x = 0.36$으로 벌어지면서 에르미트 3차 항 $\Delta x \cdot m_0 \approx 5.4$가 폭발하던 현상.
-   - 끝점을 천이 대역($x \le 0.075$)으로 좁히고, **Fritsch-Carlson PCHIP 단조성 제약(기울기 $\le 2.5 \times \Delta y / \Delta x$)**을 탑재하여 솟구침 0% 보장 및 실제 데이터 피크($0.24\text{g}$) 안착.
-3. **직선 종료점 고도 정합**:
-   - 직선이 가속도 $0.22\text{g}$까지 높게 치솟던 현상을 선형 탄성 영역 한계($x \le 0.022$, $Ax \le 0.12\text{g}$)로 캡핑하여, 낮은 고도($0.08\text{g}$)에서 에르미트 브릿지로 바통 터치하도록 정합.
-
-#### 3. 🚩 내일(출근 후) 집중 검토 및 이어갈 잔여 쟁점 (TODO)
-- [ ] **사용자 시각적/물리적 불일치 지점 청취**:
-  - "아직도 이상해": 5x5 매트릭스 차트(`00_COMBINER_STEPS_BY_SPEED_MATRIX_V2_OFFICIAL.png`)에서 사용자가 보시기에 어색한 지점이 구체적으로 어디인지 확인 (원점 0에서 직선이 출발해야 하는지, 아니면 RANSAC 직선의 영점 교차점 $x \approx 0.008$에서 출발해야 하는지 등).
-- [ ] **가속 시험 초반 구동계 지연과 타이어 탄성 강선 분리**:
-  - 엑셀 페달 인가 직후 가속도가 즉시 오르지 않고 $x \in [0, 0.008]$ 구간에서 $Ax \approx 0$에 머무는 구동계 백래시/지연 특성을 고려할 때, 원점(0,0)과 RANSAC 직선 사이의 연결선을 어떻게 정의할 것인가?
-- [ ] **제동(`Snow_BRK_ABS`) 및 가속(`Snow_ACC_BRK`) 상호 무결성 최종 확정**:
-  - 가속 시험 보정 사항이 제동 시험 파이프라인에 악영향을 주지 않는지 11개 전 케이스 종합 차트 재검토.
-
----
-| :--- | :---: |
-> | **`tire_curve` (`TireCurve`)** | **타이어 종/횡방향 비선형 특성 곡선 피팅 총괄 클래스 (단일 진실 공급원 - SSOT Facade)** | [`cf_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/tire_curve/cf_tire.py) |
+> | :--- | :--- | :---: |
+> | **`tire_curve` (`TireCurve`)** | **타이어 종/횡방향 비선형 특성 곡선 피팅 총괄 클래스 (`L0~L3` 과도 루프 배제·Snow Wedge·비교 시각화 내장 SSOT Facade)** | [`cf_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/tire_curve/cf_tire.py) |
 > | **`least_squares_estimator`** | Scipy 비선형 최소자승 가중치/Huber loss 범용 추정기 (`LeastSquaresEstimator`) | [`least_squares_estimator.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/estimators/least_squares_estimator.py) |
 > | **`optimize_estimator`** | Scipy minimize 및 Bayesian 최적화 범용 추정기 (`OptimizeEstimator`) | [`optimize_estimator.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/estimators/optimize_estimator.py) |
 > | **`combiner_estimator`** | 모델 주입 기반 다구간 스플라인 결합, 변곡점 검출 및 국소 트렌드 라인 복합 파이프라인 (`CombinerEstimator`) | [`combiner_estimator.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/curve_fit/estimators/combiner_estimator/combiner_estimator.py) |
@@ -444,5 +410,5 @@ aliases:
 - **Exit Code 0 무결성 통과**: `c_run_snow_correction_pipeline.py` 가동 전수 통과 (3초 완결).
 
 ---
-**Last Updated**: 2026-10-16  
-**Standard**: unoUtil Clean Architecture v3.24 & Single Baseline Law & Single Master MOC Law
+**Last Updated**: 2026-10-19  
+**Standard**: unoUtil Clean Architecture v3.46 & Single Baseline Law & Single Master MOC Law
