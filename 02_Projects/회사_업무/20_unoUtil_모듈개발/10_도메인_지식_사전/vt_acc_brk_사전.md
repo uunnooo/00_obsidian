@@ -77,15 +77,15 @@ flowchart TD
 
 | 서브모듈 파일명 | 담당 클래스 / 함수 | 핵심 책임 및 역할 |
 | :--- | :--- | :--- |
-| `vt_acc_brk.py` | `VTAccBrk` | 전체 프로젝트 일괄 배치 및 최상위 오케스트레이션 |
-| `vt_acc_brk_tire.py` | `VTAccBrkTire` | 단일 타이어 런 분할, 제동 시작점 검출 및 런별 지표 집계 |
-| `vt_acc_brk_project.py`| `VTAccBrkProject` | 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 및 성능지수 산출 |
-| `correct.py` | `Correct` | 노면온도 감인성(m/℃) 및 기상/노면 외생 변수 보정 |
+| `vt_acc_brk.py` | `vt_acc_brk` | 전체 프로젝트 일괄 배치 및 최상위 오케스트레이션 (`col_curve_fit_wheelslip`, `cf_*` 3계층 분기 패스스루) |
+| `vt_acc_brk_tire.py` | `VTAccBrkTire` | 단일 타이어 런 분할, 제동 시작점 검출, 7대 서브 분석기(`acceleration`, `response`, `slip_pdf`, `mu_drop`, `skewness`, `split_speed`, `curve_fit`) 및 런별·MF 피팅 지표(`cf_*`) 집계 |
+| `vt_acc_brk_project.py`| `VTAccBrkProject` | 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간, `curve_fit` 보정 동기화 및 성능지수(`index_cf_*`) 산출 |
+| `correct.py` | `Correct` | 노면온도 감인성(m/℃), 콘트롤 타이어 선형 보간 및 `analyzer.curve_fit` 게인($G_i$) 동기화 |
 | `base_memory.py` | `BaseMemory` | 대용량 시계열 RAM 프록시 및 비파괴 슬림 피클링 관리 |
 | `func_acc_brk.py` | `find_brake_start_point` 등 | 13대 핵심 물리 수식 (MFDD, 슬립율, 제동에너지, 감속도 등) |
-| `plotter_tire.py` | `PlotterTire` | 단일 타이어 런 산점도, 감속도 프로파일, 슬립 곡선 시각화 |
-| `plotter_project.py`| `PlotterProject` | 프로젝트 시험 간 순위 비교, 콘트롤 시계열 추이 바 차트 |
-| `analyzers/` (6대 서브)| `AnAcceleration` 등 | 가속대역, 감속응답, 슬립PDF, Mu-Drop, 왜도, 구간속도 전문 분석 |
+| `plotter_tire.py` | `PlotterTire` | 단일 타이어 9대 시각화 (`accbrk`, `acceleration`, `response`, `slip_pdf`, `mu_drop`, `skewness`, `split_speed`, `curve_fit`, `curve_fit_detail`) |
+| `plotter_project.py`| `PlotterProject` | 프로젝트 시험 간 9대 비교 플로터 (`compare_braking`, `compare_curve_fit` 등) |
+| `analyzers/` (6대 서브) + `cf_tire.py`| `AnAcceleration`, `TireCurve` 등 | 가속대역, 감속응답, 슬립PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅 전문 분석 |
 
 ---
 
@@ -93,32 +93,34 @@ flowchart TD
 
 ```python
 """
-vt_acc_brk 가감속/제동 프로젝트 원스톱 실행 스크립트
+vt_acc_brk 가감속/제동 프로젝트 원스톱 실행 및 curve_fit 서브 분석·보정 비교 스크립트
 """
 from pathlib import Path
 from unoUtil.vehicle.acc_brk import (
-    VTAccBrk,
+    vt_acc_brk,
     VTAccBrkProject,
-    PlotterProject,
 )
 
-# 1. 가감속/제동 마스터 객체 초기화
+# 1. 가감속/제동 마스터 래퍼 실행 (curve_fit 옵션 3계층 자동 패스스루)
 pjt_dir = Path("D:/test_data/acc_brk/pjt_bmw320_mock")
-runner = VTAccBrk(target_dir=pjt_dir, vel_range=[100, 5])
-
-# 2. 프로젝트 일괄 로드 및 콘트롤 타이어 선형 보간 실행
-project: VTAccBrkProject = runner.run()
-
-# 3. 보정 성능 결과 요약 데이터프레임 추출
-summary_df = project.get_statistics_df()
-print(summary_df[["TireName", "MeanDistance", "CorrectedDistance", "RelativeIndex"]])
-
-# 4. 프로젝트 비교 시각화 차트 자동 저장 (Non-blocking)
-plotter = PlotterProject(project)
-fig, ax = plotter.compare_braking(
-    save=pjt_dir / "2. fig" / f"{project.project_name}_compare.png",
-    close=True,
+projects = vt_acc_brk(
+    paths=pjt_dir,
+    test_vel=[100, 5],
+    cf_method="robust",
+    cf_filter_transient=True,
+    plot=True,
+    excel=True,
 )
+project: VTAccBrkProject = projects[0]
+
+# 2. 보정 성능 결과 및 MF 피팅 요약 데이터프레임 추출
+summary_df = project.summary.df
+print(summary_df[["TestSet", "mean_Distance", "corr_mean_Distance", "cf_peak_mu", "corr_cf_peak_mu", "index_cf_peak_mu"]])
+
+# 3. 개별 타이어 상세 MF 진단 및 프로젝트 보정 MF 커브(0~1.0) 오버레이 비교 (Non-blocking)
+first_tire = next(iter(project.tire_analyzers.values()))
+first_tire.plot.curve_fit(detail=True, close=True)
+project.plot.compare_curve_fit(corr="mean", xlim=(0.0, 1.0), show_peak=True, close=True)
 ```
 
 ---
@@ -132,3 +134,9 @@ fig, ax = plotter.compare_braking(
 ### 5.2. 콘트롤 타이어 평가 차수 불균형
 * **증상**: C1과 C2 사이 시험 타이어가 과도하게 많거나 시간 간격이 4시간 이상 벌어져 선형 보간의 신뢰도 저하.
 * **조치**: `correct.py`의 `set_interpolation_mode(mode='segmented_linear')`를 호출하거나, 온·습도 기상 DB가 존재하는 경우 `Correct.run(weather_adjust=True)`를 켜서 노면 온도 감인성 보정을 병합 적용.
+
+### 5.3. `curve_fit` 서브 분석기 휠스피드 부재 방어 및 구동방식(`TestVehicleLayout`) 연동 (v3.48)
+* **휠스피드 부재 시 자동 Skip**: CAN/아날로그 휠스피드 채널이 없는 GPS 단독 계측 데이터에서는 `tire.curve_fit`이 에러 없이 `is_fitted = False`로 자동 Skip되어 기존 6대 서브 분석기와 요약표가 정상 산출됨.
+* **제동/가속 슬립 축 자동 선택**: 제동(`brk`)은 기본 전륜축(`FL`/`FR` 유효 채널 평균)을 사용하며, 가속(`acc`)은 `TestVehicleLayout` 메타데이터가 `RWD`이면 후륜축(`RL`/`RR`), `AWD`/`4WD`이면 4륜 전체, `FWD`/미지정 시 전륜축을 자동 선택함 (`col_curve_fit_wheelslip`으로 명시적 오버라이드 가능).
+* **콘트롤 보정 게인($G_i$) 자동 동기화**: `Correct.run()` 실행 시 별도 재피팅 없이 [[30_실차_가감속_성능변화_분석_및_보정_시스템#7. 🎯 비선형 마찰 곡선(Magic Formula)의 콘트롤 게인 스케일링 동형성 법칙 (Control Gain Scaling Isomorphism)|콘트롤 게인 스케일링 동형성 법칙]]에 의해 `tire.curve_fit.df`(`corr_mean_Acc`, `corr_curve_Acc`) 및 `params`(`corr_D`, `corr_peak_mu`, `corr_stiffness`)가 자동 갱신됨.
+

@@ -217,3 +217,30 @@ tc_cmf.plot(save=Path("reports/tire_curve_fit.png"), binned=True, compare_unfilt
 | **T2** | 1,954 pts | 54 pts | 145 pts | 4.46 / 3.24 g/s | 0.404 (@22.9%) / 0.0739 | **0.420 (@30.0%) / 0.0564** | **-23.7%** |
 | **C2** | 3,228 pts | 121 pts | 263 pts | 5.83 / 3.19 g/s | 0.389 (@17.0%) / 0.0729 | **0.388 (@18.0%) / 0.0594** | **-18.5%** |
 
+---
+
+## 🔗 8. `VTAccBrkTire.curve_fit` 공식 서브 분석기 통합 및 프로젝트 콘트롤 보정 동기화 (v3.48 / `cf_tire` v4.5 완결)
+
+### 8.1. `fit()`(파라미터 추정) vs `predict(x, interval)`(곡선 생성) 책임 분리 및 `df` 표준 스키마
+- **`fit(...)`**: 입력된 `VTAccBrkTire` 객체(또는 단독 데이터프레임)로부터 유효 슬립-가속도 샘플을 추출(`df_raw`)하고, 선택된 6대 최적화 메서드(`'robust'`, `'binning'`, `'two_stage'`, `'ransac'`, `'lsq'`, `'custom'`)로 Magic Formula 파라미터(`B, C, D, E, Sh, Sv`) 및 물리 지표(`peak_mu`, `peak_slip`, `stiffness`)를 추정한 뒤 기본 구간 $[0.0, 1.0]$ ($\Delta\kappa = 0.005$, 201 pts) 예측 곡선을 `self.df`에 생성합니다.
+- **`predict(x=None, interval=0.005, update_df=False)`**:
+  - `x=None`: 기본 $[0.0, 1.0]$ 구간을 `interval` 간격으로 생성하여 예측.
+  - `x=[start, end]` (2-원소 구간 튜플/리스트): `[start, end]` 구간을 `interval` 간격으로 등간격 격자화하여 예측.
+  - `x=np.ndarray` (3개 이상 원소 배열): 전달된 슬립률 배열 위치에서 직접 예측값 산출.
+- **`curve_fit.df` 시계열 스키마**: `['Slip', 'Acc']` (컨트롤 보정 후 `['Slip', 'Acc', 'corr_mean_Acc', 'corr_curve_Acc']` 자동 확장).
+
+### 8.2. 휠스피드 부재 시 자동 Skip 및 시험 모드·차량 구동방식(`TestVehicleLayout`) 기반 슬립 축 자동 결정
+1. **휠스피드/슬립 채널 부재 시 Graceful Skip**: 원시 계측 데이터에 휠스피드(`WheelSpeed_*`) 또는 슬립(`WheelSlip_*`) 채널이 존재하지 않으면 에러 없이 `is_fitted = False` 상태로 안전하게 건너뛰어 기존 가감속/제동 파이프라인의 무중단 실행을 보장합니다.
+2. **시험 모드(`brk`/`acc`) 및 구동방식(`TestVehicleLayout`) 연동 슬립 축 자동 선택 (`_resolve_slip_series`)**:
+   - **사용자 명시 (`col_slip`)**: 단일 컬럼명, 리스트(유효 채널 평균), 또는 `'front'`/`'rear'`/`'all'` 키워드 지정 시 최우선 적용.
+   - **제동 (`mode='brk'`)**: 기본값 **전륜축 (`'front'`: `WheelSlip_FL`, `WheelSlip_FR` 중 유효 채널 평균)**.
+   - **가속 (`mode='acc'`)**: `tire.infor.result` 내 `TestVehicleLayout` (`Layout`, `DriveType` 등) 메타데이터를 자동 조회하여 **`RWD`/`FR`/`MR`/`RR`이면 후륜축(`'rear'`: `RL`/`RR`), `AWD`/`4WD`이면 4륜 전체(`'all'`), `FWD`/`FF` 또는 미지정 시 전륜축(`'front'`)** 을 자동 선택합니다 (`col_slip_used` 속성에 기록).
+
+### 8.3. 프로젝트 콘트롤 타이어 보정(`Correct.run`) 동기화 및 다중 타이어 비교 시각화
+- **콘트롤 게인($G_i$) 자동 동기화 ([[30_실차_가감속_성능변화_분석_및_보정_시스템#7. 🎯 비선형 마찰 곡선(Magic Formula)의 콘트롤 게인 스케일링 동형성 법칙 (Control Gain Scaling Isomorphism)|콘트롤 게인 스케일링 동형성 법칙]])**:
+  - `VTAccBrkProject`에서 `Correct.run()` 수행 시, 각 타이어의 `mean_Acc` 대비 보정 가속도(`corr_mean_Acc`, `corr_curve_Acc`) 비율인 콘트롤 게인 $G_i$를 산출하여 `tire.curve_fit.df` (`corr_mean_Acc`, `corr_curve_Acc`), `tire.curve_fit.df_raw`, 그리고 `tire.curve_fit.params` (`corr_D`, `corr_peak_mu`, `corr_stiffness`) 및 프로젝트 요약표(`corr_cf_peak_mu`, `index_cf_peak_mu`, `corr_cf_stiffness`, `index_cf_stiffness`, `corr_cf_D`)에 일괄 반영합니다.
+- **시각화 인터페이스**:
+  - 단일 타이어: `tire.plot.curve_fit(detail=False)` (기본 산점도 + MF 피팅 곡선) 및 `tire.plot.curve_fit_detail()` (6-패널 종합 진단 대시보드).
+  - 프로젝트 다중 비교: `project.plot.compare_curve_fit(corr='mean', xlim=(0.0, 1.0), show_scatter=False, show_peak=True)`를 통해 $0 \sim 1.0$ 전 구간에서 보정된 타이어별 MF 마찰 곡선과 Peak $\mu$ 마커를 한눈에 오버레이 비교합니다.
+
+
