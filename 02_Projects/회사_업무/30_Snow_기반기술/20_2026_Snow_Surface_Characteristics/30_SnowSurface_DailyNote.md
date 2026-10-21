@@ -407,3 +407,49 @@ NaN. **측정 데이터 유효성 검증 시 주의사항:**
   - `E6_Control_vs_PureML_Index_Distortion_Mechanism.png` (전통 컨트롤 보정 vs 순수 ML 보정 지수 오차 메커니즘 대조)
   - `E7_Top_Outlier_Requests_Tire_Breakdown.png` (6대 핵심 고오차 의뢰 내부 타이어별 1차·2차 실측 및 보정 상세 분해)
 
+---
+
+## 10. [2026-10-21] 실측 DB 기반 하드코딩 제거, 융해·재동결 제동거리 심슨 역설 규명 및 전 차트 14종 개별 분할 스크립트(8×4) 완결 (v4.0)
+
+> [!SUCCESS] ✅ 실측 결합 DB 동적 연산 전환, 물리적 증가분(Δm, %) 정규화 및 14종 개별 단독 분리 차트 구축 완결
+> * **작업 목적**:
+>   1. G1, G2 등 시각화 스크립트에 고정 상수로 하드코딩되어 있던 25~26년도 데이터셋을 실제 결합 DB(`3-1`, `3-2`)로부터 실시간 계산하도록 전면 개편.
+>   2. 융해·재동결 세션에서 단순 평균 시 제동거리가 줄어들어 보이던 통계적 왜곡(심슨의 역설)을 물리적으로 규명하고 동일 타이어 기준 실제 증가분(Δm, %)으로 정규화.
+>   3. 원본 스크립트(`d_evaluate...`, `f-1_compare...`, `g_generate...`, `h_generate...`)를 100% 보존한 상태에서, 개별 서브패널들을 독립적으로 실행 가능한 14종 단독 스크립트 체계(`figsize=(8, 4)`)로 구축.
+
+---
+
+### 10.1 25~26 실측 결합 DB 동적 연산 엔진 (`explain/calc_2526_metrics.py`)
+
+* **데이터 소스**:
+  - 제동: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\3-1. df_combine_brk_surface_spec.pkl` (1,974 Runs)
+  - 가속: `D:\uno\1. 2026\2. 25-26_Outdoor_Loop2\0. db\3-2. df_combine_acc_surface_spec.pkl` (1,967 Runs)
+* **산출 수치 및 정합성 검증**:
+  - **제동 정상 (Normal, n=13)**: 제동거리 `17.12m` | 반복성 C.V `2.10%` | 재현성 Std `0.26m` | 재현성 C.V `1.55%`
+  - **제동 이상 (Abnormal, n=82)**: 제동거리 `17.46m` | 반복성 C.V `2.36%` | 재현성 Std `0.68m` | 재현성 C.V `3.86%`
+  - **가속 정상 (Normal, n=13)**: 가속시간 `6.07s` | 반복성 C.V `3.82%` | 재현성 Std `0.12s` | 재현성 C.V `2.05%`
+  - **가속 이상 (Abnormal, n=82)**: 가속시간 `5.69s` | 반복성 C.V `4.05%` | 재현성 Std `0.33s` | 재현성 C.V `5.23%`
+
+---
+
+### 10.2 융해·재동결 제동거리 심슨 역설 규명 및 조건별 실제 증가분(Δm, %)
+
+* **단순 평균 왜곡 원인**: 융해·재동결 세션(`01/18~01/20`)에 배정된 의뢰서(`25RE110026EF` 등 28세트)는 원래 1차 정상 제동거리가 `16.03m`로 매우 짧은 고성능 타이어군이 편중되어, 단순 평균 시 정상 타이어군(평균 `17.12m`)보다 짧아 보이는 착시 발생.
+* **동일 타이어(1:1 Paired) 기준 실제 물리 증가량**:
+  - **정상 기준**: `16.94m` (기준선)
+  - **(1) -5°C < Temp (고온 수막)**: 정상시 `16.58m` ➔ 고온시 `17.63m` (**`+1.17m 증가, +7.1%↑`**)
+  - **(2) 융해·재동결 설질**: 정상시 `16.21m` ➔ 융해재동결시 `16.98m` (**`+0.56m 증가, +3.4%↑`**)
+  - **(3) 신설 유입 (Fresh Snow)**: 정상시 `17.64m` ➔ 신설시 `18.56m` (**`+0.90m 증가, +5.1%↑`**)
+  - **이상환경 합산 (82세트)**: 정상시 `17.05m` ➔ 이상환경시 `17.87m` (**`+0.82m 증가, +4.8%↑`**)
+
+---
+
+### 10.3 원본 파일 무수정 보존 & 전 계열 14종 단독 분할 스크립트 라인업
+
+| 계열 구분 | 개별 단독 스크립트 | 주요 내용 및 특징 | 기본 크기 | 저장 경로 |
+| :--- | :--- | :--- | :---: | :--- |
+| **G1 계열** | `explain/fig_g1_abnormal_bar_comparison.py`<br>`explain/fig_g1_panel_abc_season_comparison.py`<br>`explain/fig_g1_panel_d_dist_increase.py`<br>`explain/fig_g1_panel_e_reprod_cv.py` | • G1 전체 통합본 (5개 패널)<br>• 패널 ABC 단독 뷰 (ML 제외, 정상 vs 이상)<br>• 패널 D 실제 제동거리 증가량 단독 뷰<br>• 패널 E 재현성 C.V 단독 뷰 | `(8, 4)` | `explain/`<br>`D:\00_obsidian\_attachments\...` |
+| **G2 계열** | `explain/fig_g2_correlation_change.py`<br>`explain/fig_g2_panel_123_correlation_slope.py`<br>`explain/fig_g2_scatters_diff.py` | • G2 전체 통합본 (6개 패널)<br>• 패널 1, 2, 3 상관성(\|r\|) 및 물리 기울기 단독 뷰<br>• 패널 4, 5, 6 차분 회귀 산점도 3종 단독 뷰 | `(8, 4)` | `explain/`<br>`D:\00_obsidian\_attachments\...` |
+| **D 계열** | `explain/fig_d0_phys_restoration_scatter.py`<br>`explain/fig_d1_index_restoration_comparison.py`<br>`explain/fig_d2_rank_change_slope.py`<br>`explain/fig_d3_model_error_bar.py` | • D0 제동/가속 절대값(m, s) 복원 산점도 단독 뷰<br>• D1 성능지수(%) 복원 산점도 단독 뷰<br>• D2 타이어 순위 변동 슬로프 단독 뷰<br>• D3 모델별 MAE 비교 바차트 단독 뷰 | `(8, 4)` | `explain/`<br>`D:\00_obsidian\_attachments\...` |
+| **F 계열** | `explain/fig_f1_three_combos_summary.py`<br>`explain/fig_f2_three_combos_r2_bar.py`<br>`explain/fig_f3_three_combos_phys_mae_bar.py`<br>`explain/fig_f4_three_combos_index_mae_bar.py` | • F1 3대 인자 조합 3-Panel 종합 바차트<br>• F2 차분 회귀 설명력 R² 단독 바차트<br>• F3 제동거리 물리 복원 MAE 단독 바차트<br>• F4 시험타이어 지수 복원 MAE 단독 바차트 | `(8, 4)` | `explain/`<br>`D:\00_obsidian\_attachments\...` |
+| **마스터 러너** | `h-1_generate_all_individual_charts.py` | • 위 14종 차트 일괄 자동 순차 생성 및 검증 러너 | `(8, 4)` | 전 경로 일괄 생성 |
