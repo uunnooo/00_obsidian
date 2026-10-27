@@ -154,6 +154,7 @@ satisfaction: 4                # 자기 만족도 점수 (1~5)
 * **글로벌 파이썬 코딩 및 시각화 표준 규칙**:
   * 👉 **`D:\00_obsidian\.agents\rules\PYTHON_CODE_AGENT.md`**
 * **전역 에이전트 전문 스킬 목록**:
+  * `D:\00_obsidian\.agents\skills\code-manual-writer\SKILL.md` (순수 1:1 코드 기술 매뉴얼 작성)
   * `D:\00_obsidian\.agents\skills\code-audit-obsidian-docs\SKILL.md` (품질 검수)
   * `D:\00_obsidian\.agents\skills\obsidian-wiki-sync\SKILL.md` (세션 위키 동기화)
   * `D:\00_obsidian\.agents\skills\obsidian-inbox-processor\SKILL.md` (인박스 정리)
