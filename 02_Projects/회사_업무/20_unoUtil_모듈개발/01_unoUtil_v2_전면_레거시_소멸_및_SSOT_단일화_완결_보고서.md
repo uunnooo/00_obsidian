@@ -97,7 +97,7 @@ v2 Clean Architecture로 구조 재편을 거치며 12대 전문 도메인이 �
 | 도메인 | 대상 파일 | 주요 조치 및 제거된 별칭 |
 | :--- | :--- | :--- |
 | **`file_reader`** | `standard_channel_pattern.py` | • `Infor_Vehicle`, `Infor_SensorPosition`, `GPS` 전면 삭제 |
-| **`vehicle`** | `vehicle_dynamic.py` | • `VD_AlignCoordinate`, `VD_RotKinematics`, `VD_RotOrigin`, `VD_CalP2PInterCoordinate`, `VD_CalSideSlipAngle`, `VD_CalSlipAngleFR`, `VD_CalLoadTransferLongi`, `makeStandardDF` (v1 대문자 별칭 8개 전면 삭제) |
+| **`vehicle`** | `vehicle_dynamic.py` | • `VD_AlignCoordinate` 등 v1 별칭 8종 전면 삭제<br>• `align_coordinate = VehicleDynamic.align_coordinate` 등 8개 중복 전역 함수 바인딩 전면 삭제 $	o$ `VehicleDynamic` 클래스 단일화 |, `VD_RotKinematics`, `VD_RotOrigin`, `VD_CalP2PInterCoordinate`, `VD_CalSideSlipAngle`, `VD_CalSlipAngleFR`, `VD_CalLoadTransferLongi`, `makeStandardDF` (v1 대문자 별칭 8개 전면 삭제) |
 | | `hndl_test.py` | • `SP_CurveFit_RF`, `sp_curvefit_rf`, `SP_CurveFit_MF`, `sp_curvefit_mf` 삭제<br>• 내부 `TireMagicFormula` 호출을 정식 `calc_tire_magic_formula`로 직결 |
 | | `test_infor_res.py` | • `TEST_INFORMATION`, `TEST_RESULT` 대문자 별칭 삭제 |
 | | `analysis_test_data.py` | • `make_performance_df`, `make_compare_df` 별칭 삭제 |
