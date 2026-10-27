@@ -36,8 +36,10 @@ aliases:
 * **핵심 가치**: 파일 확장자나 내부 바이너리 구조를 몰라도 `FileDataReader(path).read()` 단 한 줄로 정규화된 고속 DataFrame 반환.
 
 ### 1.2. 아키텍처 설계 사상
-* **파사드 패턴 (Facade Pattern)**: 상위 모듈은 개별 파서(`vbo_parser`, `dwd_parser` 등)를 직접 알 필요 없이 `FileDataReader` 단일 객체만 상대함.
+* **파사드 패턴 (Facade Pattern)**: 상위 모듈은 개별 파서(`vbo_parser`, `dwd_parser`, `text_parser` 등)를 직접 알 필요 없이 `FileDataReader` 단일 객체만 상대함.
 * **전략 패턴 파서 계층**: `BaseParser` 추상 기반 클래스를 상속받아 신규 계측기 포맷 등장 시 기존 코드 수정 없이 신규 파서 플러그인 장착 가능(OCP).
+* **전 파서 컬럼명 순수화 & 단위 100% 분리 원칙 (Column Purity Law ⭐)**: 어떤 계측기 파서(VBO, VBB, D7D, TXT)로 로드하든 DataFrame 컬럼명에는 `[unit]` 기호가 0건이며 오직 순수 채널명 단일 레벨로 통일되고, 물리 단위는 항상 `units` 딕셔너리로 100% 분리 보관.
+* **비정형 텍스트 지능형 구조 분석 (HeaderFinder ⭐)**: 레거시 v1의 거리 가중치 스코어링 공식($Score = L \times (1 - 0.1 \times D)$)과 수치 행 기각 검증을 모듈화하여, 상단 주석이 긴 비정형 텍스트 파일에서도 채널명과 데이터 시작점을 100% 자율 식별.
 * **메모리 최적화**: 대용량 바이너리(`.vbb`) 파싱 시 C-레벨 버퍼 복사 및 고속 판다스 벡터화 적용.
 
 ---
@@ -82,7 +84,8 @@ flowchart TD
 | `vbo_parser.py` | `VBOParser` | Racelogic ASCII VBO 헤더, 채널, 위성수 파싱 및 12시간제(AM/PM) 시각 변환 |
 | `vbb_parser.py` | `VBBParser` | Racelogic 바이너리 VBB 프레임 디코딩 및 고속 언팩 |
 | `dwd_parser.py` | `DWDParser` | Dewesoft C-DLL 인터페이스 연동 및 동기/비동기 채널 추출 |
-| `text_parser.py` | `TextParser` | 일반 CSV, TSV 텍스트 파일 고속 인메모리 파서 |
+| `text_parser.py` | `TextParser` | HeaderFinder 연동 비정형 텍스트 헤더/단위/데이터 시작점 자동 식별 및 고속 파서 |
+| `header_finder.py` | `HeaderFinder`, `HeaderStructure` | **[신규 ⭐]** 거리 가중치 스코어링 및 수치 안정성 변곡점 기반 지능형 헤더 탐색 엔진 |
 | `datetime_helper.py` | `DateTimeHelper` | VBO 헤더 7단계 스마트 날짜 판정(미래 날짜 배제 Gate), UTC $\to$ 로컬 타임존 변환 및 절대 시계열 생성 |
 | `standard_channel_pattern.py` | `STANDARD_CHANNEL_MAP` | 헝가리안 및 이종 계측 채널명을 사내 표준 컬럼으로 1:1 매핑 |
 
