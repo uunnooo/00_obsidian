@@ -41,6 +41,7 @@ aliases:
 * **전 파서 컬럼명 순수화 & 단위 100% 분리 원칙 (Column Purity Law ⭐)**: 어떤 계측기 파서(VBO, VBB, D7D, TXT)로 로드하든 DataFrame 컬럼명에는 `[unit]` 기호가 0건이며 오직 순수 채널명 단일 레벨로 통일되고, 물리 단위는 항상 `units` 딕셔너리로 100% 분리 보관.
 * **비정형 텍스트 지능형 구조 분석 (HeaderFinder ⭐)**: 레거시 v1의 거리 가중치 스코어링 공식($Score = L \times (1 - 0.1 \times D)$)과 수치 행 기각 검증을 모듈화하여, 상단 주석이 긴 비정형 텍스트 파일에서도 채널명과 데이터 시작점을 100% 자율 식별.
 * **메모리 최적화**: 대용량 바이너리(`.vbb`) 파싱 시 C-레벨 버퍼 복사 및 고속 판다스 벡터화 적용.
+* **Clean v2 단일 표준 완성 (Zero-Legacy Policy ⭐)**: 과거 과도기적 브릿지 코드(`sys.modules` 모듈 패칭, `to_legacy_tuple`, `_CallableModule`, `ReadDataFile`/`funcChangeSignalName`/`dwdRead` 별칭, 빈 `legacy/` 폴더)를 100% 완전 삭제하여, 어떠한 해킹 코드나 중복 인터페이스도 없는 순수 객체지향 단일 표준(SSOT) 확립.
 
 ---
 
