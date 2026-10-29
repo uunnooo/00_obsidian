@@ -120,6 +120,11 @@ self._result.detail_all = pd.DataFrame()
 * **하위 분석기의 단일 위임**: `AnSlipModeSkewness`, `AnResponse`, `AnMuDrop` 등 슬립률을 소비하는 하위 분석기들은 상위 `test.df`의 컬럼을 직접 까보며 중복 가드를 치지 않고, 오직 `if self.test.slip_pdf.df.empty: return self` 단일 위임 조건만으로 우아하게 조기 종료합니다.
 * **시각화 모듈 연계 안정성**: `PlotterTire`와 `PlotterProject`의 수많은 플롯 가드가 프로퍼티를 반복 조회하더라도, 이미 $O(1)$ 즉시 반환되므로 경고 로그 누출이나 재연산 병목 없이 안전하게 시각화를 건너뜁니다.
 
+#### 4) 가속/제동 대표 성능 지표의 네이밍 비대칭 당위성 (`brk_mean` vs `acc_time_mean`)
+* **가속 시험 (`acc`)**: `acc`라는 단어 자체가 물리적으로 '가속도(Acceleration, g)'를 뜻하므로, 목표 속도 도달 시간 지표는 단어 충돌을 방지하기 위해 반드시 **`acc_time_mean`**(가속시간)과 **`acc_mean`**(가속도)으로 분리 명명함.
+* **제동 시험 (`brk`)**: 제동 성능의 절대적 1순위 대표 지표는 '제동거리(Braking Distance, m)'이므로, 프레임워크 전반에서 대표 제동거리를 **`brk_mean`** 단일 표준으로 명명함.
+* **하위 호환성 및 파생 지표 정합**: `corr_brk_mean`(보정 제동거리), `index_brk_mean`(제동거리 지수), `adj_refer_brk_mean`(컨트롤 타이어 기준값) 등 프레임워크 수십 개 모듈과 엑셀 리포트가 `brk_mean`을 SSOT로 바인딩하고 있으므로, `brk_dist_mean` 등으로 변경하지 않고 `brk_mean` 단일 표준을 엄격히 고수함.
+
 ---
 
 ## 🚀 4. 실전 워크플로우 및 종합 스니펫
