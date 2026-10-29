@@ -127,6 +127,47 @@ self._result.detail_all = pd.DataFrame()
 
 ---
 
+### 3.4. 보정 데이터 파이프라인 일원화 및 하드코딩 제로 적응형(Data-Driven) 과도 응답 알고리즘 (v3.71)
+
+#### 1) 보정 데이터 파이프라인 일원화 및 보정 전·후 원본 보존 원칙
+* **단일 파이프라인 승계**: CAN 통신 지연(약 20ms)과 출발 직후 저속 휠속 센서 슬립(Wakeup) 복원이 완료된 정제 데이터를 최상위 `VTAccBrkTire`와 서브 분석기 `AnSlipPdf`, `AnResponse`, `TireCurve`에서 단일 파이프라인으로 승계합니다.
+* **보정 전·후 대조 원본 보존**: 보정 전 원본 채널(`WS*_Raw`, `SR*_Raw`)을 데이터프레임 내에 함께 보존하여 언제든 보정 전·후 차이와 신호처리 알고리즘 효과를 직접 대조·검증할 수 있습니다.
+* **`calc_wheel_delay_compensation` 고도화**:
+  - **CAN 지연 추정**: 제동 시 전륜 슬립($WS < Vel$) 현상을 고려하여, 시험 모드(가속/제동)와 무관하게 파일 내 완만한 양(+)의 가속 구간($0.02 \sim 0.18\text{g}$)을 최우선 활용하고, 단발성 제동 스니펫 데이터는 타력/초기 감속 구간($-0.08 \sim -0.015\text{g}$)에서 폴백 추정하여 20ms 지연을 정밀 보정합니다.
+  - **가속 발진 저속 웨이크업 복원**: 정차 출발점($i_{\text{rest}}$)부터 첫 웨이크업 펄스($t_{\text{true}}$)까지 $C^1$ 연속 선형 램프로 저속 웨이크업 구간을 복원하여 계단식 점프를 원천 제거합니다.
+
+#### 2) 제동 시 차량 동역학적 물리 지연($\sim 220\text{ms}$) 규명과 공학적 해석
+* **남은 지연의 물리적 실체**: 20ms CAN 통신 지연을 보정한 후에도 휠 감속 시작점과 차체 감속 시작점 사이에는 약 $180 \sim 250\text{ms}$($\sim 220\text{ms}$)의 지연이 여전히 존재합니다.
+* **차량 역학적 과도 응답(Transient Dynamics Response)**:
+  $$\text{브레이크 유압 인가} \longrightarrow \text{휠 감속 및 타이어 슬립 형성} \longrightarrow \text{노면 마찰력(Braking Force) 발현} \longrightarrow \text{서스펜션 피칭(Dive) 압축} \longrightarrow \text{차체 질량 감속}$$
+  - 이는 센서 계측 결함이나 통신 지연이 아니라, **타이어의 탄성 변형 $\to$ 마찰력 생성 $\to$ 섀시 서스펜션 기구부의 탄성 변형을 거쳐 1~2톤에 달하는 차체 질량이 실제로 감속하기까지 소요되는 본질적인 차량 동역학적 물리 지연 시간**입니다.
+  - 본 알고리즘은 이를 센서 오류로 치부하지 않고, 차량-타이어 시스템의 순수 응답성 지표(`sys_response_time`, `sys_response_dist`)로 정확히 정량화합니다.
+
+#### 3) 하드코딩 제로 적응형(Data-Driven) 과도 응답 및 10~90% 라이징 알고리즘
+* **노면 마찰 한계(Dry/Wet/Snow/Ice) 연동 적응형 타겟 대역**:
+  - 고정된 임계값(예: $-0.5\text{g} \sim -0.2\text{g}$)을 전면 배제하고, 각 런의 실제 피크 가속도($A_{\text{peak}}$)와 평형 기저선($A_{\text{base}}$) 대비 유효 진폭의 $18\% \sim 45\%$ 대역을 동적으로 계산합니다.
+  - 노이즈 플로어($\text{Median} \pm 2.5 \times \text{MAD}$) 대비 최소 마진을 보장하여 마찰력이 낮은 빙설로(Snow/Ice) 및 웻(Wet) 노면에서도 거짓 감지 없이 지연 시간($\Delta t_{\text{resp}}$) 및 응답 거리($\Delta d_{\text{resp}}$)를 안정적으로 산출합니다.
+* **평형 기저점($A_{\text{base}}$) 및 1차 과도 피크($d^2Vel = 0$) 역추적**:
+  - 트리거 이전 $2.0\text{s}$ 백트래킹 윈도우를 확보하여 제동/가속 전 평형 구간($\text{Median} \pm \text{MAD}$)을 분석, 실제 거동 개시 기저점($A_{\text{base}}$)을 식별합니다.
+  - $A_{\text{base}}$ 이후 가속도 2차 도함수가 0으로 수렴하는 첫 번째 1차 과도 피크($A_{\text{peak}}$, $d^2Vel \le 0$)까지의 순수 진폭($\Delta A = |A_{\text{peak}} - A_{\text{base}}|$) 기준 $10\% \sim 90\%$ 내분 구간에서 라이징 타임($t_{\text{rising}}$) 및 선형 회귀 기울기($\text{Slope}$)를 산출합니다.
+* **런별 진단 메타데이터 기록**: `Offset_Eff_Zero`, `Offset_Vel_Base`, `Offset_Ws_Base`, `Offset_Peak_L2`, `Base_Val`, `Peak_Val`, `Thresh_Start`, `Thresh_End`, `Run_Response_Time`, `Run_Rising_Time`, `Run_Rising_Slope` 등을 데이터프레임 내 보존하여 시각화 모듈과 유기적으로 결합합니다.
+
+### 3.5. 3열 다중 진단 시각화 및 2×2 보정 진단 대시보드 구조 (v3.71)
+
+#### 1) 3열 다중 과도 응답 진단 뷰 (`PlotterTire.sys_response`)
+* **1열 (Speed Profile & CAN Delay Compensation)**: 보정 전 원본 휠속(`WS_Raw`, 회색 점선), 보정 휠속(`WS`, 청색 실선), 차체 속도(`Vel`, 적색 실선), 트리거 시점 수직 점선, 온셋 포인트 배지 표시.
+* **2열 (Transient Accel & Response Lag Detection)**: 적응형 타겟 대역($[\text{Thresh}_{\text{start}}, \text{Thresh}_{\text{end}}]$) 수평 주황 음영, 휠/차체 Onset 다이아몬드 마커, 응답 구간 중심점(Centroid) 수직선 및 $\Delta t$ 양방향 화살표 표출.
+* **3열 (Adaptive Baseline, 1st Peak & Rising Fit 10~90%)**: 평형 기저점($A_{\text{base}}$, 삼각 마커), 1차 과도 피크($A_{\text{peak}}$, 별 마커), 순수 진폭 $10\% \sim 90\%$ 녹색 음영 및 $dVel_{\text{fit}}$ 선형 회귀 직선 오버레이.
+* **모든 Run 행의 열별 동적 Y축 스케일 100% 통일 (하드코딩 배제)**: 런별 데이터 극값 및 마진을 자동 계산하여 열 단위로 일괄 통일함으로써 다중 런 간의 응답 거동 차이를 직관적으로 비교 분석 가능.
+
+#### 2) 2×2 상세 보정 진단 대시보드 (`PlotterTire.slip_check`)
+* **상단 (Row 1 - 전체 세션 요약)**:
+  - Panel 1: 전체 시계열 차속 대 4륜 휠속도 동기화 프로파일.
+  - Panel 2: 전체 시계열 4륜 슬립률($SR_{FL}, SR_{FR}, SR_{RL}, SR_{RR}$) 프로파일.
+* **하단 (Row 2 - 첫 유효 런 과도 구간 초정밀 확대 진단)**:
+  - Panel 3: 첫 유효 런의 `WS_Raw` vs `WS` 지연/웨이크업 보정 전후 대조 및 차속 오버레이.
+  - Panel 4: 첫 유효 런의 `SR_Raw` vs `SR` 슬립률 보정 전후 대조 및 저속 웨이크업 복원 구간 강조 하이라이트.
+
 ## 🚀 4. 실전 워크플로우 및 종합 스니펫
 
 ```python
