@@ -28,7 +28,7 @@ aliases:
 🔗 [사내 Insight Portal 바로가기](https://insight.hankooktech.com/HOME/home.html)
 
 * 기본적으로 계정이 있으면 사이트에 재접속하는 것만으로 활성화됩니다.
-* ![[_attachments/10_회사_업무/10_Tableau_사용_매뉴얼_01.png|650]]
+* ![[_attachments/04_Resources/10_회사_매뉴얼/20_회사_Tableau_사용_매뉴얼/10_Tableau_사용_매뉴얼_01.png|650]]
 
 > [!WARNING] 계정 권한 문의
 > 계정에 문제가 있거나 권한이 비활성화된 경우 Insight 담당자에게 문의하세요.  
@@ -57,12 +57,12 @@ aliases:
 
 ### 2) 접속 가능한 SQL Warehouse 상태 확인
 * 내 계정에서 접근 가능한 SQL Warehouse 인스턴스가 `Running` 상태인지 확인합니다. (Warehouse에 실제 DB 존재)
-* ![[_attachments/10_회사_업무/11_Tableau_사용_매뉴얼_02.png|650]]
+* ![[_attachments/04_Resources/10_회사_매뉴얼/20_회사_Tableau_사용_매뉴얼/11_Tableau_사용_매뉴얼_02.png|650]]
 
 ### 3) Connection Details 정보 일치 확인
 * Warehouse의 **Connection Details** (서버 호스트 이름, HTTP 경로, 포트 등) 정보와 Tableau 내 Databricks 연결 구성 창의 정보가 일치해야 합니다.
-* ![[_attachments/10_회사_업무/12_Tableau_사용_매뉴얼_03.png|650]]
-* ![[_attachments/10_회사_업무/13_Tableau_사용_매뉴얼_04.png|650]]
+* ![[_attachments/04_Resources/10_회사_매뉴얼/20_회사_Tableau_사용_매뉴얼/12_Tableau_사용_매뉴얼_03.png|650]]
+* ![[_attachments/04_Resources/10_회사_매뉴얼/20_회사_Tableau_사용_매뉴얼/13_Tableau_사용_매뉴얼_04.png|650]]
 
 ### 4) 웹 브라우저 인증 및 연동 완료
 * 설정 후 웹 브라우저 SSO 인증을 완료하면 Tableau에서 Databricks 데이터베이스 테이블을 쿼리하거나 시각화 대시보드로 활용할 수 있습니다.

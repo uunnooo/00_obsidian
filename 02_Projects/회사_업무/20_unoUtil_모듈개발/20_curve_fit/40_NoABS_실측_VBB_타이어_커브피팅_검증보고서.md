@@ -41,7 +41,7 @@ tags:
 ### 2.1. 4-in-1 통합 전략 비교 차트
 아래 차트는 실측 스노우 제동 데이터(산점도)에 대해 각 추정기가 도출한 회귀 곡선과, 3개 전략의 회귀선을 한 화면에서 겹쳐 비교(Overlay)한 결과입니다.
 
-![[_attachments/10_회사_업무/curve_fit/tire_curve_strategy_comparison.png|900]]
+![[_attachments/02_Projects/회사_업무/20_unoUtil_모듈개발/20_curve_fit/40_NoABS_실측_VBB_타이어_커브피팅_검증보고서/tire_curve_strategy_comparison.png|900]]
 
 ---
 
@@ -49,12 +49,12 @@ tags:
 
 | 전략 1: 비선형 최소자승법 (least_squares) | 전략 2: 다구간 스플라인 결합 (combiner) |
 | :---: | :---: |
-| ![[_attachments/10_회사_업무/curve_fit/tire_fit_least_squares.png|900]] | ![[_attachments/10_회사_업무/curve_fit/tire_fit_combiner.png|900]] |
+| ![[_attachments/02_Projects/회사_업무/20_unoUtil_모듈개발/20_curve_fit/40_NoABS_실측_VBB_타이어_커브피팅_검증보고서/tire_fit_least_squares.png|900]] | ![[_attachments/02_Projects/회사_업무/20_unoUtil_모듈개발/20_curve_fit/40_NoABS_실측_VBB_타이어_커브피팅_검증보고서/tire_fit_combiner.png|900]] |
 | *Pacejka MF 6-파라미터 가중 최적화* | *선형 영역 RANSAC + Hermite C1 연속 접합* |
 
 | 전략 3: 전역 수치 최적화 (optimizer) |
 | :---: |
-| ![[_attachments/10_회사_업무/curve_fit/tire_fit_optimizer.png|900]] |
+| ![[_attachments/02_Projects/회사_업무/20_unoUtil_모듈개발/20_curve_fit/40_NoABS_실측_VBB_타이어_커브피팅_검증보고서/tire_fit_optimizer.png|900]] |
 | *Scipy minimize 기반 파라미터 최적 수렴* |
 
 ---

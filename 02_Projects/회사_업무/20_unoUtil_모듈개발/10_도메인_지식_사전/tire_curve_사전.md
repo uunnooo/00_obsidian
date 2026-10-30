@@ -185,7 +185,7 @@ classDiagram
 | **L3** | TCS / Spin Entry | **슬립 (Slip)** | L2 이후 본격 휠스핀 및 TCS 제어로 전이되는 과도기 종료점. |
 
 ### 3.4. 실측 데이터 기반 종합 진단 그래프
-![[story_fig10_transient_sync_criteria.png]]
+![[_attachments/02_Projects/회사_업무/20_unoUtil_모듈개발/10_도메인_지식_사전/tire_curve_사전/story_fig10_transient_sync_criteria.png]]
 *(a) 시간축 단일 런 신호 지연 · (b) 멀티 런 타이밍 지터 · (c) 제동 $s-\mu$ 위상 정합 대표 루프 및 $K_{\text{pk}}$ · (d) 가속 Onset 및 트랙션 무릎점*
 
 ---
@@ -225,7 +225,7 @@ y_{\text{corr}}(s) = g \cdot y_{\text{raw}}(s) = (g \cdot D) \sin\Big(C \arctan\
 * **corr='curve'**: 시험 순서(시간 경과)에 따른 콘트롤 타이어의 2차 다항식/선형 성능 드리프트 추세선을 추적하여 런별 맞춤형 게인($) 적용.
 * **단일 Control (100%) 기준선 통합**: 분산되어 있던 C1과 C2를 단일한 Control 기준선으로 결합하고, 평가 타이어(T1, T2)는 콘트롤 대비 상대 지수(Index: %)로 직관화.
 
-![[story_fig5b_brk_project_corr_curve.png]]
+![[_attachments/02_Projects/회사_업무/20_unoUtil_모듈개발/10_도메인_지식_사전/tire_curve_사전/story_fig5b_brk_project_corr_curve.png]]
 *노면 드리프트 보정 완료: 분산된 C1, C2가 단일 Control(100%)로 통합되고 평가 타이어(T1, T2, T3)가 공정 비교됨*
 
 ---

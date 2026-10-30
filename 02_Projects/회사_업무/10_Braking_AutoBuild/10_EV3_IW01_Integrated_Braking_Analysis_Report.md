@@ -239,7 +239,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 25 | 2nd / QW01A / X00 | 35.56 | 97.82 | -2.18 |
 
 
-![[01_05_Baseline_Performance_Wet.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/01_05_Baseline_Performance_Wet.png]]
 
 ### 3.2 DRY 노면 통합 제동 성능 요약 (Lane 7, 8 종합)
 | 순위 (No) | 타이어 그룹 라벨 | 실측 제동거리 (m) | 로컬 지수 (%) | 100% 대비 편차 (%p) |
@@ -270,7 +270,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 24 | 2nd / QW01B / X08 | 48.76 | 93.10 | -6.90 |
 
 
-![[01_06_Baseline_Performance_Dry.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/01_06_Baseline_Performance_Dry.png]]
 
 ### 3.3 세부 레인별 평가 결과 및 차트 (전수 수록)
 #### ▶ Lane 1 (Wet 고마찰 아스팔트)
@@ -298,7 +298,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 20 | ex / CT / TS (33KF) | ex / CT / TS | 31.74 | 98.16 | -1.84 | 26.00 |
 
 
-![[01_01_Baseline_Performance_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/01_01_Baseline_Performance_lane1.png]]
 
 #### ▶ Lane 4 (Wet 저마찰 아스팔트)
 | 순위 | 식별 라벨 (Full Label) | 그룹 라벨 | 실측거리 (m) | 로컬지수 (%) | 편차 (%p) | 노면온도 (°C) |
@@ -335,7 +335,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 30 | ex / MC / AP7 (23KF) | ex / MC / AP7 | 36.70 | 95.55 | -4.45 | 27.80 |
 
 
-![[01_02_Baseline_Performance_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/01_02_Baseline_Performance_lane4.png]]
 
 #### ▶ Lane 7 (Dry 아스팔트)
 | 순위 | 식별 라벨 (Full Label) | 그룹 라벨 | 실측거리 (m) | 로컬지수 (%) | 편차 (%p) | 노면온도 (°C) |
@@ -361,7 +361,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 19 | 2nd / QW01B / X08 (30KF) | 2nd / QW01B / X08 | 48.76 | 93.10 | -6.90 | 47.10 |
 
 
-![[01_03_Baseline_Performance_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/01_03_Baseline_Performance_lane7.png]]
 
 #### ▶ Lane 8 (Dry)
 | 순위 | 식별 라벨 (Full Label) | 그룹 라벨 | 실측거리 (m) | 로컬지수 (%) | 편차 (%p) | 노면온도 (°C) |
@@ -378,7 +378,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 10 | 1st / IW01 / X15 (25KF) | 1st / IW01 / X15 | 44.65 | 97.56 | -2.44 | 0.00 |
 
 
-![[01_04_Baseline_Performance_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/01_04_Baseline_Performance_lane8.png]]
 
 ---
 
@@ -419,7 +419,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 ### 4.3 노면별 콘트롤 타이어 제동거리 vs 노면온도 산점도 및 추세선
-![[02_01_Control_Tire_vs_Temperature_Analysis.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/02_01_Control_Tire_vs_Temperature_Analysis.png]]
 
 ### 4.4 콘트롤 타이어 차수별 전수 세부 평가 이력 및 온도 반응 명세표 (30건 전수)
 | No | 노면 | 분류 | 의뢰서 | 차수 | 스펙 | 타이어 마킹 | 평가 일시 (Datetime) | 실측거리(m) | 노면온도(°C) | 기온(°C) | 회귀예측(m) | 잔차(m) | 공학 분석 메모 |
@@ -463,7 +463,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 실제 제동거리가 더 긴(열세인) 타이어가 상대 평가 지수에서는 더 우수한 것으로 둔갑하는 **공학적 역전 현상**을 정밀 진단한 결과입니다.
 
 ### 5.3 실측 제동거리 vs 성능 지수 산점도 매트릭스
-![[03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/03_01_Raw_Distance_vs_Index_Analysis_With_Temp.png]]
 
 ---
 
@@ -497,7 +497,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 ### 6.2 Method A vs Method B 순위 변동 슬로프 차트
-![[04_01_Recalibration_MethodA_vs_MethodB_Slope.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_01_Recalibration_MethodA_vs_MethodB_Slope.png]]
 
 ### 6.3 [Method B] WET 노면 종합 랭킹 (전수 25개 모델)
 | 순위 | 타이어 모델 라벨 | Method B (%) | Method A (%) | 실측거리 (m) | 평균 배율 | 평가 노면 | 세부 계산 근거 및 산출식 |
@@ -529,7 +529,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 25 | ex / MC / AP7 | 100.00 | 99.19 | 33.64 | 1.01 | lane1, lane4 | lane4: 실측 32.80m (기준 32.80m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane4: 실측 33.29m (기준 33.29m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane4: 실측 36.70m (기준 35.14m 대비 A: 95.55% × 1.0465 = B: 100.00%) \| lane1: 실측 31.01m (기준 31.01m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane1: 실측 31.78m (기준 31.78m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane4: 실측 35.99m (기준 35.99m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane4: 실측 36.64m (기준 36.64m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane1: 실측 32.05m (기준 32.05m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane4: 실측 35.73m (기준 35.73m 대비 A: 100.00% × 1.0000 = B: 100.00%) \| lane1: 실측 28.91m (기준 28.60m 대비 A: 98.93% × 1.0109 = B: 100.00%) \| lane4: 실측 35.10m (기준 33.94m 대비 A: 96.58% × 1.0354 = B: 100.00%) |
 
 
-![[04_06_MethodB_Recalibrated_Performance_Wet.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_06_MethodB_Recalibrated_Performance_Wet.png]]
 
 ### 6.4 [Method B] DRY 노면 종합 랭킹 (전수 24개 모델)
 | 순위 | 타이어 모델 라벨 | Method B (%) | Method A (%) | 실측거리 (m) | 평균 배율 | 평가 노면 | 세부 계산 근거 및 산출식 |
@@ -560,7 +560,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 24 | 2nd / QW01B / X08 | 94.29 | 93.10 | 48.76 | 1.01 | lane7 | lane7: 실측 48.76m (기준 45.61m 대비 A: 93.10% × 1.0128 = B: 94.29%) |
 
 
-![[04_07_MethodB_Recalibrated_Performance_Dry.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_07_MethodB_Recalibrated_Performance_Dry.png]]
 
 ### 6.5 노면별 Method B 재보정 세부 산출 명세표 (전수 수록)
 > **💡 노면별 산출 근거 테이블 안내**: 각 타이어의 실측 제동거리, 당일 기준 콘트롤 타이어 정보 및 실측거리, Method A 산출식, 적용 보정 배율 및 도출 근거, 최종 Method B 지수가 전수 기재되어 있습니다.
@@ -590,7 +590,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 20 | ex / CT / TS (33KF) | 26RE070033KF | ex / MC / AP7 | 31.16 | 31.74 | 31.16m / 31.74m × 100 = 98.16% | 98.16 | 1.00 | 100.0% / 100.00% = 1.0000 | 98.16% × 1.0000 = 98.16% | 98.16 | -1.84 |
 
 
-![[04_02_MethodB_Recalibrated_Performance_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_02_MethodB_Recalibrated_Performance_lane1.png]]
 
 #### ▶ Lane 4 (Wet 저마찰 아스팔트) Method B 산출 명세 (총 30건)
 | No | 타이어 식별 라벨 | 시험 의뢰서 | 당일 기준 콘트롤 | 콘트롤거리(m) | 실측거리(m) | Method A 공식 | 로컬지수(%) | 적용배율 | 배율도출근거 | Method B 공식 | 재보정지수(%) | 앵커대비편차(%p) |
@@ -627,7 +627,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 30 | ex / CT / TS (33KF) | 26RE070033KF | ex / MC / AP7 | 36.12 | 36.42 | 36.12m / 36.42m × 100 = 99.17% | 99.17 | 1.00 | 100.0% / 100.00% = 1.0000 | 99.17% × 1.0000 = 99.17% | 99.17 | -0.83 |
 
 
-![[04_03_MethodB_Recalibrated_Performance_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_03_MethodB_Recalibrated_Performance_lane4.png]]
 
 #### ▶ Lane 7 (Dry 아스팔트) Method B 산출 명세 (총 19건)
 | No | 타이어 식별 라벨 | 시험 의뢰서 | 당일 기준 콘트롤 | 콘트롤거리(m) | 실측거리(m) | Method A 공식 | 로컬지수(%) | 적용배율 | 배율도출근거 | Method B 공식 | 재보정지수(%) | 앵커대비편차(%p) |
@@ -653,7 +653,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 19 | 2nd / QW01B / X08 (30KF) | 26RE080030KF | 2nd / IW01 / X19 | 45.61 | 48.76 | 45.61m / 48.76m × 100 = 93.10% | 93.10 | 1.01 | 101.28% / 100.00% = 1.0128 | 93.10% × 1.0128 = 94.29% | 94.29 | -5.71 |
 
 
-![[04_04_MethodB_Recalibrated_Performance_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_04_MethodB_Recalibrated_Performance_lane7.png]]
 
 #### ▶ Lane 8 (Dry) Method B 산출 명세 (총 10건)
 | No | 타이어 식별 라벨 | 시험 의뢰서 | 당일 기준 콘트롤 | 콘트롤거리(m) | 실측거리(m) | Method A 공식 | 로컬지수(%) | 적용배율 | 배율도출근거 | Method B 공식 | 재보정지수(%) | 앵커대비편차(%p) |
@@ -670,7 +670,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 | 10 | 1st / IW01 / X15 (25KF) | 26RE040025KF | ex / MC / AP7 | 43.58 | 44.65 | 43.58m / 44.65m × 100 = 97.56% | 97.56 | 1.00 | 100.0% / 100.00% = 1.0000 | 97.56% × 1.0000 = 97.56% | 97.56 | -2.44 |
 
 
-![[04_05_MethodB_Recalibrated_Performance_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/04_05_MethodB_Recalibrated_Performance_lane8.png]]
 
 ---
 
@@ -714,16 +714,16 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 #### 7.1.3 노면별 콘트롤 타이어 세션별 실측거리 및 세션 내 편차 차트
 ##### 📊 Lane 1 (Wet 고마찰 아스팔트) 콘트롤 타이어 재현성 및 C1 vs C2 편차
-![[05_01_Ctrl_Repeatability_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_01_Ctrl_Repeatability_lane1.png]]
 
 ##### 📊 Lane 4 (Wet 저마찰 아스팔트) 콘트롤 타이어 재현성 및 C1 vs C2 편차
-![[05_01_Ctrl_Repeatability_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_01_Ctrl_Repeatability_lane4.png]]
 
 ##### 📊 Lane 7 (Dry 아스팔트) 콘트롤 타이어 재현성 및 C1 vs C2 편차
-![[05_01_Ctrl_Repeatability_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_01_Ctrl_Repeatability_lane7.png]]
 
 ##### 📊 Lane 8 (Dry 제동 시험로) 콘트롤 타이어 재현성 및 C1 vs C2 편차
-![[05_01_Ctrl_Repeatability_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_01_Ctrl_Repeatability_lane8.png]]
 
 ### 7.2 테스트 타이어(Test Tires) 교차 의뢰서 재현성 및 지수 수렴 평가
 > **⚠️ 중요 공학적 해석**: 일반 테스트 타이어의 교차 의뢰서 평가는 계절/기온차 및 타이어 컴파운드의 온도 감응도 차이로 인해 실차 고유 산포(약 1.7%p ~ 4.8%p)가 발생합니다. Method B(공통 앵커 재보정)는 이러한 환경 편차를 수학적으로 정규화하여 타이어 간 공정한 직접 대조를 가능하게 합니다.
@@ -740,13 +740,13 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 #### 7.2.2 노면별 테스트 타이어 실측 제동거리 vs 성능 지수 대조 차트
 ##### 📊 Lane 1 (Wet 고마찰 아스팔트) 테스트 타이어 교차 대조
-![[05_02_Test_Repeatability_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_02_Test_Repeatability_lane1.png]]
 
 ##### 📊 Lane 4 (Wet 저마찰 아스팔트) 테스트 타이어 교차 대조
-![[05_02_Test_Repeatability_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_02_Test_Repeatability_lane4.png]]
 
 ##### 📊 Lane 7 (Dry 아스팔트) 테스트 타이어 교차 대조
-![[05_02_Test_Repeatability_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/05_02_Test_Repeatability_lane7.png]]
 
 #### 7.2.3 테스트 타이어 세부 평가 이력 및 재보정 산출 명세표 (전수 수록)
 ##### ▶ LANE1 테스트 타이어 교차 평가 세부 명세 (총 2건)
@@ -846,19 +846,19 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 ### 8.4 GPS 공간 품질(QC), 2D 궤적 벡터 및 요(Yaw) 모션 차트
 #### 8.4.1 2D 제동 진입 좌표 산점도 맵 (PosX vs PosY)
-![[06_01_Braking_Spatial_Scatter_Analysis.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/06_01_Braking_Spatial_Scatter_Analysis.png]]
 
 #### 8.4.2 프로젝트별 횡방향(X) / 종방향(Y) / 합성 공간 편차 비교 (Grouped Bar)
-![[06_02_Braking_Centroid_Deviation_Analysis.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/06_02_Braking_Centroid_Deviation_Analysis.png]]
 
 #### 8.4.3 횡방향 조향 정밀도 vs 종방향 제동 타이밍 분할 정밀 대조
-![[06_03_Braking_XY_Directional_Deviation.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/06_03_Braking_XY_Directional_Deviation.png]]
 
 #### 8.4.4 [신규] 제동 시작 → 정지 2D 궤적 벡터 및 횡방향 드리프트 맵
-![[06_04_Braking_Trajectory_Vectors.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/06_04_Braking_Trajectory_Vectors.png]]
 
 #### 8.4.5 [신규] 제동 중 요(Yaw) 모션과 제동거리 상관관계 및 이상치 영향 검토
-![[06_05_Yaw_Motion_vs_Braking_Dist.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/06_05_Yaw_Motion_vs_Braking_Dist.png]]
 
 ### 8.5 GPS 공간 품질 및 요(Yaw) 모션 종합 공학 소견
 1. **횡방향(X축) 조향 차선 정렬 정밀도 탁월**:
@@ -1022,26 +1022,26 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 ### 9.3. 반복 횟수별 성능변화 시각화 차트 (노면별 분리 및 라벨 순 정렬)
 #### (1) 노면별 8회 제동 런 차수별 실측 제동거리 순차 추세선 (노면별 분리)
 ##### Lane 1 - Wet Asphalt (젖은 아스팔트 80 km/h)
-![[07_01_Run_Trend_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_01_Run_Trend_lane1.png]]
 ##### Lane 4 - Wet Asphalt High (젖은 아스팔트 고속 100 km/h)
-![[07_01_Run_Trend_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_01_Run_Trend_lane4.png]]
 ##### Lane 7 - Dry Asphalt (마른 아스팔트 100 km/h)
-![[07_01_Run_Trend_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_01_Run_Trend_lane7.png]]
 ##### Lane 8 - Dry (마른 노면 100 km/h)
-![[07_01_Run_Trend_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_01_Run_Trend_lane8.png]]
 
 #### (2) 타이어 스펙별 성능 변동 기울기(Slope) 및 편차폭(Spread) 정량 대조 (스펙 종합)
-![[07_02_Spec_Degradation_Slope_Comparison.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_02_Spec_Degradation_Slope_Comparison.png]]
 
 #### (3) 노면별 타이어 세트 성능 변동 기울기 & 편차폭 정량 대조 (노면별 분리, 몰드-패턴-마킹 라벨 순 정렬)
 ##### Lane 1 - Wet Asphalt (젖은 아스팔트 80 km/h)
-![[07_03_Lane_Degradation_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_03_Lane_Degradation_lane1.png]]
 ##### Lane 4 - Wet Asphalt High (젖은 아스팔트 고속 100 km/h)
-![[07_03_Lane_Degradation_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_03_Lane_Degradation_lane4.png]]
 ##### Lane 7 - Dry Asphalt (마른 아스팔트 100 km/h)
-![[07_03_Lane_Degradation_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_03_Lane_Degradation_lane7.png]]
 ##### Lane 8 - Dry (마른 노면 100 km/h)
-![[07_03_Lane_Degradation_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/07_03_Lane_Degradation_lane8.png]]
 
 ### 9.4. 제동 순차 거동 및 반복 안정성 핵심 공학 소견
 1. **스펙별 변동 억제력 격차 규명**:
@@ -1128,29 +1128,29 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 ### 10.3. 노면별 타이어 스펙 Mu-Drop 실측 vs 보정 차트 (노면별 분리)
 #### 10.3.1 타이어별 Mu-Drop 실측 손실거리(m) 및 제동거리 대비 손실 비중(%) [전수]
 ##### 📊 Lane 1 (Wet 고마찰 아스팔트) 실측 손실거리
-![[08_01_MuDrop_Analysis_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_01_MuDrop_Analysis_lane1.png]]
 
 ##### 📊 Lane 4 (Wet 저마찰 아스팔트) 실측 손실거리
-![[08_01_MuDrop_Analysis_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_01_MuDrop_Analysis_lane4.png]]
 
 ##### 📊 Lane 7 (Dry 아스팔트) 실측 손실거리
-![[08_01_MuDrop_Analysis_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_01_MuDrop_Analysis_lane7.png]]
 
 ##### 📊 Lane 8 (Dry) 실측 손실거리
-![[08_01_MuDrop_Analysis_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_01_MuDrop_Analysis_lane8.png]]
 
 #### 10.3.2 타이어별 Mu-Drop Method A 보정 손실거리(m) 및 성능 지수(%) [전수]
 ##### 📊 Lane 1 (Wet 고마찰 아스팔트) 보정 손실거리
-![[08_02_MuDrop_Corr_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_02_MuDrop_Corr_lane1.png]]
 
 ##### 📊 Lane 4 (Wet 저마찰 아스팔트) 보정 손실거리
-![[08_02_MuDrop_Corr_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_02_MuDrop_Corr_lane4.png]]
 
 ##### 📊 Lane 7 (Dry 아스팔트) 보정 손실거리
-![[08_02_MuDrop_Corr_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_02_MuDrop_Corr_lane7.png]]
 
 ##### 📊 Lane 8 (Dry) 보정 손실거리
-![[08_02_MuDrop_Corr_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/08_02_MuDrop_Corr_lane8.png]]
 
 ---
 
@@ -1234,16 +1234,16 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 ### 11.3. 고속 vs 저속 제동 성능 분할 및 감속도 천이 시각화 차트 (노면별 분리)
 #### 📊 Lane 1 (Wet 고마찰 아스팔트) 고속/저속 분할 및 감속도 천이
-![[09_01_Speed_Zone_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_01_Speed_Zone_lane1.png]]
 
 #### 📊 Lane 4 (Wet 저마찰 아스팔트) 고속/저속 분할 및 감속도 천이
-![[09_02_Speed_Zone_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_02_Speed_Zone_lane4.png]]
 
 #### 📊 Lane 7 (Dry 아스팔트) 고속/저속 분할 및 감속도 천이
-![[09_03_Speed_Zone_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_03_Speed_Zone_lane7.png]]
 
 #### 📊 Lane 8 (Dry) 고속/저속 분할 및 감속도 천이
-![[09_04_Speed_Zone_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_04_Speed_Zone_lane8.png]]
 
 ### 11.4. 고속 vs 저속 감속도 차이(Δg)와 상대 제동 성능지수(Index) 간의 상관성 분석 (Correlation Analysis)
 각 시험 의뢰서(`TestReqNo`) 내 콘트롤 타이어(100.0%) 기준 상대 제동 성능지수(`index_brk_mean`, %)와, 고속 진입 구간 대비 저속 정지 구간의 감속도 차이 $\Delta g = g_{\text{low}} - g_{\text{high}}$ 간의 상관성을 4대 노면별로 분석합니다.
@@ -1303,20 +1303,20 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 #### 📊 [종합 차트] 노면별 고속/저속 감속도 차이(Δg) vs 상대 제동 성능지수(Index) 상관성 2x2 종합 분석
-![[09_05_Speed_Zone_AccDiff_vs_Index_Correlation.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_05_Speed_Zone_AccDiff_vs_Index_Correlation.png]]
 
 #### 📈 [노면별 단독 차트] 감속도 차이(Δg) vs 상대 제동 성능지수 상관성 상세 분석
 * **Lane 1 (Wet 고마찰 아스팔트, 80km/h) - 감속도 차이 vs 상대 성능지수 상관성**
-  ![[09_05_AccDiff_vs_Index_lane1.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_05_AccDiff_vs_Index_lane1.png]]
 
 * **Lane 4 (Wet 저마찰 아스팔트, 80km/h) - 감속도 차이 vs 상대 성능지수 상관성**
-  ![[09_05_AccDiff_vs_Index_lane4.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_05_AccDiff_vs_Index_lane4.png]]
 
 * **Lane 7 (Dry 아스팔트, 100km/h) - 감속도 차이 vs 상대 성능지수 상관성**
-  ![[09_05_AccDiff_vs_Index_lane7.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_05_AccDiff_vs_Index_lane7.png]]
 
 * **Lane 8 (Dry, 100km/h) - 감속도 차이 vs 상대 성능지수 상관성**
-  ![[09_05_AccDiff_vs_Index_lane8.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/09_05_AccDiff_vs_Index_lane8.png]]
 
 <a id='chapter-10'></a>
 ## 12. 🏎️ [제10장] 노면별 고속 vs 저속 성능 기여도, 감속도 레벨 차이 및 Mu-Drop 영향도 종합 분석
@@ -1352,16 +1352,16 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 ### 12.3. 노면별 기여도, 감속도 레벨 및 Mu-Drop 영향도 시각화 차트
 #### 📊 노면 조건별 고속 vs 저속 제동거리 기여도 비율 종합 대조 (100% Stacked Bar)
-![[10_01_Surface_Speed_Contribution_Ratio.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_01_Surface_Speed_Contribution_Ratio.png]]
 
 #### 📊 노면 조건별 고속 vs 저속 감속도 레벨 대조 및 변화량(Δg) 분석
-![[10_02_Surface_Deceleration_Level_Comparison.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_02_Surface_Deceleration_Level_Comparison.png]]
 
 #### 📊 노면 조건별 Mu-Drop 마찰 저하 손실 기여율(%) 및 제동거리 영향도 종합 대조 (100% 누적 가로 막대 & 영향도 등급)
-![[10_03_Surface_MuDrop_Impact_Contribution.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_03_Surface_MuDrop_Impact_Contribution.png]]
 
 #### 📊 노면 조건별 평가 타이어 세트의 Mu-Drop 손실 기여율(%) 전수 대조 (2x2 종합 차트)
-![[10_05_Surface_MuDrop_Ratio_Comparison.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_05_Surface_MuDrop_Ratio_Comparison.png]]
 
 ### 12.4. 속도 구간별 (10km/h 단위) 감속도 프로파일링 분석
 각 노면별로 제동 진입부터 완전 정지까지 10km/h 단위 감속도(g)의 천이 과정을 추적하여, 제동 구간별 접지력 변동 및 ABS 제어 특성을 파악합니다.
@@ -1379,7 +1379,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 의뢰서별로 **색상(Color)**, **선스타일(Linestyle)**, **마커(Marker)**를 분별 부여하여 시각화하였으며, 속도 구간별 감속도 거동 패턴의 동일성/상이성을 피어슨 상관계수($r$) 및 슬로프로 정량 검증하였습니다.
 
 #### 📊 [종합 대조 차트] 노면별 의뢰서 간 속도별 감속도 프로파일 2x2 서브플롯
-![[10_04_Surface_Speed_Acc_Profile_By_Req.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_04_Surface_Speed_Acc_Profile_By_Req.png]]
 
 #### 📋 의뢰서별 속도 구간 감속도 및 고속/저속 감속도 레벨 요약표
 | 노면 | 의뢰번호 | 의뢰서 상세 라벨 | 세트수 | 평균 감속도(g) | 고속 감속도(g) | 저속 감속도(g) | 감속도 변화 Δg(g) |
@@ -1412,29 +1412,29 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 #### 📈 [노면별 단독 차트] 속도 구간별 감속도 프로파일
 * **Lane 1 (Wet 고마찰 아스팔트, 80km/h) - 의뢰서별 속도 구간 감속도 프로파일**
-  ![[10_04_Speed_Acc_lane1.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_04_Speed_Acc_lane1.png]]
 
 * **Lane 4 (Wet 저마찰 아스팔트, 80km/h) - 의뢰서별 속도 구간 감속도 프로파일**
-  ![[10_04_Speed_Acc_lane4.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_04_Speed_Acc_lane4.png]]
 
 * **Lane 7 (Dry 아스팔트, 100km/h) - 의뢰서별 속도 구간 감속도 프로파일**
-  ![[10_04_Speed_Acc_lane7.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_04_Speed_Acc_lane7.png]]
 
 * **Lane 8 (Dry, 100km/h) - 의뢰서별 속도 구간 감속도 프로파일**
-  ![[10_04_Speed_Acc_lane8.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_04_Speed_Acc_lane8.png]]
 
 #### 📊 [노면별 단독 차트] 평가 타이어 세트별 Mu-Drop 손실 기여율(%)
 * **Lane 1 (Wet 고마찰 아스팔트, 80km/h) - 타이어 세트별 Mu-Drop 손실 기여율**
-  ![[10_05_MuDrop_Ratio_lane1.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_05_MuDrop_Ratio_lane1.png]]
 
 * **Lane 4 (Wet 저마찰 아스팔트, 80km/h) - 타이어 세트별 Mu-Drop 손실 기여율**
-  ![[10_05_MuDrop_Ratio_lane4.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_05_MuDrop_Ratio_lane4.png]]
 
 * **Lane 7 (Dry 아스팔트, 100km/h) - 타이어 세트별 Mu-Drop 손실 기여율**
-  ![[10_05_MuDrop_Ratio_lane7.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_05_MuDrop_Ratio_lane7.png]]
 
 * **Lane 8 (Dry, 100km/h) - 타이어 세트별 Mu-Drop 손실 기여율**
-  ![[10_05_MuDrop_Ratio_lane8.png]]
+  ![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/10_05_MuDrop_Ratio_lane8.png]]
 
 ### 12.6. 노면별 개별 타이어 세트 고속 vs 저속 거리, 감속도 및 Mu-Drop 손실 전수 상세 명세
 #### 📋 Lane 1 (Wet 고마찰 아스팔트, 80km/h) (총 26개 세트)
@@ -1600,11 +1600,11 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 #### 📊 [종합 비교 차트] 4대 노면 타이어 스펙별 감속도 변화량 (Δg = Low - High) 종합 대조
-![[11_05_Tire_Spec_Speed_Zone_Overall_Comparison.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/11_05_Tire_Spec_Speed_Zone_Overall_Comparison.png]]
 
 ### 13.3. 노면별 타이어 스펙 세부 성능 및 고속/저속 대조 명세
 #### 📋 Lane 4 (Wet 저마찰 아스팔트, 80km/h) (총 25개 스펙, 성능순)
-![[11_01_Tire_Spec_Speed_Zone_lane4.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/11_01_Tire_Spec_Speed_Zone_lane4.png]]
 
 | 순위 | 타이어 표기 (몰드-패턴-마킹) | 스펙 | 평가수 | 총거리(m) | 고속거리(m) | 고속비(%) | 저속거리(m) | 저속비(%) | 고속(g) | 저속(g) | Δg(g) | 유지율(%) | 고속지수(%) | 저속지수(%) | 지수편차(%p) | MuDrop(m) | 손실비(%) | 판정 |
 | ---: | :--- | :--- | ---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -1636,7 +1636,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 #### 📋 Lane 1 (Wet 고마찰 아스팔트, 80km/h) (총 17개 스펙, 성능순)
-![[11_02_Tire_Spec_Speed_Zone_lane1.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/11_02_Tire_Spec_Speed_Zone_lane1.png]]
 
 | 순위 | 타이어 표기 (몰드-패턴-마킹) | 스펙 | 평가수 | 총거리(m) | 고속거리(m) | 고속비(%) | 저속거리(m) | 저속비(%) | 고속(g) | 저속(g) | Δg(g) | 유지율(%) | 고속지수(%) | 저속지수(%) | 지수편차(%p) | MuDrop(m) | 손실비(%) | 판정 |
 | ---: | :--- | :--- | ---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -1660,7 +1660,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 #### 📋 Lane 7 (Dry 아스팔트, 100km/h) (총 16개 스펙, 성능순)
-![[11_03_Tire_Spec_Speed_Zone_lane7.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/11_03_Tire_Spec_Speed_Zone_lane7.png]]
 
 | 순위 | 타이어 표기 (몰드-패턴-마킹) | 스펙 | 평가수 | 총거리(m) | 고속거리(m) | 고속비(%) | 저속거리(m) | 저속비(%) | 고속(g) | 저속(g) | Δg(g) | 유지율(%) | 고속지수(%) | 저속지수(%) | 지수편차(%p) | MuDrop(m) | 손실비(%) | 판정 |
 | ---: | :--- | :--- | ---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -1683,7 +1683,7 @@ project_link: "[[02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoB
 
 
 #### 📋 Lane 8 (Dry, 100km/h) (총 9개 스펙, 성능순)
-![[11_04_Tire_Spec_Speed_Zone_lane8.png]]
+![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/10_EV3_IW01_Integrated_Braking_Analysis_Report/11_04_Tire_Spec_Speed_Zone_lane8.png]]
 
 | 순위 | 타이어 표기 (몰드-패턴-마킹) | 스펙 | 평가수 | 총거리(m) | 고속거리(m) | 고속비(%) | 저속거리(m) | 저속비(%) | 고속(g) | 저속(g) | Δg(g) | 유지율(%) | 고속지수(%) | 저속지수(%) | 지수편차(%p) | MuDrop(m) | 손실비(%) | 판정 |
 | ---: | :--- | :--- | ---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |

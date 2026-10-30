@@ -76,7 +76,7 @@ aliases:
 > [!NOTE]- 📸 센서 지그 및 계측 인프라 상세 [클릭하여 펼치기]
 > 차량 휠 주변 및 외곽에 설치된 다채널 변위 센서를 통해 노면 높이 및 눈 눌림 깊이를 실측하는 인프라입니다.
 > 
-> ![40_2026_Snow_Surface_센서_인프라](../../../../_attachments/10_회사_업무/40_2026_Snow_Surface_센서_인프라.png)
+> ![40_2026_Snow_Surface_센서_인프라](../../../../_attachments/02_Projects/회사_업무/30_Snow_기반기술/20_2026_Snow_Surface_Characteristics/00_2026_Snow_Surface_Characteristics_대시보드/40_2026_Snow_Surface_센서_인프라.png)
 > 
 > ### ⚙️ 계측 및 데이터 처리 핵심
 > * **센서 위치에 따른 높이 옵셋 설정**:

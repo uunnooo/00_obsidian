@@ -185,7 +185,7 @@ flowchart TD
 >   3. **고온 점착/개선형 ($m_T < 0$, 예: QW01, $-0.9\text{ m}/10^\circ\text{C}$):** 고온에서 실측거리는 단축되고 분자는 커져 **오후 후순위 주행 시 지수 대폭등 ($100.0\% \rightarrow 107.9\%$, +7.9%p 폭등, 최대 9.8%p 등급 역전)**.
 > * **실무 대응책 수립:** 단순 콘트롤 보간 지수에만 의존할 경우 시험 순서에 의해 개발 성패가 왜곡되므로, **순환 주행(ABBA / Latin Square)** 및 **타이어 고유 민감도($m$)를 직접 반영한 절대 노면온도 다중회귀 보정식** 병행 도입 명문화.
 > * **전용 산출물:**
->   * 3패널 인포그래픽: `![[Control_Interpolation_Sensitivity_Bias_Guide.png]]`
+>   * 3패널 인포그래픽: `![[_attachments/02_Projects/회사_업무/10_Braking_AutoBuild/00_Braking_AutoBuild_대시보드/Control_Interpolation_Sensitivity_Bias_Guide.png]]`
 >   * 엑셀 시뮬레이터: `[[Control_Interpolation_Simulation_CT_IW01_QW01.xlsx]]`
 
 ---
