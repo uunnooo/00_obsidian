@@ -168,6 +168,44 @@ self._result.detail_all = pd.DataFrame()
   - Panel 3: 첫 유효 런의 `WS_Raw` vs `WS` 지연/웨이크업 보정 전후 대조 및 차속 오버레이.
   - Panel 4: 첫 유효 런의 `SR_Raw` vs `SR` 슬립률 보정 전후 대조 및 저속 웨이크업 복원 구간 강조 하이라이트.
 
+### 3.4. 서브 분석기 4대 계층 단일 표준화 및 2대 식별자(Run, Position) 아키텍처 (v3.73)
+
+#### 1) 4대 계층 단일 표준 (SSOT Architecture)
+`unoUtil v2.0+`의 6대 서브 분석기(`AnResponse`, `AnMuDrop`, `AnSlipModeSkewness`, `AnSlipPdf`, `AnAcceleration`, `AnSplitSpeed`)는 과도기적 별칭(Alias)이나 폴백(Fallback)을 일절 두지 않고, 아래 4대 계층 단일 표준 규격으로 역할을 엄격히 분리합니다:
+
+```
+[BaseMemory / Sub-Analyzers]
+     ├── 1. self.params  (dict)         : 입력 설정 파라미터 컨테이너 (온디맨드 복원 입력값)
+     ├── 2. self.df      (pd.DataFrame) : 순수 시계열 거동 신호 (대용량 캐시 소거 대상)
+     ├── 3. self.detail  (pd.DataFrame) : 회차(Run) / 바퀴(Position)별 1행 상세 진단 (영구 보존)
+     └── 4. self.summary (pd.DataFrame) : 전 차수 종합 1행 대표 성능 지표 (영구 보존)
+```
+
+1. **`params` (설정 딕셔너리)**: 분석에 투입된 모든 입력 조건값들을 저장하여 온디맨드 복원(`self.analysis(**self.params)`) 시 100% 동일한 상태로 재실행 보장.
+2. **`df` (순수 시계열)**: 시간에 따라 변하는 센서 파형 및 구간 플래그만 보존하며, 스칼라 메타컬럼은 원천 배제하여 메모리 낭비 제거 (`clear_cache()` 시 RAM에서 소거).
+3. **`detail` (상세 진단 요약)**: 회차(`Run`) 또는 바퀴(`Position`)별 1행 단위로 알고리즘이 산출한 랜드마크(기저선, 피크, 적응형 임계치 등)와 런별 지표를 영구 보존.
+4. **`summary` (대표 성능 지표)**: `detail`의 값들을 전 런/전 휠에 걸쳐 통계 집계한 최종 1행 대표 테이블 (`tire.result.summary`로 자동 병합).
+
+#### 2) 2대 표준 식별자: `Run`과 `Position`
+모든 `detail` 테이블의 1열과 2열은 예외 없이 아래 표준 키워드로 통일됩니다:
+* **1열 `Run`**: 개별 회차 번호 (`1`, `2`, `3`...) 또는 전 런 통합 시 **`All`**
+* **2열 `Position`** (7대 표준 키워드):
+  - 개별 휠: **`FL`**, **`FR`**, **`RL`**, **`RR`**
+  - 축 단위: **`Front`** (전륜 2륜 평균), **`Rear`** (후륜 2륜 평균)
+  - 차체 전체: **`All`** (차체 센서 기반 가속도 또는 4륜 전체 평균)
+
+#### 3) 8대 표준 동사 헬퍼 `get_target_wheels()` 단일 물리 규칙
+```python
+pos, cols = get_target_wheels(df.columns, mode='brk', vehicle_layout='FWD', channel_type='ws')
+```
+* **제동 (`brk`)**: 무조건 **`Front`** (전륜: FL, FR 2륜)
+* **가속 (`acc`)**:
+  - `RWD` (FR, RR 등 후륜구동) ➔ **`Rear`** (후륜: RL, RR 2륜)
+  - `AWD` (4WD 등 사륜구동) ➔ **`All`** (4륜 전체: FL, FR, RL, RR)
+  - 정보 없음 또는 `FWD` (전륜구동) ➔ **`Front`** (전륜: FL, FR 기본값)
+
+---
+
 ## 🚀 4. 실전 워크플로우 및 종합 스니펫
 
 ```python
