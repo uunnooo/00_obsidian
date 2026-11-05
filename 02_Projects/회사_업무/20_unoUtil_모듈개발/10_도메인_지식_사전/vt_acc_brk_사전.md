@@ -86,6 +86,7 @@ flowchart TD
 | `plotter_tire.py` | `PlotterTire` | 단일 타이어 9대 시각화 (`accbrk`, `acceleration`, `response`, `slip_pdf`, `mu_drop`, `skewness`, `split_speed`, `curve_fit`, `curve_fit_detail`) |
 | `plotter_project.py`| `PlotterProject` | 프로젝트 시험 간 9대 비교 플로터 (`compare_braking`, `compare_curve_fit` 등) |
 | `analyzers/` (6대 서브) + `cf_tire.py`| `AnAcceleration`, `TireCurve` 등 | 가속대역, 감속응답, 슬립PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅 전문 분석 |
+| `dashboard/` | `dashboard_app.py` | Streamlit 기반 차량 가감속/제동 성능 분석 통합 인터랙티브 웹 대시보드 (5대 네온 메뉴, 실시간 보정 전환, 온디맨드 시각화, 인터랙티브 런 편집, 1:1 매뉴얼: `dashboard_app.md`) |
 
 ### 3.3. 온디맨드(On-demand) 하이브리드 캐싱 아키텍처 및 센티널 라이프사이클 (v3.69)
 
@@ -167,6 +168,26 @@ self._result.detail_all = pd.DataFrame()
 * **하단 (Row 2 - 첫 유효 런 과도 구간 초정밀 확대 진단)**:
   - Panel 3: 첫 유효 런의 `WS_Raw` vs `WS` 지연/웨이크업 보정 전후 대조 및 차속 오버레이.
   - Panel 4: 첫 유효 런의 `SR_Raw` vs `SR` 슬립률 보정 전후 대조 및 저속 웨이크업 복원 구간 강조 하이라이트.
+
+### 3.6. 듀얼 보정 모델(Control 시계열 보간 vs 노면온도 물리 팩터 모델) 및 온디맨드 재보정 아키텍처 (v3.75)
+
+#### 1) 듀얼 보정 모델의 동작 원리 및 수식 체계
+1. **Control 타이어 시계열 선형 보간 모델 (`correct_type='control'`, 기본값)**:
+   - 시험 진행 순서(`Datetime`)에 따라 배치된 Control 타이어($C_1, C_2 \dots$) 사이를 1차 선형 보간하여 각 시험 타이어 시점의 가상 기준값($	ext{adj\_refer}$)을 도출합니다.
+   - 제동거리 성능 지수: $	ext{Index} = rac{2 	imes 	ext{adj\_refer} - 	ext{val}_{	ext{test}}}{	ext{adj\_refer}} 	imes 100 \quad [\%]$
+   - 최종 보정 제동거리: $	ext{corr\_brk\_mean} = \overline{	ext{Control}} 	imes \left(2 - rac{	ext{Index}}{100}
+ight) = \overline{	ext{Control}} 	imes rac{	ext{val}_{	ext{test}}}{	ext{adj\_refer}}$
+2. **노면온도/기상 팩터 물리 모델 (`correct_type='factor'`)**:
+   - 기상 센서의 아스팔트 노면온도(`BRK Dry Asp` 등)와 기준온도($T_{	ext{ref}}$) 사이의 편차($\Delta T = T_{	ext{ref}} - T_{	ext{actual}}$)를 산출합니다.
+   - 제동거리 직접 물리 보정: $	ext{corr\_brkdist} = 	ext{val}_{	ext{brkdist}} + \left(rac{	ext{gain}}{	ext{step}} 	imes \Delta T
+ight)$ (Dry 노면 표준: 10℃당 1.0m 보정, `gain=1.0, step=10.0`).
+   - 제동거리 보정비율($	ext{corr\_ratio} = rac{	ext{corr\_brkdist}}{	ext{val}_{	ext{brkdist}}}$)을 기반으로 기타 지표 및 Magic Formula 비선형 곡선 게인($G_i$)을 동기화합니다.
+
+#### 2) 기상 데이터 병합 Datetime 정밀도(dtype) 자동 정합
+- Pandas 2.0+ 환경에서 요약표의 Datetime(`datetime64[us]`)과 기상 센서의 Datetime(`datetime64[ns]`) 정밀도 불일치로 인해 `merge_asof` 시 발생하던 `incompatible merge keys` 결함을 사전에 감지하여 `df_weather[col_seq].astype(summary_dtype)`으로 자동 통일하도록 정합을 완료했습니다.
+
+#### 3) 기 저장 프로젝트(.pjt) 로드 후 보정 모델 동적 변경 아키텍처
+- 분석 완료된 `.pjt` 파일은 타이어별 요약치 및 기상 데이터프레임(`df_weather`)이 완전히 직렬화되어 있으므로, `load(restore=False)` 후 `project.correct_performance(...)`를 호출하면 **원시 데이터 재분석 없이 0.1초 만에 보정 방식을 Control에서 Factor로 자유롭게 전환 및 재계산**할 수 있습니다.
 
 ### 3.4. 서브 분석기 4대 계층 단일 표준화 및 2대 식별자(Run, Position) 아키텍처 (v3.73)
 
