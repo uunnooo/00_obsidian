@@ -286,3 +286,9 @@ project.plot.compare_curve_fit(corr="mean", xlim=(0.0, 1.0), show_peak=True, clo
 * **조치**:
   1. `an_slip_pdf.py`의 과도기 조건문을 제거하고 표준 `if self._df is None:` 온디맨드 캐싱 패턴으로 복원.
   2. `VTAccBrkTire.analysis()` 최상단에 선제적 빈 DataFrame 초기화(`self._result.summary = pd.DataFrame()`)를 적용하여 안전성 완결.
+### 5.5. 온디맨드 캐시 복원 시 서브분석기 지표 소실 방지 및 콘트롤 타이어 다형성 판정 (v3.87)
+* **증상**: 대용량 시계열(`result.df`) 캐시 온디맨드 복원이나 요약 테이블 재수집(`update_summary`) 시 기존에 계산되어 있던 서브분석기 요약 컬럼(`vel_*_acc` 등)이 일시 누락되거나, 모든 시험 타이어가 `ref_kwd`와 동일한 패턴일 때 중복 콘트롤로 오인되어 은닉되는 현상 발생.
+* **조치**:
+  1. `VTAccBrkTire._run()`에서 기존 summary/detail을 선제 백업하고, 누락 컬럼 발생 시 하위 서브분석기(`acceleration`, `split_speed` 등)의 `_summary`를 자동 감지하여 병합.
+  2. `VTAccBrkProject._get_synced_tire_summary()` 신설로 전체 재분석 없이 안전한 요약 조회 및 자동 컬럼 복원 보장.
+  3. `_find_reference_tire()`에서 모든 타이어가 `ref_kwd`에 매칭될 때 첫 번째 행만 기준 타이어로 지정하여 시험 타이어 누락 원천 방지 및 `sort(order=...)`에 `List[str]` 커스텀 순서 다형성 지원.

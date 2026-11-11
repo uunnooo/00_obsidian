@@ -54,9 +54,10 @@ aliases:
 
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
-> [!NOTE]- 📜 v1.0 ~ v3.85 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
+> [!NOTE]- 📜 v1.0 ~ v3.87 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :--- | :---: | :---: | :--- | :---: |
+> | **v3.87** | 2026-11-12 | uno &<br/>Gemini | ⚡ **`unoUtil.vehicle.acc_brk` 온디맨드 캐시 복원 시 서브분석기 지표 소실 원천 방지(`_get_synced_tire_summary`), 단일/복수 콘트롤 타이어 자동 판정 마스크 무결성 확립(`_find_reference_tire`), 프로젝트 다형성 커스텀 정렬(`sort(order=...)`) 및 PlotterProject 시각화 연계 정합, Streamlit 대시보드 UI/UX 대규모 최적화 완결**<br/>• **서브분석기 요약 지표 자동 복원 및 동기화 (`vt_acc_brk_project.py`, `vt_acc_brk_tire.py`)**: 온디맨드 캐시 복원(`result.df` 재생성) 또는 요약 갱신 시 `_result.summary`의 이전 값 선제 백업 및 보존, 하위 서브분석기(`acceleration`, `split_speed`, `slip_pdf`, `mu_drop`, `slip_mode`, `sys_response`, `curve_fit`)에 보존된 `_summary` 컬럼이 누락된 경우 이를 감지하여 자동 복원·병합하는 `_get_synced_tire_summary()` 신설 및 `update_summary()` 합집합 컬럼 정합 완결<br/>• **콘트롤/기준 타이어 자동 판정 마스크(`_find_reference_tire`) 무결성 확립 (`vt_acc_brk_project.py`)**: `ref_kwd` 매칭 시 모든 타이어가 기준 타이어 키워드에 매칭되는 경우(예: T1~T4 시험 세트) 첫 번째 행만 기준 타이어로 지정하여 나머지 타이어가 중복 콘트롤로 은닉되던 결함 해결, `mask_result = (~mask_ref_tire) | (~mask_ref_tire.duplicated(keep='first'))`로 인덱스 순서 100% 보존<br/>• **프로젝트 정렬 다형성 지원 및 시각화 마스크 동기화 (`vt_acc_brk_project.py`)**: `sort()` 메서드에 딕셔너리뿐만 아니라 리스트/튜플(`Union[Dict, List, tuple]`) 커스텀 순서 지정 지원(자동 순차 가중치 부여), 정렬 후 `mask_ref_tire`와 `mask_summary`를 필수 동기화하여 `PlotterProject`의 모든 프로젝트 비교 차트가 정렬된 순서 및 인덱스를 정확히 바라보도록 정합<br/>• **`correct.py` 및 `plotter_project.py` 안정성 강화**: `correct.py`에서 `_result.summary` 직접 갱신을 통한 불필요한 시계열 재복원 방지 및 타이어명 문자열 타입 캐스팅 통일, `plotter_project.py`의 `_plot_slip_ratio`에서 실제 슬립 분포 데이터가 존재하는 유효 타이어 세트만 동적 필터링하도록 방어<br/>• **Streamlit 웹 대시보드 UI/UX 및 렌더링 최적화 (`dashboard_app.py`)**: `st.data_editor` 실시간 편집 상태(`edited_rows`) 즉시 감지 및 셀 하이라이트 스타일러(`style_tire_run_dataframe`) 탑재, 250KB Base64 배경 및 SVG 스타일을 해시(`_static_theme_hash`) 기반으로 브라우저 부모 창 `head`에 1회만 주입하여 리런 깜빡임 및 지연 극소화, 폴더 선택 다이얼로그 연동(`_on_click_browse_tire_save_dir`, `_on_click_browse_save_tab_dir`), 별도 편집 체크박스 없이 즉시 편집 + [⚡ 선택 런으로 재분석] 일체형 1줄 UX, 타이어 그래프 설정을 `st.tabs` 규격으로 정돈, 타이어 DND 순서 정렬 안정화 | ✅ 완료 |
 > | **v3.86** | 2026-11-06 | uno &<br/>Gemini | 🖥️ **unoUtil 대시보드 Streamlit 1.50 최신 엔진 승격, 실시간 다크 콘솔 스트리머 전 구간 탑재, n_jobs=-1 병렬 가속 완벽 호환 및 3단 Flexbox 무결점 UI 완성**<br/>• **Streamlit 1.50 최신 엔진 승격 및 st.data_editor 단일 표준화**: 구버전(1.22)의 무거운 리페인팅 병목을 타개하고 고속 바이너리 통신 엔진으로 승격, 런 편집 100% 정상 작동 보장<br/>• **실시간 다크 콘솔 스트리머 전 구간 탑재**: 파이참 터미널을 열 필요 없이 대시보드 화면 내에 독립 윈도우 스타일의 다크 터미널을 띄워 원본 로그를 실시간 스트리밍<br/>• **스마트 고정 프로그레스 바 탑재**: HTML 태그 노출 버그를 순수 압축 HTML로 회피하고, 콘솔창 하단 고정 네온 바에서 게이지가 제자리에서 솩솩 차오르는 완벽한 터미널 룩앤필 완성<br/>• **TestVelRange 갱신 버그 해결 및 런 테이블 하이브리드 UI 구축**: update_tire_runs에서 속도 변경 시 메타데이터를 즉각 동기화하도록 수정. 대제목 옆 [✏️ 런 편집] 토글 및 [⚡ 선택 런으로 재분석] 버튼 일체형 하이브리드 UX 완성<br/>• **멀티코어 병렬 가속 완벽 유지 및 피클·컨텍스트 에러 100% 영구 차단**: vt_acc_brk.__globals__ 직접 타겟팅 및 StreamlitSafeThreadPoolExecutor 구현으로 피클/컨텍스트 에러 물리적 차단 및 use_container_width 경고 박멸<br/>• **Modern CSS Flexbox 3단 레이아웃 정규화 및 차트 이미지 저장 기능 탑재**: position:fixed 조상 전파 결함을 완전 철거하고, 제동데모와 가속데모를 바닥 좌우 대칭(1줄)으로 완벽 밀착 복원. 차트 확대 창 헤더 메뉴에 고해상도 PNG 원클릭 다운로드 기능 탑재 | ✅ 완료 |
 > | **v3.85** | 2026-11-06 | uno &<br/>Gemini | ⚡ **`unoUtil.vehicle.acc_brk` AnResponse 연산 75% 고속화, correct.py DataFrame 단편화 경고 박멸, 5대 `save_*` 및 `plot` 파라미터 직교 분리 및 기본값 `False` 단일 표준화, 시스템 코어 자동 감지 스마트 병렬화(`n_jobs: int = -1`) 탑재 및 0.db 분기 생성 완결**<br/>• **`AnResponse` 알고리즘 병목 규명 및 75% 고속화 (`func_acc_brk.py`)**: `calc_response` 내부에서 75만 행 전체 시계열 필터링을 런별 유효 슬라이스(`idx_start:idx_end` + 패딩) 1회 사전 필터링으로 개편하고 중복 `pd.concat` 블록을 1회로 통합하여, `AnResponse` 분석 소요 시간을 **2.36초 ➔ 0.58초 (약 75% 시간 단축, 4배 가속)**로 단축하고 수치 지표(`sys_response_time: 0.137`, `sys_rising_time: 0.23`, `sys_rising_slope: -3.862`) 100% 동일성 검증 완료<br/>• **`correct.py` DataFrame 파편화 경고(`PerformanceWarning`) 원천 소멸**: Control 보정 루프에서 컬럼 개별 insert 방식을 딕셔너리 수집 후 `pd.concat` 1회 일괄 병합(Batch Concat)으로 전면 리팩토링하여 경고 0건 및 메모리 복사 오버헤드 박멸<br/>• **5대 `save_*` 및 `plot` 파라미터 직교 분리 및 기본값 `False` 단일 표준화 (`vt_acc_brk.py`)**: `save_file`(캐시 .gz), `save_tire`(타이어 .tir), `save_pjt`(프로젝트 .pjt), `save_result`(결과 테이블 .csv 3종), `save_plot`(차트 이미지 .png), `plot`(화면 창 띄우기) 기본값을 모두 `False`로 통일하고, `plot=False, save_plot=True` 조합 시 GUI 팝업 없이 백그라운드 무음 저장이 가능하도록 완비<br/>• **100% 클린 인메모리 연산 실증 및 0.db 디렉터리 분기 생성**: 모든 `save_*` 옵션이 `False`일 때 `check_path(dir_db)` 무조건 호출 결함을 수정하여 `0.db`, `1.figure`, `2.result` 폴더가 단 하나도 남지 않는 완전한 클린 인메모리 실행 보장<br/>• **코어 수 자동 감지 기반 스마트 병렬 모드(`n_jobs: int = -1`) 탑재**: 파이썬 내장 `os.cpu_count()`(현재 PC 12코어) 기반으로 단일 타이어는 오버헤드 없는 순차 실행, 2개 이상 타이어는 `ProcessPoolExecutor` 멀티프로세싱 동시 병렬 처리를 지원하고 실측 VBO 2개 데이터 기반 순차 대비 수치 오차 0.000000 완전 일치 검증<br/>• **하위 모듈(`VTAccBrkTire`, `VTAccBrkProject`) 기본값 전수 통일 및 1:1 기술 매뉴얼 동기화**: `VTAccBrkTire.run` 및 `VTAccBrkProject.run` 시그니처와 구현에서 `save_result=False`, `plot=False`를 일괄 정합하고 소스 코드 저장소 내 1:1 기술 매뉴얼(`vt_acc_brk.md`, `vt_acc_brk_project.md`, `vt_acc_brk_tire.md`) 100% 동기화 완료 | ✅ 완료 |
 > | **v3.83** | 2026-11-05 | uno &<br/>Gemini | 🎨 **`format_fig` 폰트 스타일링 개선(`pretty` 굵기 제어 및 누락 버그 해결), `PlotterTire`·`PlotterProject` 타이틀 일반 굵기(`normal`) 일괄 통일, `vt_acc_brk` 메인 함수 타이어 개별 그래프 저장 기본 활성화(`plot=True`) 및 스노우 제동 데이터(`snow_brk`) 123개 구버전 부산물 정비 완결**<br/>• **`format_fig` 폰트 스타일링 및 타이틀 누락 결함 개선 (`plotter.py`)**: `pretty=True`일 때만 볼드체(`bold`)를 적용하고, `pretty=False`일 때는 `title`과 `suptitle`, 축 라벨의 폰트 굵기를 강제로 볼드로 바꾸지 않고 일반 굵기(`normal`) 또는 원본 스타일을 보존하도록 개선. 아울러 `pretty=False` 지정 시 문자열 `title`이 누락되던 버그를 완벽 해결<br/>• **`PlotterTire` 서브플롯 타이틀 하드코딩 볼드체 전면 제거 (`plotter_tire.py`)**: `_plot_full_calibration_session` (4개 패널), `_plot_mu_drop_group` (3개 패널), `_plot_skewness_group` (2개 패널), `_plot_response_channel` (3개 패널)에 직접 명시되어 있던 `fontweight='bold'`를 전면 제거하여 전체 서브플롯 타이틀이 일관되게 일반 굵기로 렌더링되도록 정합<br/>• **`PlotterProject` 연동 정비 및 기본 굵기 통일 (`plotter_project.py`)**: 내부 공통 키워드 분리 헬퍼 `_make_format_fig_kwargs` 및 일괄 차트 생성 메서드 `all()`의 기본 옵션으로 `pretty=False`를 지정하여, 사용자가 명시하지 않아도 모든 프로젝트 비교 플롯의 타이틀/슈퍼타이틀이 균일한 일반 굵기로 출력되도록 표준화<br/>• **`vt_acc_brk` 메인 함수 `plot: bool = True` 기본값 변경 (`vt_acc_brk.py`)**: 배치 파이프라인 구동 시 별도 `plot=True` 옵션 없이도 개별 타이어 9대 시각화 그래프가 `1.figure/` 폴더에 기본 저장되도록 시그니처 및 docstring 갱신<br/>• **실측 스노우 제동 데이터(`snow_brk`) 41개 런 내 123개 분석 캐시/결과 폴더 정리**: 41개 `run*` 폴더에서 과거 생성된 `0.db`, `1.figure`, `2.result` 폴더 123개를 안전 삭제하여 원천 계측 파일(`*.vbo`/`*.vbb` 228개)을 보존한 초기 상태로 정비하고, 테크노링 기상 오염으로 Parquet 스키마 충돌을 일으키던 구버전 중복 프로젝트 파일 2건(`25OE120004EF_snow_run1.pjt`, `25RD120007EF_snow_run1.pjt`) 영구 삭제<br/>• **1:1 순수 기술 매뉴얼 동기화 (`plotter_tire.md`, `plotter_project.md`, `vt_acc_brk.md`)**: `pretty` 파라미터 명세 및 `vt_acc_brk` `plot` 기본값 최신화 완료 | ✅ 완료 |
@@ -387,6 +388,34 @@ aliases:
 
 ---
 
+### [2026-11-12] v3.87 - unoUtil.vehicle.acc_brk 온디맨드 캐시 복원 시 서브분석기 지표 소실 원천 방지(_get_synced_tire_summary), 기준 타이어 자동 판정 마스크 무결성 확립(_find_reference_tire), 프로젝트 정렬 다형성 지원 및 Streamlit 대시보드 UI/UX 대규모 최적화
+* **서브분석기 요약 지표 자동 복원 및 동기화 (`vt_acc_brk_project.py`, `vt_acc_brk_tire.py`)**:
+  - 온디맨드 캐시 복원(`result.df` 재생성) 또는 요약 테이블 갱신 시 `_result.summary`의 이전 값을 선제 백업 및 보존.
+  - 하위 서브분석기(`acceleration`, `split_speed`, `slip_pdf`, `mu_drop`, `slip_mode`, `sys_response`, `curve_fit`)에 보존된 `_summary` 컬럼이 누락된 경우 이를 감지하여 자동 복원·병합하는 `_get_synced_tire_summary()` 신설.
+  - `update_summary()`에서 모든 타이어 요약 컬럼의 합집합(`all_cols_ordered`)을 보존하여 특정 타이어의 부분 컬럼 누락 시에도 전체 지표가 증발하지 않도록 안전장치 구축.
+* **기준/콘트롤 타이어 자동 판정 마스크(`_find_reference_tire`) 무결성 확립 (`vt_acc_brk_project.py`)**:
+  - `ref_kwd` 매칭 시 모든 타이어가 기준 타이어 키워드에 매칭되는 경우(예: T1~T4 시험 세트에서 `ref_kwd='T'`), 첫 번째 행만 대표 기준 타이어로 지정하여 나머지 시험 타이어가 중복 콘트롤로 간주되어 숨겨지는 결함 해결.
+  - `mask_result = (~mask_ref_tire) | (~mask_ref_tire.duplicated(keep='first'))`로 원본 데이터의 인덱스 순서를 100% 보존.
+* **프로젝트 정렬 다형성 지원 및 시각화 마스크 동기화 (`vt_acc_brk_project.py`)**:
+  - `sort()` 메서드의 `order` 파라미터에 딕셔너리뿐만 아니라 리스트/튜플(`Union[Dict[str, int], List[str], tuple]`) 입력을 지원하여 순서 리스트 전달 시 1부터 순차 가중치를 자동 부여.
+  - 정렬 완료 후 정렬된 `summary_all` 및 `summary` 인덱스에 맞추어 `mask_ref_tire`와 `mask_summary`를 필수 동기화하여 `PlotterProject`의 모든 프로젝트 비교 차트가 정렬된 순서 및 인덱스를 정확히 바라보도록 정합.
+* **`correct.py` 및 `plotter_project.py` 안정성 강화**:
+  - `correct.py`에서 `analyzer._result.summary`를 직접 갱신하여 불필요한 시계열 재복원 연산 오버헤드 차단 및 `TestTireSet` 컬럼 비교 시 문자열 타입 캐스팅 통일.
+  - `plotter_project.py`의 `_plot_slip_ratio`에서 `slip_pdf.pdf` 및 `summary`가 유효하게 존재하는 타이어 세트만 동적 필터링하여 빈 데이터로 인한 크래시 방어.
+* **Streamlit 웹 대시보드 UI/UX 및 렌더링 최적화 (`dashboard_app.py`)**:
+  - `st.data_editor` 실시간 편집 상태(`edited_rows`) 즉시 감지 및 셀 사파이어 블루 하이라이트 스타일러(`style_tire_run_dataframe`) 탑재.
+  - 테마 최적화: 250KB Base64 배경 및 SVG 스타일을 해시(`_static_theme_hash`) 기반으로 브라우저 부모 창 `head`에 1회만 주입하여 리런 깜빡임 및 지연 극소화.
+  - 폴더 선택 다이얼로그 연동(`_on_click_browse_tire_save_dir`, `_on_click_browse_save_tab_dir`).
+  - Tire 탭 & Project 탭: 별도 편집 체크박스 없이 즉시 편집 + [⚡ 선택 런으로 재분석] 일체형 1줄 UX, 타이어 그래프 설정을 `st.tabs` 규격으로 정돈, 타이어 DND 순서 정렬 안정화.
+
+### [2026-11-06] v3.86 - unoUtil 대시보드 Streamlit 1.50 최신 엔진 승격, 실시간 다크 콘솔 스트리머 전 구간 탑재, n_jobs=-1 병렬 가속 완벽 호환 및 3단 Flexbox 무결점 UI 완성
+* **Streamlit 1.50 최신 엔진 승격 및 st.data_editor 단일 표준화**: 구버전(1.22)의 무거운 리페인팅 병목을 타개하고 고속 바이너리 통신 엔진으로 승격, 런 편집 100% 정상 작동 보장.
+* **실시간 다크 콘솔 스트리머 전 구간 탑재**: 파이참 터미널을 열 필요 없이 대시보드 화면 내에 독립 윈도우 스타일의 다크 터미널을 띄워 원본 로그를 실시간 스트리밍.
+* **스마트 고정 프로그레스 바 탑재**: HTML 태그 노출 버그를 순수 압축 HTML로 회피하고, 콘솔창 하단 고정 네온 바에서 게이지가 제자리에서 솩솩 차오르는 완벽한 터미널 룩앤필 완성.
+* **TestVelRange 갱신 버그 해결 및 런 테이블 하이브리드 UI 구축**: update_tire_runs에서 속도 변경 시 메타데이터를 즉각 동기화하도록 수정. 대제목 옆 [✏️ 런 편집] 토글 및 [⚡ 선택 런으로 재분석] 버튼 일체형 하이브리드 UX 완성.
+* **멀티코어 병렬 가속 완벽 유지 및 피클·컨텍스트 에러 100% 영구 차단**: vt_acc_brk.__globals__ 직접 타겟팅 및 StreamlitSafeThreadPoolExecutor 구현으로 피클/컨텍스트 에러 물리적 차단 및 use_container_width 경고 박멸.
+* **Modern CSS Flexbox 3단 레이아웃 정규화 및 차트 이미지 저장 기능 탑재**: position:fixed 조상 전파 결함을 완전 철거하고, 제동데모와 가속데모를 바닥 좌우 대칭(1줄)으로 완벽 밀착 복원. 차트 확대 창 헤더 메뉴에 고해상도 PNG 원클릭 다운로드 기능 탑재.
+
 ### [2026-11-05] v3.82 - unoUtil.vehicle.acc_brk 통합 인터랙티브 웹 대시보드(Streamlit) 신규 구축, 5대 네온 메달리온 UI 및 다크 홀로그램 글래스모피즘 테마 완성, 온디맨드 렌더링·인터랙티브 런 편집·드래그앤드롭 정렬 탑재, 플로터 12×6 표준화 및 Tire 탭 파라미터 승계 결함 핫픽스
 > 📑 **상세 종합 개발 보고서**: [[2026-11-05_v3.82_가감속제동_인터랙티브_웹대시보드_구축_및_스노우가속_표준속도정합_종합개발보고서|가감속/제동 통합 인터랙티브 웹 대시보드 구축 및 스노우 가속 표준 속도(5-40) 정합 종합개발보고서]]
 
@@ -668,5 +697,5 @@ aliases:
 - **Exit Code 0 무결성 통과**: `c_run_snow_correction_pipeline.py` 가동 전수 통과 (3초 완결).
 
 ---
-**Last Updated**: 2026-10-29  
+**Last Updated**: 2026-11-12  
 **Standard**: unoUtil Clean Architecture v3.69 & Single Baseline Law & Single Master MOC Law
