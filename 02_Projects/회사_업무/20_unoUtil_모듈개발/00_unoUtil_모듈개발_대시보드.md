@@ -57,7 +57,7 @@ aliases:
 > [!NOTE]- 📜 v1.0 ~ v3.85 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :--- | :---: | :---: | :--- | :---: |
-| **v4.00** | 2026-11-12 | uno &<br/>Gemini | 🏁 **서킷 및 조종안정성(Handling) 전면 리팩토링 및 3대 공식 시험장(Technoring, IDIADA, Pferdsfeld) 실계측 데이터 엔드투엔드 파이프라인 완결**<br/>• **8대 공통 코어 완성 (`unoUtil.vehicle_test`)**: `BaseMemory`/`Correct` 최상단 승격, `BaseTire`/`BaseProject` 객체지향 기반 클래스 신설(가감속 및 서킷 공통 상속 완비), `VehicleDynamic` 기어비 반영 전륜 슬립각 및 횡하중 이동 확장, `sensor_sync` 2-Tier 스마트 지연 동기화 엔진 구축, `param_resolver` 3계층 파라미터 해석기, `ExcelReportBuilder` 기업 표준 서식 엑셀 빌더 완비<br/>• **서킷 6대 물리 서브 분석기 구축 (`circuit/analyzers/`)**: `AnLapTime`(랩타임·섹션시간·일관성), `AnSteeringDelay`(영점교차+미분피크+MAD 3.0 조향지연), `AnUndersteerGradient`($K_{us}$ 구배·MF/RF 피팅), `AnYawGainStability`(요게인·잔류요진동 감쇄안정성), `AnGripLimit`(피크·평균·p95 선회그립), `AnRacingLine`(k-d Tree 부호형 교차 궤적 편차 Signed CTE) 완결 및 단위 테스트 100% 통과<br/>• **서킷 오케스트레이터 및 시각화 플로터 구축**: `VTCircuitTire`(단일 타이어 26개 지표 요약 & 온디맨드 자가 복원), `VTCircuitProject`(멀티 타이어 관리, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 빌더), `PlotterTire`(궤적·랩타임·마찰원), `PlotterProject`(랩타임 비교 막대·5축 성능 레이더 차트) 완결<br/>• **최상위 원스톱 래퍼 함수 `vt_circuit` 및 실무 예제/진입점 제공**: 5줄 원스톱 배치 멀티프로세싱 파이프라인 구현, `WetHD/Main.py` 및 `unoUtil/example/example_circuit.py` 탑재 완료<br/>• **VBO 파서 1열 시프트 버그 원천 해결 (`index_col=False`)**: `vbo_parser.py`의 `index_col=False` 누락으로 인한 90개 컬럼 1열 밀림 및 시간 파싱 오류를 원천 박멸하여 VBO 파싱 신뢰도 100% 달성<br/>• **3대 공식 시험장 실데이터 18개 VBO 일괄 엔드투엔드 검증 통과**: 한국테크노링(6 VBO, 62개 지표), 스페인 IDIADA(6 VBO, 62개 지표), 독일 페어츠펠트(6 VBO, 70개 지표) 전원 랩/섹션 분할 및 보정 완결 (Exit Code 0) | ✅ 완료 |
+| **v4.00** | 2026-11-12 | uno &<br/>Gemini | 🏁 **서킷 및 조종안정성(Handling) 전면 리팩토링 및 3대 공식 시험장(Technoring, IDIADA, Pferdsfeld) 실계측 데이터 엔드투엔드 파이프라인 완결, 가감속 대시보드 v2.0 고도화 완성**<br/>• **8대 공통 코어 완성 (`unoUtil.vehicle_test`)**: `BaseMemory`/`Correct` 최상단 승격, `BaseTire`/`BaseProject` 객체지향 기반 클래스 신설(가감속 및 서킷 공통 상속 완비), `VehicleDynamic` 기어비 반영 전륜 슬립각 및 횡하중 이동 확장, `sensor_sync` 2-Tier 스마트 지연 동기화 엔진 구축, `param_resolver` 3계층 파라미터 해석기, `ExcelReportBuilder` 기업 표준 서식 엑셀 빌더 완비<br/>• **서킷 6대 물리 서브 분석기 구축 (`circuit/analyzers/`)**: `AnLapTime`(랩타임·섹션시간·일관성), `AnSteeringDelay`(영점교차+미분피크+MAD 3.0 조향지연), `AnUndersteerGradient`($K_{us}$ 구배·MF/RF 피팅), `AnYawGainStability`(요게인·잔류요진동 감쇄안정성), `AnGripLimit`(피크·평균·p95 선회그립), `AnRacingLine`(k-d Tree 부호형 교차 궤적 편차 Signed CTE) 완결 및 단위 테스트 100% 통과<br/>• **서킷 오케스트레이터 및 시각화 플로터 구축**: `VTCircuitTire`(단일 타이어 26개 지표 요약 & 온디맨드 자가 복원), `VTCircuitProject`(멀티 타이어 관리, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 빌더), `PlotterTire`(궤적·랩타임·마찰원), `PlotterProject`(랩타임 비교 막대·5축 성능 레이더 차트) 완결<br/>• **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 고도화 및 실시간 콘솔 스트리머 완성**: `StreamlitLiveConsole` 로그 심각도 정밀 판정(`_classify_line`, `has_warning`) 및 4색 뱃지/보더(ERROR/WARNING/STREAMING/COMPLETED) 실시간 UI 연동, 웹 드래그앤드롭 업로드 정규화(`_extract_latest_upload_batch`, `_normalize_uno_upload_relpath`) 및 텍스트 경로 수동 입력 동기화(`_pending_lc_meta_override`), 분석 스피너/콘솔 슬롯 분리 및 속도 대역 미검출 친절 가이드 안내 완비<br/>• **최상위 원스톱 래퍼 함수 `vt_circuit` 및 실무 예제/진입점 제공**: 5줄 원스톱 배치 멀티프로세싱 파이프라인 구현, `WetHD/Main.py` 및 `unoUtil/example/example_circuit.py` 탑재 완료<br/>• **VBO 파서 1열 시프트 버그 원천 해결 (`index_col=False`)**: `vbo_parser.py`의 `index_col=False` 누락으로 인한 90개 컬럼 1열 밀림 및 시간 파싱 오류를 원천 박멸하여 VBO 파싱 신뢰도 100% 달성<br/>• **3대 공식 시험장 실데이터 18개 VBO 일괄 엔드투엔드 검증 통과**: 한국테크노링(6 VBO, 62개 지표), 스페인 IDIADA(6 VBO, 62개 지표), 독일 페어츠펠트(6 VBO, 70개 지표) 전원 랩/섹션 분할 및 보정 완결 (Exit Code 0) | ✅ 완료 |
 | **v3.90** | 2026-11-12 | uno &<br/>Gemini | 🏎️ **`unoUtil.vehicle` ➔ `unoUtil.vehicle_test` 패키지 대개편, 공통 베이스 프레임워크(`BaseProject`/`BaseTire`) 구축, 서킷/핸들링 시험 모듈화(`circuit/`) 착수 및 가감속 대시보드 v2.0 홀로그램 UI 탑재**<br/>• **`unoUtil.vehicle` ➔ `unoUtil.vehicle_test` 공식 패키지 승격 및 Clean Architecture 재정립**: 실차 시험 종합 도메인으로 위상을 확립하고 `unoUtil/__init__.py`에서 `vehicle_test` 공식 노출 및 하위 호환 매핑 완료. `analysis_test_data.py`, `hndl_test.md` 등 과도기 레거시 파일 정리 및 소멸<br/>• **실차 시험 공통 베이스 프레임워크 구축 (`base_project.py`, `base_tire.py`, `param_resolver.py`, `sensor_sync.py`, `excel_report.py`)**: 단품 타이어 객체(`BaseTire`) 및 프로젝트 단위 취합/지수화 베이스(`BaseProject`)를 신설하여 향후 제동(`acc_brk`)과 서킷(`circuit`) 전반에 공통 객체지향 추상화 제공<br/>• **서킷 및 조종안정성(Handling) 전용 모듈화 신설 (`unoUtil.vehicle_test.circuit`)**: `circuit/` 패키지 신설, `func_circuit.py`(Haversine 거리, GPS 누적거리, 랩/섹션 자동 분할 `calc_lap_section_split`, 조향 응답 지연 `calc_steering_delay_zero/derivative`, 언더스티어 구배 `calc_understeer_gradient`, Pacejka MF / Random Forest 커브피팅, 요레이트 게인/안정성, 한계 그립 통계, Signed CTE 편차, Cohen's d, 시그모이드 점수화 등 13대 물리 연산 함수 완비), `circuit_cutpoint.py`(`CircuitCutpoint` 클래스: 한국테크노링, 스페인 이디아다, 독일 페어츠펠트, 파펜부르크 등 GPS 좌표 기반 서킷 자동 식별 및 랩/코너 섹션 컷포인트 피클 로더 구축)<br/>• **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 정식 업데이트 및 미래형 다크 홀로그램 UI/UX 완성**: 2,500여 줄의 대규모 고도화, `acc_brk_hologram_bg.jpg` 배경 및 글래스모피즘 네온 UI/UX, Streamlit 1.50 최신 컴포넌트 최적화, 런 편집 인터랙션 및 시각화 저장 연동<br/>• **대규모 실차 시험 계측 데이터셋(VBB, VBO) 수납 및 체계화**: 스노우 가감속 지그재그(`snow_acc_brk/25RD120007EF/` run1/run2 C1, C2, T1, T2) 및 유럽/국내 주요 핸들링 서킷(IDIADA, Pferdsfeld, Technoring 각 T1~T6 18개 VBO) 계측 데이터 수납 완료 | ✅ 완료 |
 > > | **v3.87** | 2026-11-12 | uno &<br/>Gemini | 🚀 **`unoUtil.file_reader` VBOParser 비정상 헤더 일시(`@ 45:52`) 파싱 예외 방어 로직 설계 및 `HydroplaningProgram` 레거시(v1) ➔ 차세대 12대 공식 도메인 패키지(v2.0) 전면 마이그레이션 기술 사양 연계 완결**<br/>• **`VBOParser._extract_save_date` 비정상 시간 헤더 방어 보강 설계 (`vbo_parser.py`)**: `hylat/C1.VBO` 등 일부 계측 파일 헤더에 비정상적인 시간(`File created on 45/25/2145 @ 45:52`)이 기록된 경우 `datetime.time(h_int, m_int, s_int)`에서 유발되던 `ValueError: hour must be in 0..23` 크래시를 방어하기 위해 `try ... except ValueError: t_time = datetime.time(0, 0)` 폴백을 설계하여 계측 파일 로드 100% 무중단 안정성 확보<br/>• **`HydroplaningProgram` 레거시 마이그레이션 사양 확립**: 과거 `unoUtil.readDataFile` 및 `unoUtil.unoPostProcessing` 호출부를 최신 `unoUtil.file_reader.FileDataReader` 객체지향 인스턴스 로딩 및 `unoUtil.signal_process.post_process`(`moving_average`, `merge_data`, `find_continuous_interval`) 공식 표준 API로 1:1 전면 전환하는 마이그레이션 아키텍처 및 상세 구현 계획서 수립 완결 | ✅ 완료 |
 | **v3.86** | 2026-11-06 | uno &<br/>Gemini | 🖥️ **unoUtil 대시보드 Streamlit 1.50 최신 엔진 승격, 실시간 다크 콘솔 스트리머 전 구간 탑재, n_jobs=-1 병렬 가속 완벽 호환 및 3단 Flexbox 무결점 UI 완성**<br/>• **Streamlit 1.50 최신 엔진 승격 및 st.data_editor 단일 표준화**: 구버전(1.22)의 무거운 리페인팅 병목을 타개하고 고속 바이너리 통신 엔진으로 승격, 런 편집 100% 정상 작동 보장<br/>• **실시간 다크 콘솔 스트리머 전 구간 탑재**: 파이참 터미널을 열 필요 없이 대시보드 화면 내에 독립 윈도우 스타일의 다크 터미널을 띄워 원본 로그를 실시간 스트리밍<br/>• **스마트 고정 프로그레스 바 탑재**: HTML 태그 노출 버그를 순수 압축 HTML로 회피하고, 콘솔창 하단 고정 네온 바에서 게이지가 제자리에서 솩솩 차오르는 완벽한 터미널 룩앤필 완성<br/>• **TestVelRange 갱신 버그 해결 및 런 테이블 하이브리드 UI 구축**: update_tire_runs에서 속도 변경 시 메타데이터를 즉각 동기화하도록 수정. 대제목 옆 [✏️ 런 편집] 토글 및 [⚡ 선택 런으로 재분석] 버튼 일체형 하이브리드 UX 완성<br/>• **멀티코어 병렬 가속 완벽 유지 및 피클·컨텍스트 에러 100% 영구 차단**: vt_acc_brk.__globals__ 직접 타겟팅 및 StreamlitSafeThreadPoolExecutor 구현으로 피클/컨텍스트 에러 물리적 차단 및 use_container_width 경고 박멸<br/>• **Modern CSS Flexbox 3단 레이아웃 정규화 및 차트 이미지 저장 기능 탑재**: position:fixed 조상 전파 결함을 완전 철거하고, 제동데모와 가속데모를 바닥 좌우 대칭(1줄)으로 완벽 밀착 복원. 차트 확대 창 헤더 메뉴에 고해상도 PNG 원클릭 다운로드 기능 탑재 | ✅ 완료 |
@@ -378,6 +378,45 @@ aliases:
 ---
 
 ## 📜 13. 버전 이력 및 주요 개발 현황 (Changelog)
+
+### [2026-11-12] v4.00 - 서킷 및 조종안정성(Handling) 전면 리팩토링, 3대 공식 시험장 실데이터 파이프라인 완결 및 가감속 대시보드 v2.0 고도화 완결
+- **8대 공통 코어 아키텍처 완성 (`unoUtil.vehicle_test`)**:
+  - `BaseMemory`, `Correct`: 최상단 승격 완료.
+  - `BaseTire`, `BaseProject`: 신규 객체지향 기반 클래스 구현 및 `VTAccBrkTire`, `VTAccBrkProject`, `VTCircuitTire`, `VTCircuitProject` 공통 상속 완결.
+  - `VehicleDynamic`: 조향 기어비(`gear_ratio`) 반영 전륜 타이어 슬립각(`ReferSlipFrontTire`) 산출 및 횡하중 이동(`calc_load_transfer_lateral`) 확장.
+  - `sensor_sync`: GPS 차속 vs CAN 휠속 2-Tier 스마트 동기화 엔진 구축 (수동 `delay_ms` 최우선 지원).
+  - `param_resolver`: 노면 ➔ 모드 ➔ 시편 3계층 자동 해석기 구축.
+  - `ExcelReportBuilder`: 기업 표준 서식 다중 시트 엑셀 보고서 공통 빌더 완비.
+- **서킷 6대 물리 서브 분석기 구축 (`circuit/analyzers/`)**:
+  - `AnLapTime`: 랩 및 코너 섹션 주행시간, IQR 이상치 필터링, 주행 일관성 지수.
+  - `AnSteeringDelay`: 영점교차 + 미분피크 결합 및 MAD 3.0 조향 응답 지연 (Ay, Yaw).
+  - `AnUndersteerGradient`: 선회 횡가속도 대 조향각 선형 언더스티어 구배($K_{us}$) 및 Pacejka MF / Random Forest 비선형 피팅.
+  - `AnYawGainStability`: 정상 선회 요레이트 게인 및 코너 탈출 요진동 감쇄 안정성 지수.
+  - `AnGripLimit`: 피크, 평균, p95 한계 선회 횡가속도 그립 통계.
+  - `AnRacingLine`: 기준 랩 대비 k-d Tree 기반 부호형 교차 궤적 편차(Signed CTE).
+- **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 고도화 및 실시간 콘솔 스트리머 완성**:
+  - `StreamlitLiveConsole` 로그 심각도 정밀 판정(`_classify_line`, `has_warning`) 도입으로 경고(WARNING, 노랑)와 오류(ERROR, 빨강)를 분리하고 4색 뱃지/보더 실시간 전환.
+  - 파일 업로드 및 데이터 경로 정규화: 웹 드래그앤드롭 시 최신 배치 추출(`_extract_latest_upload_batch`, `_normalize_uno_upload_relpath`) 및 수동 경로 입력 시 즉각적인 시그니처 해제·메타데이터 재파싱(`_pending_lc_meta_override`) 연동.
+  - 스피너 컨테이너(`spinner_slot`)와 실시간 콘솔 슬롯 분리, 예외 메시지 가시화 및 속도 대역 미검출(`all_empty`) 시 친절한 원인/해결 가이드 경고 표출.
+  - PyCharm 디버거 몽키패치 해제 및 Streamlit 서브프로세스 런처(`launch_dashboard`) 안정성 확보.
+- **최상위 원스톱 파이프라인 래퍼 (`vt_circuit.py`) & 실무 진입점 제공**:
+  - 5줄 코드로 파일 스캔, 멀티프로세싱 병렬 전처리, 6대 물리 분석, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 일괄 출력 완결 (`WetHD/Main.py`, `example_circuit.py`).
+- **VBO 파서 1열 시프트 버그 원천 해결 (`index_col=False`)**:
+  - `vbo_parser.py` 내부 `pd.read_csv`의 `index_col=False` 누락으로 인한 90개 컬럼 1열 밀림 및 시간 파싱 오류를 완벽 박멸.
+- **3대 공식 시험장 실계측 데이터(18개 VBO) 엔드투엔드 검증 100% 통과**:
+  - 한국테크노링(6 VBO, 62개 지표), 스페인 IDIADA(6 VBO, 62개 지표), 독일 페어츠펠트(6 VBO, 70개 지표) 전원 랩/섹션 분할 및 보정 완결 (Exit Code 0).
+
+### [2026-11-12] v3.90 - unoUtil.vehicle ➔ unoUtil.vehicle_test 대개편, 공통 베이스 프레임워크(BaseProject/BaseTire) 구축, 서킷/핸들링 시험 모듈화(circuit/) 착수 및 가감속 대시보드 v2.0 홀로그램 UI 탑재
+- **`unoUtil.vehicle` ➔ `unoUtil.vehicle_test` 공식 패키지 승격 및 Clean Architecture 재정립**:
+  - 실차 시험 종합 도메인으로 위상을 확립하고 `unoUtil/__init__.py`에서 `vehicle_test` 공식 노출 및 하위 호환 매핑 완료. `analysis_test_data.py`, `hndl_test.md` 등 과도기 레거시 파일 정리 및 소멸.
+- **실차 시험 공통 베이스 프레임워크 구축 (`base_project.py`, `base_tire.py`, `param_resolver.py`, `sensor_sync.py`, `excel_report.py`)**:
+  - 단품 타이어 객체(`BaseTire`) 및 프로젝트 단위 취합/지수화 베이스(`BaseProject`)를 신설하여 향후 제동(`acc_brk`)과 서킷(`circuit`) 전반에 공통 객체지향 추상화 제공.
+- **서킷 및 조종안정성(Handling) 전용 모듈화 신설 (`unoUtil.vehicle_test.circuit`)**:
+  - `circuit/` 패키지 신설, `func_circuit.py`(Haversine 거리, GPS 누적거리, 랩/섹션 자동 분할 `calc_lap_section_split`, 조향 응답 지연 `calc_steering_delay_zero/derivative`, 언더스티어 구배 `calc_understeer_gradient`, Pacejka MF / Random Forest 커브피팅, 요레이트 게인/안정성, 한계 그립 통계, Signed CTE 편차, Cohen's d, 시그모이드 점수화 등 13대 물리 연산 함수 완비), `circuit_cutpoint.py`(`CircuitCutpoint` 클래스: 한국테크노링, 스페인 이디아다, 독일 페어츠펠트, 파펜부르크 등 GPS 좌표 기반 서킷 자동 식별 및 랩/코너 섹션 컷포인트 피클 로더 구축).
+- **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 정식 업데이트 및 미래형 다크 홀로그램 UI/UX 완성**:
+  - 2,500여 줄의 대규모 고도화, `acc_brk_hologram_bg.jpg` 배경 및 글래스모피즘 네온 UI/UX, Streamlit 1.50 최신 컴포넌트 최적화, 런 편집 인터랙션 및 시각화 저장 연동.
+- **대규모 실차 시험 계측 데이터셋(VBB, VBO) 수납 및 체계화**:
+  - 스노우 가감속 지그재그(`snow_acc_brk/25RD120007EF/` run1/run2 C1, C2, T1, T2) 및 유럽/국내 주요 핸들링 서킷(IDIADA, Pferdsfeld, Technoring 각 T1~T6 18개 VBO) 계측 데이터 수납 완료.
 
 ### [2026-11-06] v3.86 - unoUtil 대시보드 Streamlit 1.50 최신 엔진 승격, 실시간 다크 콘솔 스트리머 전 구간 탑재 및 집에서 이어서 작업할 4대 수정 레시피
 
