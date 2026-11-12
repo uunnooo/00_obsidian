@@ -54,10 +54,13 @@ aliases:
 
 ## 📅 1. 프로젝트 주요 버전 이력 (Changelog 타임테이블)
 
-> [!NOTE]- 📜 v1.0 ~ v3.87 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
+> [!NOTE]- 📜 v1.0 ~ v4.00 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :--- | :---: | :---: | :--- | :---: |
+> | **v4.00** | 2026-11-12 | uno &<br/>Gemini | 🏁 **서킷 및 조종안정성(Handling) 전면 리팩토링 및 3대 공식 시험장(Technoring, IDIADA, Pferdsfeld) 실계측 데이터 엔드투엔드 파이프라인 완결, 가감속 대시보드 v2.0 고도화 완성**<br/>• **8대 공통 코어 완성 (`unoUtil.vehicle_test`)**: `BaseMemory`/`Correct` 최상단 승격, `BaseTire`/`BaseProject` 객체지향 기반 클래스 신설(가감속 및 서킷 공통 상속 완비), `VehicleDynamic` 기어비 반영 전륜 슬립각 및 횡하중 이동 확장, `sensor_sync` 2-Tier 스마트 지연 동기화 엔진 구축, `param_resolver` 3계층 파라미터 해석기, `ExcelReportBuilder` 기업 표준 서식 엑셀 빌더 완비<br/>• **서킷 6대 물리 서브 분석기 구축 (`circuit/analyzers/`)**: `AnLapTime`(랩타임·섹션시간·일관성), `AnSteeringDelay`(영점교차+미분피크+MAD 3.0 조향지연), `AnUndersteerGradient`($K_{us}$ 구배·MF/RF 피팅), `AnYawGainStability`(요게인·잔류요진동 감쇄안정성), `AnGripLimit`(피크·평균·p95 선회그립), `AnRacingLine`(k-d Tree 부호형 교차 궤적 편차 Signed CTE) 완결 및 단위 테스트 100% 통과<br/>• **서킷 오케스트레이터 및 시각화 플로터 구축**: `VTCircuitTire`(단일 타이어 26개 지표 요약 & 온디맨드 자가 복원), `VTCircuitProject`(멀티 타이어 관리, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 빌더), `PlotterTire`(궤적·랩타임·마찰원), `PlotterProject`(랩타임 비교 막대·5축 성능 레이더 차트) 완결<br/>• **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 고도화 및 실시간 콘솔 스트리머 완성**: `StreamlitLiveConsole` 로그 심각도 정밀 판정(`_classify_line`, `has_warning`) 및 4색 뱃지/보더(ERROR/WARNING/STREAMING/COMPLETED) 실시간 UI 연동, 웹 드래그앤드롭 업로드 정규화(`_extract_latest_upload_batch`, `_normalize_uno_upload_relpath`) 및 텍스트 경로 수동 입력 동기화(`_pending_lc_meta_override`), 분석 스피너/콘솔 슬롯 분리 및 속도 대역 미검출 친절 가이드 안내 완비<br/>• **최상위 원스톱 래퍼 함수 `vt_circuit` 및 실무 예제/진입점 제공**: 5줄 원스톱 배치 멀티프로세싱 파이프라인 구현, `WetHD/Main.py` 및 `unoUtil/example/example_circuit.py` 탑재 완료<br/>• **VBO 파서 1열 시프트 버그 원천 해결 (`index_col=False`)**: `vbo_parser.py`의 `index_col=False` 누락으로 인한 90개 컬럼 1열 밀림 및 시간 파싱 오류를 원천 박멸하여 VBO 파싱 신뢰도 100% 달성<br/>• **3대 공식 시험장 실데이터 18개 VBO 일괄 엔드투엔드 검증 통과**: 한국테크노링(6 VBO, 62개 지표), 스페인 IDIADA(6 VBO, 62개 지표), 독일 페어츠펠트(6 VBO, 70개 지표) 전원 랩/섹션 분할 및 보정 완결 (Exit Code 0) | ✅ 완료 |
+> | **v3.90** | 2026-11-12 | uno &<br/>Gemini | 🏎️ **`unoUtil.vehicle` ➔ `unoUtil.vehicle_test` 패키지 대개편, 공통 베이스 프레임워크(`BaseProject`/`BaseTire`) 구축, 서킷/핸들링 시험 모듈화(`circuit/`) 착수 및 가감속 대시보드 v2.0 홀로그램 UI 탑재**<br/>• **`unoUtil.vehicle` ➔ `unoUtil.vehicle_test` 공식 패키지 승격 및 Clean Architecture 재정립**: 실차 시험 종합 도메인으로 위상을 확립하고 `unoUtil/__init__.py`에서 `vehicle_test` 공식 노출 및 하위 호환 매핑 완료. `analysis_test_data.py`, `hndl_test.md` 등 과도기 레거시 파일 정리 및 소멸<br/>• **실차 시험 공통 베이스 프레임워크 구축 (`base_project.py`, `base_tire.py`, `param_resolver.py`, `sensor_sync.py`, `excel_report.py`)**: 단품 타이어 객체(`BaseTire`) 및 프로젝트 단위 취합/지수화 베이스(`BaseProject`)를 신설하여 향후 제동(`acc_brk`)과 서킷(`circuit`) 전반에 공통 객체지향 추상화 제공<br/>• **서킷 및 조종안정성(Handling) 전용 모듈화 신설 (`unoUtil.vehicle_test.circuit`)**: `circuit/` 패키지 신설, `func_circuit.py`(Haversine 거리, GPS 누적거리, 랩/섹션 자동 분할 `calc_lap_section_split`, 조향 응답 지연 `calc_steering_delay_zero/derivative`, 언더스티어 구배 `calc_understeer_gradient`, Pacejka MF / Random Forest 커브피팅, 요레이트 게인/안정성, 한계 그립 통계, Signed CTE 편차, Cohen's d, 시그모이드 점수화 등 13대 물리 연산 함수 완비), `circuit_cutpoint.py`(`CircuitCutpoint` 클래스: 한국테크노링, 스페인 이디아다, 독일 페어츠펠트, 파펜부르크 등 GPS 좌표 기반 서킷 자동 식별 및 랩/코너 섹션 컷포인트 피클 로더 구축)<br/>• **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 정식 업데이트 및 미래형 다크 홀로그램 UI/UX 완성**: 2,500여 줄의 대규모 고도화, `acc_brk_hologram_bg.jpg` 배경 및 글래스모피즘 네온 UI/UX, Streamlit 1.50 최신 컴포넌트 최적화, 런 편집 인터랙션 및 시각화 저장 연동<br/>• **대규모 실차 시험 계측 데이터셋(VBB, VBO) 수납 및 체계화**: 스노우 가감속 지그재그(`snow_acc_brk/25RD120007EF/` run1/run2 C1, C2, T1, T2) 및 유럽/국내 주요 핸들링 서킷(IDIADA, Pferdsfeld, Technoring 각 T1~T6 18개 VBO) 계측 데이터 수납 완료 | ✅ 완료 |
 > | **v3.87** | 2026-11-12 | uno &<br/>Gemini | ⚡ **`unoUtil.vehicle.acc_brk` 온디맨드 캐시 복원 시 서브분석기 지표 소실 원천 방지(`_get_synced_tire_summary`), 단일/복수 콘트롤 타이어 자동 판정 마스크 무결성 확립(`_find_reference_tire`), 프로젝트 다형성 커스텀 정렬(`sort(order=...)`) 및 PlotterProject 시각화 연계 정합, Streamlit 대시보드 UI/UX 대규모 최적화 완결**<br/>• **서브분석기 요약 지표 자동 복원 및 동기화 (`vt_acc_brk_project.py`, `vt_acc_brk_tire.py`)**: 온디맨드 캐시 복원(`result.df` 재생성) 또는 요약 갱신 시 `_result.summary`의 이전 값 선제 백업 및 보존, 하위 서브분석기(`acceleration`, `split_speed`, `slip_pdf`, `mu_drop`, `slip_mode`, `sys_response`, `curve_fit`)에 보존된 `_summary` 컬럼이 누락된 경우 이를 감지하여 자동 복원·병합하는 `_get_synced_tire_summary()` 신설 및 `update_summary()` 합집합 컬럼 정합 완결<br/>• **콘트롤/기준 타이어 자동 판정 마스크(`_find_reference_tire`) 무결성 확립 (`vt_acc_brk_project.py`)**: `ref_kwd` 매칭 시 모든 타이어가 기준 타이어 키워드에 매칭되는 경우(예: T1~T4 시험 세트) 첫 번째 행만 기준 타이어로 지정하여 나머지 타이어가 중복 콘트롤로 은닉되던 결함 해결, `mask_result = (~mask_ref_tire) | (~mask_ref_tire.duplicated(keep='first'))`로 인덱스 순서 100% 보존<br/>• **프로젝트 정렬 다형성 지원 및 시각화 마스크 동기화 (`vt_acc_brk_project.py`)**: `sort()` 메서드에 딕셔너리뿐만 아니라 리스트/튜플(`Union[Dict, List, tuple]`) 커스텀 순서 지정 지원(자동 순차 가중치 부여), 정렬 후 `mask_ref_tire`와 `mask_summary`를 필수 동기화하여 `PlotterProject`의 모든 프로젝트 비교 차트가 정렬된 순서 및 인덱스를 정확히 바라보도록 정합<br/>• **`correct.py` 및 `plotter_project.py` 안정성 강화**: `correct.py`에서 `_result.summary` 직접 갱신을 통한 불필요한 시계열 재복원 방지 및 타이어명 문자열 타입 캐스팅 통일, `plotter_project.py`의 `_plot_slip_ratio`에서 실제 슬립 분포 데이터가 존재하는 유효 타이어 세트만 동적 필터링하도록 방어<br/>• **Streamlit 웹 대시보드 UI/UX 및 렌더링 최적화 (`dashboard_app.py`)**: `st.data_editor` 실시간 편집 상태(`edited_rows`) 즉시 감지 및 셀 하이라이트 스타일러(`style_tire_run_dataframe`) 탑재, 250KB Base64 배경 및 SVG 스타일을 해시(`_static_theme_hash`) 기반으로 브라우저 부모 창 `head`에 1회만 주입하여 리런 깜빡임 및 지연 극소화, 폴더 선택 다이얼로그 연동(`_on_click_browse_tire_save_dir`, `_on_click_browse_save_tab_dir`), 별도 편집 체크박스 없이 즉시 편집 + [⚡ 선택 런으로 재분석] 일체형 1줄 UX, 타이어 그래프 설정을 `st.tabs` 규격으로 정돈, 타이어 DND 순서 정렬 안정화 | ✅ 완료 |
+> | **v3.87** | 2026-11-12 | uno &<br/>Gemini | 🚀 **`unoUtil.file_reader` VBOParser 비정상 헤더 일시(`@ 45:52`) 파싱 예외 방어 로직 설계 및 `HydroplaningProgram` 레거시(v1) ➔ 차세대 12대 공식 도메인 패키지(v2.0) 전면 마이그레이션 기술 사양 연계 완결**<br/>• **`VBOParser._extract_save_date` 비정상 시간 헤더 방어 보강 설계 (`vbo_parser.py`)**: `hylat/C1.VBO` 등 일부 계측 파일 헤더에 비정상적인 시간(`File created on 45/25/2145 @ 45:52`)이 기록된 경우 `datetime.time(h_int, m_int, s_int)`에서 유발되던 `ValueError: hour must be in 0..23` 크래시를 방어하기 위해 `try ... except ValueError: t_time = datetime.time(0, 0)` 폴백을 설계하여 계측 파일 로드 100% 무중단 안정성 확보<br/>• **`HydroplaningProgram` 레거시 마이그레이션 사양 확립**: 과거 `unoUtil.readDataFile` 및 `unoUtil.unoPostProcessing` 호출부를 최신 `unoUtil.file_reader.FileDataReader` 객체지향 인스턴스 로딩 및 `unoUtil.signal_process.post_process`(`moving_average`, `merge_data`, `find_continuous_interval`) 공식 표준 API로 1:1 전면 전환하는 마이그레이션 아키텍처 및 상세 구현 계획서 수립 완결 | ✅ 완료 |
 > | **v3.86** | 2026-11-06 | uno &<br/>Gemini | 🖥️ **unoUtil 대시보드 Streamlit 1.50 최신 엔진 승격, 실시간 다크 콘솔 스트리머 전 구간 탑재, n_jobs=-1 병렬 가속 완벽 호환 및 3단 Flexbox 무결점 UI 완성**<br/>• **Streamlit 1.50 최신 엔진 승격 및 st.data_editor 단일 표준화**: 구버전(1.22)의 무거운 리페인팅 병목을 타개하고 고속 바이너리 통신 엔진으로 승격, 런 편집 100% 정상 작동 보장<br/>• **실시간 다크 콘솔 스트리머 전 구간 탑재**: 파이참 터미널을 열 필요 없이 대시보드 화면 내에 독립 윈도우 스타일의 다크 터미널을 띄워 원본 로그를 실시간 스트리밍<br/>• **스마트 고정 프로그레스 바 탑재**: HTML 태그 노출 버그를 순수 압축 HTML로 회피하고, 콘솔창 하단 고정 네온 바에서 게이지가 제자리에서 솩솩 차오르는 완벽한 터미널 룩앤필 완성<br/>• **TestVelRange 갱신 버그 해결 및 런 테이블 하이브리드 UI 구축**: update_tire_runs에서 속도 변경 시 메타데이터를 즉각 동기화하도록 수정. 대제목 옆 [✏️ 런 편집] 토글 및 [⚡ 선택 런으로 재분석] 버튼 일체형 하이브리드 UX 완성<br/>• **멀티코어 병렬 가속 완벽 유지 및 피클·컨텍스트 에러 100% 영구 차단**: vt_acc_brk.__globals__ 직접 타겟팅 및 StreamlitSafeThreadPoolExecutor 구현으로 피클/컨텍스트 에러 물리적 차단 및 use_container_width 경고 박멸<br/>• **Modern CSS Flexbox 3단 레이아웃 정규화 및 차트 이미지 저장 기능 탑재**: position:fixed 조상 전파 결함을 완전 철거하고, 제동데모와 가속데모를 바닥 좌우 대칭(1줄)으로 완벽 밀착 복원. 차트 확대 창 헤더 메뉴에 고해상도 PNG 원클릭 다운로드 기능 탑재 | ✅ 완료 |
 > | **v3.85** | 2026-11-06 | uno &<br/>Gemini | ⚡ **`unoUtil.vehicle.acc_brk` AnResponse 연산 75% 고속화, correct.py DataFrame 단편화 경고 박멸, 5대 `save_*` 및 `plot` 파라미터 직교 분리 및 기본값 `False` 단일 표준화, 시스템 코어 자동 감지 스마트 병렬화(`n_jobs: int = -1`) 탑재 및 0.db 분기 생성 완결**<br/>• **`AnResponse` 알고리즘 병목 규명 및 75% 고속화 (`func_acc_brk.py`)**: `calc_response` 내부에서 75만 행 전체 시계열 필터링을 런별 유효 슬라이스(`idx_start:idx_end` + 패딩) 1회 사전 필터링으로 개편하고 중복 `pd.concat` 블록을 1회로 통합하여, `AnResponse` 분석 소요 시간을 **2.36초 ➔ 0.58초 (약 75% 시간 단축, 4배 가속)**로 단축하고 수치 지표(`sys_response_time: 0.137`, `sys_rising_time: 0.23`, `sys_rising_slope: -3.862`) 100% 동일성 검증 완료<br/>• **`correct.py` DataFrame 파편화 경고(`PerformanceWarning`) 원천 소멸**: Control 보정 루프에서 컬럼 개별 insert 방식을 딕셔너리 수집 후 `pd.concat` 1회 일괄 병합(Batch Concat)으로 전면 리팩토링하여 경고 0건 및 메모리 복사 오버헤드 박멸<br/>• **5대 `save_*` 및 `plot` 파라미터 직교 분리 및 기본값 `False` 단일 표준화 (`vt_acc_brk.py`)**: `save_file`(캐시 .gz), `save_tire`(타이어 .tir), `save_pjt`(프로젝트 .pjt), `save_result`(결과 테이블 .csv 3종), `save_plot`(차트 이미지 .png), `plot`(화면 창 띄우기) 기본값을 모두 `False`로 통일하고, `plot=False, save_plot=True` 조합 시 GUI 팝업 없이 백그라운드 무음 저장이 가능하도록 완비<br/>• **100% 클린 인메모리 연산 실증 및 0.db 디렉터리 분기 생성**: 모든 `save_*` 옵션이 `False`일 때 `check_path(dir_db)` 무조건 호출 결함을 수정하여 `0.db`, `1.figure`, `2.result` 폴더가 단 하나도 남지 않는 완전한 클린 인메모리 실행 보장<br/>• **코어 수 자동 감지 기반 스마트 병렬 모드(`n_jobs: int = -1`) 탑재**: 파이썬 내장 `os.cpu_count()`(현재 PC 12코어) 기반으로 단일 타이어는 오버헤드 없는 순차 실행, 2개 이상 타이어는 `ProcessPoolExecutor` 멀티프로세싱 동시 병렬 처리를 지원하고 실측 VBO 2개 데이터 기반 순차 대비 수치 오차 0.000000 완전 일치 검증<br/>• **하위 모듈(`VTAccBrkTire`, `VTAccBrkProject`) 기본값 전수 통일 및 1:1 기술 매뉴얼 동기화**: `VTAccBrkTire.run` 및 `VTAccBrkProject.run` 시그니처와 구현에서 `save_result=False`, `plot=False`를 일괄 정합하고 소스 코드 저장소 내 1:1 기술 매뉴얼(`vt_acc_brk.md`, `vt_acc_brk_project.md`, `vt_acc_brk_tire.md`) 100% 동기화 완료 | ✅ 완료 |
 > | **v3.83** | 2026-11-05 | uno &<br/>Gemini | 🎨 **`format_fig` 폰트 스타일링 개선(`pretty` 굵기 제어 및 누락 버그 해결), `PlotterTire`·`PlotterProject` 타이틀 일반 굵기(`normal`) 일괄 통일, `vt_acc_brk` 메인 함수 타이어 개별 그래프 저장 기본 활성화(`plot=True`) 및 스노우 제동 데이터(`snow_brk`) 123개 구버전 부산물 정비 완결**<br/>• **`format_fig` 폰트 스타일링 및 타이틀 누락 결함 개선 (`plotter.py`)**: `pretty=True`일 때만 볼드체(`bold`)를 적용하고, `pretty=False`일 때는 `title`과 `suptitle`, 축 라벨의 폰트 굵기를 강제로 볼드로 바꾸지 않고 일반 굵기(`normal`) 또는 원본 스타일을 보존하도록 개선. 아울러 `pretty=False` 지정 시 문자열 `title`이 누락되던 버그를 완벽 해결<br/>• **`PlotterTire` 서브플롯 타이틀 하드코딩 볼드체 전면 제거 (`plotter_tire.py`)**: `_plot_full_calibration_session` (4개 패널), `_plot_mu_drop_group` (3개 패널), `_plot_skewness_group` (2개 패널), `_plot_response_channel` (3개 패널)에 직접 명시되어 있던 `fontweight='bold'`를 전면 제거하여 전체 서브플롯 타이틀이 일관되게 일반 굵기로 렌더링되도록 정합<br/>• **`PlotterProject` 연동 정비 및 기본 굵기 통일 (`plotter_project.py`)**: 내부 공통 키워드 분리 헬퍼 `_make_format_fig_kwargs` 및 일괄 차트 생성 메서드 `all()`의 기본 옵션으로 `pretty=False`를 지정하여, 사용자가 명시하지 않아도 모든 프로젝트 비교 플롯의 타이틀/슈퍼타이틀이 균일한 일반 굵기로 출력되도록 표준화<br/>• **`vt_acc_brk` 메인 함수 `plot: bool = True` 기본값 변경 (`vt_acc_brk.py`)**: 배치 파이프라인 구동 시 별도 `plot=True` 옵션 없이도 개별 타이어 9대 시각화 그래프가 `1.figure/` 폴더에 기본 저장되도록 시그니처 및 docstring 갱신<br/>• **실측 스노우 제동 데이터(`snow_brk`) 41개 런 내 123개 분석 캐시/결과 폴더 정리**: 41개 `run*` 폴더에서 과거 생성된 `0.db`, `1.figure`, `2.result` 폴더 123개를 안전 삭제하여 원천 계측 파일(`*.vbo`/`*.vbb` 228개)을 보존한 초기 상태로 정비하고, 테크노링 기상 오염으로 Parquet 스키마 충돌을 일으키던 구버전 중복 프로젝트 파일 2건(`25OE120004EF_snow_run1.pjt`, `25RD120007EF_snow_run1.pjt`) 영구 삭제<br/>• **1:1 순수 기술 매뉴얼 동기화 (`plotter_tire.md`, `plotter_project.md`, `vt_acc_brk.md`)**: `pretty` 파라미터 명세 및 `vt_acc_brk` `plot` 기본값 최신화 완료 | ✅ 완료 |
@@ -146,7 +149,7 @@ aliases:
 >     end
 > 
 >     subgraph Core_Domains [unoUtil 12대 핵심 도메인]
->         V["🏎️ vehicle/ (실차 시험 & 동역학)"]
+>         V["🏎️ vehicle_test/ (실차 시험 & 동역학: acc_brk / circuit)"]
 >         G["🛰️ gps/ (GNSS 좌표계 투영 - gps_to_xy.py 단일화)"]
 >         FR["🚀 file_reader/ (이종 계측데이터 통합 리더 + parsers/ 서브폴더)"]
 >         CF["🎯 curve_fit/ (타이어 비선형 피팅 tire_curve/ SSOT)"]
@@ -168,7 +171,7 @@ aliases:
 
 | 도메인 | 지식 사전 (Obsidian SSOT) | 핵심 아키텍처 및 역할 | 연계 공학 리소스 (04_Resources) |
 | :---: | :--- | :--- | :--- |
-| **🏎️ vehicle/acc_brk** | [[vt_acc_brk_사전\|가감속/제동 사전]] | 가감속/제동 동역학, 콘트롤 타이어 선형 보간, 시작점 자동 검출 | [[30_실차_가감속_성능변화_분석_및_보정_시스템\|실차 가감속 백서]] |
+| **🏎️ vehicle_test** | [[vt_acc_brk_사전\|가감속/제동 사전]]<br/>[[circuit_사전\|서킷/핸들링 사전]] | 실차 시험 공통 베이스(`BaseProject`/`BaseTire`), 가감속/제동 동역학, 서킷 랩/섹션 분할 및 조향 지연/CTE 분석 | [[30_실차_가감속_성능변화_분석_및_보정_시스템\|실차 가감속 백서]]<br/>[[24_유노유틸_파일리더_표준채널명\|표준 채널 명세서]] |
 | **❄️ snow_condition** | [[snow_condition_사전\|스노우 환경 사전]] | 3D 노면 공간 보간, 1-Run 시공간 결합, 머신러닝 차분 환경 보정 | [[31_스노우_노면_디지털트윈_및_제동성능_보정_위키\|스노우 디지털트윈]] |
 | **🎯 curve_fit** | [[curve_fit_사전\|커브 피팅 사전]] | 3계층 메타 추정기, 에르미트 블렌딩 합성, 타이어 비선형 피팅 | [[40_비선형_회귀_메타_추정기_및_에르미트_블렌딩_아키텍처\|메타 추정기]] |
 | **🚀 file_reader** | [[file_reader_사전\|계측 데이터 리더 사전]] | VBOX, VBB, Dewesoft, CSV 이기종 통합 리더 및 표준 채널 정규화 | [[24_유노유틸_파일리더_표준채널명\|표준 채널 명세서]] |
@@ -183,7 +186,7 @@ aliases:
 
 ---
 
-## 🏎️ 3. vehicle 동역학 & 가감속/제동 (acc_brk) 도메인
+## 🏎️ 3. vehicle_test 실차 시험 & 동역학 (acc_brk / circuit) 도메인
 
 > 📑 **Dashboard(웹 대시보드) 심층 개발 보고서 허브 (MOC)**: [[00_dashboard_보고서_통합_색인|🖥️ 50_dashboard 보고서 통합 색인 바로가기]]
 > • [[2026-11-05_v3.82_가감속제동_인터랙티브_웹대시보드_구축_및_스노우가속_표준속도정합_종합개발보고서|10. 가감속/제동(acc_brk) 통합 인터랙티브 웹 대시보드 구축 및 스노우 가속 표준 속도(5-40) 정합 종합개발보고서]]
@@ -194,23 +197,30 @@ aliases:
 > 📑 **Mu-Drop(마찰 저하 분석) 심층 검증 보고서 허브 (MOC)**: [[00_mu_drop_보고서_통합_색인|🛞 40_mu_drop 보고서 통합 색인 바로가기]]
 > • [[2026-10-30_v3.71_MuDrop_피칭보정_영위상추세선_오실레이션포락선_알고리즘고도화_검증보고서|10. Mu-Drop 강건(Robust) 분석 알고리즘 고도화 및 실측 검증 보고서: 피칭 보정 · 영위상 추세선 · 오실레이션 포락선]]
 
-> [!NOTE]- 🏎️ vehicle 및 acc_brk 모듈 소스 코드 목록 [클릭하여 펼치기]
+> [!NOTE]- 🏎️ vehicle_test 실차 시험 공통 베이스, acc_brk 및 circuit 모듈 소스 코드 목록 [클릭하여 펼치기]
 > | 모듈 / 서브패키지 | 핵심 기능 및 역할 | 소스 코드 (Repo) |
 > | :--- | :--- | :---: |
-> | **`VehicleDynamic`** | 실차 센서 장착점 ➔ 차량 무게중심(CG) 운동역학 변환 및 롤/피치 보정 | [`vehicle_dynamic.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/vehicle_dynamic.py) |
-> | **`hndl_test`** | 실차 조종안정성(Handling) 계측 데이터 분석 및 요레이트/횡가속도 산출 | [`hndl_test.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/hndl_test.py) |
-> | **`test_infor_res`** | 평가 정보(`TestInformation`) 및 결과(`TestResult`) 메타데이터 컨테이너 | [`test_infor_res.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/test_infor_res.py) |
-> | **`analysis_test_data`**| 제동 및 가속 성능 종합 통계 분석 및 평가 간 비교 엔진 | [`analysis_test_data.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/analysis_test_data.py) |
-> | **`vt_acc_brk`** | 가감속/제동 자동화 파이프라인 마스터 오케스트레이터 (`cf_*` 3계층 패스스루, 표준 네이밍: [[50_vt_acc_brk_표준_네이밍_규칙_및_저장_구조|표준 네이밍 룰]], 1:1 매뉴얼: [`vt_acc_brk.md`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk.md)) | [`vt_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk.py) |
-> | **`vt_acc_brk_tire`** | 단일 타이어 동역학 분석, Wavelet 가속도 복원, 7대 서브 분석기(`curve_fit` 내장) 및 원천 데이터(`tire.df`) 시험 라벨링 | [`vt_acc_brk_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk_tire.py) |
-> | **`vt_acc_brk_project`**| 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 및 `curve_fit` 보정 지수(`index_cf_*`) 산출 엔진 | [`vt_acc_brk_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/vt_acc_brk_project.py) |
-> | **`correct`** | 시험 환경(온도, 노면) 프로파일(`correct_factor_basic`), 콘트롤 타이어 시계열 성능 지수 보정 및 `curve_fit` 게인($G_i$) 동기화 (`Correct`) | [`correct.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/correct.py) |
-> | **`base_memory`** | 대용량 실차 시계열 데이터 초고속 인메모리 관리 및 슬림 피클링 (`BaseMemory`) | [`base_memory.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/base_memory.py) |
-> | **`func_acc_brk`** | 가감속/제동 13대 핵심 동역학·신호처리·슬립·수막·응답성 계산 함수군 | [`func_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/func_acc_brk.py) |
-> | **`analyzers` (6대 서브) + `curve_fit`**| 가속대역, 감속응답, 슬립속도PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅(`TireCurve`) 7대 전문 서브 분석기 | [`analyzers/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/analyzers/) |
-> | **`plotter_tire` / `plotter_project`** | 단일 타이어 9대 분석 차트(`PlotterTire`: `curve_fit`, `curve_fit_detail` 포함) 및 프로젝트 9대 비교 플로터(`PlotterProject`: `compare_curve_fit` 포함) | [`plotter_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/plotter_tire.py) · [`plotter_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle/acc_brk/plotter_project.py) |
+> | **`BaseProject`** | 실차 시험 다중 타이어 취합, 기준(Control) 타이어 성능 보정 및 지수화 공통 베이스 | [`base_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/base_project.py) |
+> | **`BaseTire`** | 단일 타이어 계측 시계열 데이터 캡슐화, 채널 매핑 및 시험 차수 분석 공통 베이스 | [`base_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/base_tire.py) |
+> | **`VehicleDynamic`** | 실차 센서 장착점 ➔ 차량 무게중심(CG) 운동역학 변환 및 롤/피치 보정 | [`vehicle_dynamic.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/vehicle_dynamic.py) |
+> | **`test_infor_res`** | 평가 정보(`TestInformation`) 및 결과(`TestResult`) 메타데이터 컨테이너 | [`test_infor_res.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/test_infor_res.py) |
+> | **`param_resolver`** | 시험 파라미터 표준화 및 레거시 매핑 리졸버 | [`param_resolver.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/param_resolver.py) |
+> | **`sensor_sync`** | GPS/CAN/이종 센서 타임스탬프 동기화 및 리샘플링 | [`sensor_sync.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/sensor_sync.py) |
+> | **`excel_report`** | 실차 시험 종합 분석 결과 다중 시트 엑셀 보고서 일괄 출력 유틸리티 | [`excel_report.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/excel_report.py) |
+> | **`CircuitCutpoint`** | 서킷/트랙 GPS 좌표 기반 자동 판별 및 랩/섹션 분할선 게이트 관리 (`circuit`) | [`circuit_cutpoint.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/circuit/circuit_cutpoint.py) |
+> | **`func_circuit`** | 서킷 조종안정성 13대 물리 연산 함수군 (랩분할, 조향지연, K_us, MF/RF 피팅, CTE 등) | [`func_circuit.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/circuit/func_circuit.py) |
+> | **`vt_acc_brk`** | 가감속/제동 자동화 파이프라인 마스터 오케스트레이터 (`cf_*` 3계층 패스스루, 표준 네이밍: [[50_vt_acc_brk_표준_네이밍_규칙_및_저장_구조|표준 네이밍 룰]], 1:1 매뉴얼: [`vt_acc_brk.md`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/vt_acc_brk.md)) | [`vt_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/vt_acc_brk.py) |
+> | **`vt_acc_brk_tire`** | 단일 타이어 동역학 분석, Wavelet 가속도 복원, 7대 서브 분석기(`curve_fit` 내장) 및 원천 데이터(`tire.df`) 시험 라벨링 | [`vt_acc_brk_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/vt_acc_brk_tire.py) |
+> | **`vt_acc_brk_project`**| 다중 타이어 취합, 콘트롤 타이어 시계열 선형 보간 및 `curve_fit` 보정 지수(`index_cf_*`) 산출 엔진 | [`vt_acc_brk_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/vt_acc_brk_project.py) |
+> | **`correct`** | 시험 환경(온도, 노면) 프로파일(`correct_factor_basic`), 콘트롤 타이어 시계열 성능 지수 보정 및 `curve_fit` 게인($G_i$) 동기화 (`Correct`) | [`correct.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/correct.py) |
+> | **`base_memory`** | 대용량 실차 시계열 데이터 초고속 인메모리 관리 및 슬림 피클링 (`BaseMemory`) | [`base_memory.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/base_memory.py) |
+> | **`func_acc_brk`** | 가감속/제동 13대 핵심 동역학·신호처리·슬립·수막·응답성 계산 함수군 | [`func_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/func_acc_brk.py) |
+> | **`analyzers` (6대 서브) + `curve_fit`**| 가속대역, 감속응답, 슬립속도PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅(`TireCurve`) 7대 전문 서브 분석기 | [`analyzers/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/analyzers/) |
+> | **`plotter_tire` / `plotter_project`** | 단일 타이어 9대 분석 차트(`PlotterTire`: `curve_fit`, `curve_fit_detail` 포함) 및 프로젝트 9대 비교 플로터(`PlotterProject`: `compare_curve_fit` 포함) | [`plotter_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/plotter_tire.py) · [`plotter_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/plotter_project.py) |
+> | **`dashboard` (acc_brk)** | 미래형 다크 홀로그램 스타일 가감속/제동 통합 인터랙티브 웹 대시보드 (`dashboard_app.py`) | [`dashboard_app.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/dashboard/dashboard_app.py) |
 
 ---
+
 
 ## 🚀 4. file_reader 이기종 계측 데이터 리더 도메인
 
@@ -370,6 +380,106 @@ aliases:
 
 ## 📜 13. 버전 이력 및 주요 개발 현황 (Changelog)
 
+### [2026-11-12] v4.00 - 서킷 및 조종안정성(Handling) 전면 리팩토링, 3대 공식 시험장 실데이터 파이프라인 완결 및 가감속 대시보드 v2.0 고도화 완결
+- **8대 공통 코어 아키텍처 완성 (`unoUtil.vehicle_test`)**:
+  - `BaseMemory`, `Correct`: 최상단 승격 완료.
+  - `BaseTire`, `BaseProject`: 신규 객체지향 기반 클래스 구현 및 `VTAccBrkTire`, `VTAccBrkProject`, `VTCircuitTire`, `VTCircuitProject` 공통 상속 완결.
+  - `VehicleDynamic`: 조향 기어비(`gear_ratio`) 반영 전륜 타이어 슬립각(`ReferSlipFrontTire`) 산출 및 횡하중 이동(`calc_load_transfer_lateral`) 확장.
+  - `sensor_sync`: GPS 차속 vs CAN 휠속 2-Tier 스마트 동기화 엔진 구축 (수동 `delay_ms` 최우선 지원).
+  - `param_resolver`: 노면 ➔ 모드 ➔ 시편 3계층 자동 해석기 구축.
+  - `ExcelReportBuilder`: 기업 표준 서식 다중 시트 엑셀 보고서 공통 빌더 완비.
+- **서킷 6대 물리 서브 분석기 구축 (`circuit/analyzers/`)**:
+  - `AnLapTime`: 랩 및 코너 섹션 주행시간, IQR 이상치 필터링, 주행 일관성 지수.
+  - `AnSteeringDelay`: 영점교차 + 미분피크 결합 및 MAD 3.0 조향 응답 지연 (Ay, Yaw).
+  - `AnUndersteerGradient`: 선회 횡가속도 대 조향각 선형 언더스티어 구배($K_{us}$) 및 Pacejka MF / Random Forest 비선형 피팅.
+  - `AnYawGainStability`: 정상 선회 요레이트 게인 및 코너 탈출 요진동 감쇄 안정성 지수.
+  - `AnGripLimit`: 피크, 평균, p95 한계 선회 횡가속도 그립 통계.
+  - `AnRacingLine`: 기준 랩 대비 k-d Tree 기반 부호형 교차 궤적 편차(Signed CTE).
+- **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 고도화 및 실시간 콘솔 스트리머 완성**:
+  - `StreamlitLiveConsole` 로그 심각도 정밀 판정(`_classify_line`, `has_warning`) 도입으로 경고(WARNING, 노랑)와 오류(ERROR, 빨강)를 분리하고 4색 뱃지/보더 실시간 전환.
+  - 파일 업로드 및 데이터 경로 정규화: 웹 드래그앤드롭 시 최신 배치 추출(`_extract_latest_upload_batch`, `_normalize_uno_upload_relpath`) 및 수동 경로 입력 시 즉각적인 시그니처 해제·메타데이터 재파싱(`_pending_lc_meta_override`) 연동.
+  - 스피너 컨테이너(`spinner_slot`)와 실시간 콘솔 슬롯 분리, 예외 메시지 가시화 및 속도 대역 미검출(`all_empty`) 시 친절한 원인/해결 가이드 경고 표출.
+  - PyCharm 디버거 몽키패치 해제 및 Streamlit 서브프로세스 런처(`launch_dashboard`) 안정성 확보.
+- **최상위 원스톱 파이프라인 래퍼 (`vt_circuit.py`) & 실무 진입점 제공**:
+  - 5줄 코드로 파일 스캔, 멀티프로세싱 병렬 전처리, 6대 물리 분석, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 일괄 출력 완결 (`WetHD/Main.py`, `example_circuit.py`).
+- **VBO 파서 1열 시프트 버그 원천 해결 (`index_col=False`)**:
+  - `vbo_parser.py` 내부 `pd.read_csv`의 `index_col=False` 누락으로 인한 90개 컬럼 1열 밀림 및 시간 파싱 오류를 완벽 박멸.
+- **3대 공식 시험장 실계측 데이터(18개 VBO) 엔드투엔드 검증 100% 통과**:
+  - 한국테크노링(6 VBO, 62개 지표), 스페인 IDIADA(6 VBO, 62개 지표), 독일 페어츠펠트(6 VBO, 70개 지표) 전원 랩/섹션 분할 및 보정 완결 (Exit Code 0).
+
+### [2026-11-12] v3.90 - unoUtil.vehicle ➔ unoUtil.vehicle_test 대개편, 공통 베이스 프레임워크(BaseProject/BaseTire) 구축, 서킷/핸들링 시험 모듈화(circuit/) 착수 및 가감속 대시보드 v2.0 홀로그램 UI 탑재
+- **`unoUtil.vehicle` ➔ `unoUtil.vehicle_test` 공식 패키지 승격 및 Clean Architecture 재정립**:
+  - 실차 시험 종합 도메인으로 위상을 확립하고 `unoUtil/__init__.py`에서 `vehicle_test` 공식 노출 및 하위 호환 매핑 완료. `analysis_test_data.py`, `hndl_test.md` 등 과도기 레거시 파일 정리 및 소멸.
+- **실차 시험 공통 베이스 프레임워크 구축 (`base_project.py`, `base_tire.py`, `param_resolver.py`, `sensor_sync.py`, `excel_report.py`)**:
+  - 단품 타이어 객체(`BaseTire`) 및 프로젝트 단위 취합/지수화 베이스(`BaseProject`)를 신설하여 향후 제동(`acc_brk`)과 서킷(`circuit`) 전반에 공통 객체지향 추상화 제공.
+- **서킷 및 조종안정성(Handling) 전용 모듈화 신설 (`unoUtil.vehicle_test.circuit`)**:
+  - `circuit/` 패키지 신설, `func_circuit.py`(Haversine 거리, GPS 누적거리, 랩/섹션 자동 분할 `calc_lap_section_split`, 조향 응답 지연 `calc_steering_delay_zero/derivative`, 언더스티어 구배 `calc_understeer_gradient`, Pacejka MF / Random Forest 커브피팅, 요레이트 게인/안정성, 한계 그립 통계, Signed CTE 편차, Cohen's d, 시그모이드 점수화 등 13대 물리 연산 함수 완비), `circuit_cutpoint.py`(`CircuitCutpoint` 클래스: 한국테크노링, 스페인 이디아다, 독일 페어츠펠트, 파펜부르크 등 GPS 좌표 기반 서킷 자동 식별 및 랩/코너 섹션 컷포인트 피클 로더 구축).
+- **가감속/제동 대시보드 (`dashboard_app.py`) v2.0 정식 업데이트 및 미래형 다크 홀로그램 UI/UX 완성**:
+  - 2,500여 줄의 대규모 고도화, `acc_brk_hologram_bg.jpg` 배경 및 글래스모피즘 네온 UI/UX, Streamlit 1.50 최신 컴포넌트 최적화, 런 편집 인터랙션 및 시각화 저장 연동.
+- **대규모 실차 시험 계측 데이터셋(VBB, VBO) 수납 및 체계화**:
+  - 스노우 가감속 지그재그(`snow_acc_brk/25RD120007EF/` run1/run2 C1, C2, T1, T2) 및 유럽/국내 주요 핸들링 서킷(IDIADA, Pferdsfeld, Technoring 각 T1~T6 18개 VBO) 계측 데이터 수납 완료.
+
+### [2026-11-06] v3.86 - unoUtil 대시보드 Streamlit 1.50 최신 엔진 승격, 실시간 다크 콘솔 스트리머 전 구간 탑재 및 집에서 이어서 작업할 4대 수정 레시피
+
+# 🛠️ 메인 버튼 이중 렌더링 박멸, 사이드바 5대 고유 아이콘 복원 및 Tire 탭 상시 체크/재분석 UI 계획
+
+## 1. 스크린샷 정밀 분석 및 결함 원인 (Root Cause Analysis)
+
+사용자께서 첨부해 주신 스크린샷(`clipboard-1793948886968.png`)을 정밀 분석하여 4대 결함의 원인을 100% 명확히 규명했습니다:
+
+### 📍 [결함 1] 메인 버튼([재분석], [타이어 저장])이 2개씩 쌍둥이로 복제되어 보이는 현상
+- **원인 규명**:
+  - CSS에서 `div[data-testid="stFormSubmitButton"]` (부모 컨테이너)와 그 자식 `button` **둘 다에게** `width: 175px`, `border: 1.6px solid ...`, `background: linear-gradient(...)` 스타일을 걸어버렸습니다.
+  - 그 결과 부모 div도 알약 버튼 모양으로 그려지고, 자식 button도 알약 버튼 모양으로 그려져서, **버튼 1개가 2개로 복제되어 나란히 서 있었던 것**입니다!
+- **해결 방안**:
+  - 부모 div(`stFormSubmitButton`)의 배경과 테두리를 완전히 투명화(`background: transparent !important; border: none !important;`)하고, **오직 실제 `button` 요소에만 단일 스타일을 적용**하여 이중 복제 현상을 100% 박멸합니다!
+
+---
+
+### 📍 [결함 2] 사이드바 모든 버튼이 Tire 아이콘으로 덮어씌워지고 데모 버튼에도 침범한 현상
+- **원인 규명**:
+  - Streamlit 1.50에서는 각 버튼마다 개별 `div.stButton` 래퍼로 감싸져 있어서, 모든 버튼이 자신의 부모 입장에서 **무조건 `:nth-of-type(1)`** 이었습니다.
+  - 이로 인해 마지막으로 적용된 `Tire` 아이콘 규칙이 사이드바의 1번~5번 메뉴 버튼과 데모 버튼 2개까지 **총 7개 버튼 전체에 일괄 덮어씌워진 것**입니다!
+- **해결 방안 (고유 앵커 직결 바인딩)**:
+  - 파이썬 코드에서 5대 메뉴 버튼 바로 앞에 고유 앵커(`sb-nav-anchor-1` ~ `sb-nav-anchor-5`)를 주입하고,
+  - CSS에서 인접 형제 선택자(`div:has(> .sb-nav-anchor-N) + div button::before`)로 1:1 직결 매핑하여:
+    - 1번: `Information` 아이콘
+    - 2번: `Load & Combination` 아이콘
+    - 3번: `Tire` 아이콘
+    - 4번: `Project` 아이콘
+    - 5번: `Save` 아이콘
+    이 단 1개의 오차도 없이 각자의 고유 아이콘으로 정확하게 복원되며, **데모 버튼에는 앵커가 없으므로 아이콘이 일절 침범하지 않습니다!**
+
+---
+
+### 📍 [결함 3] 사이드바 하단 데모 버튼 바닥 밀착 레이아웃 복원
+- `제동데모`와 `가속데모`를 `st.columns(2)`로 가로 1줄에 50%씩 깔끔하게 나란히 안착.
+
+---
+
+### 📍 [결함 4] Tire 탭 테이블: Information 탭과 동일하게 '런 편집' 토글 제거 & 상시 체크박스 및 대제목 옆 [선택 런 재분석] 일체형 UI 전환
+- **사용자 요구사항**:
+  - "타이어 탭 테이블 수정 방식과 표시 방식을 지금 Information 탭처럼 변경해줘: **그냥 바로 선택 체크/해제할 수 있고, 선택 런 재분석 버튼을 만들어 선택한 런들에 대해 재분석할 수 있게!**"
+- **구현 방안**:
+  1. `[ ] 런 편집` 토글 체크박스를 **완전히 삭제**합니다.
+  2. 테이블은 **상시 `st.data_editor`로 렌더링**되어 첫 번째 열 `Valid`의 체크박스를 마우스로 즉시 체크/해제할 수 있습니다. (나머지 열은 읽기 전용 보호)
+  3. 상단 헤더 1줄 레이아웃:
+     `[테이블 ({sel_tire_key} 런별 상세 결과)]  [⚡ 선택 런으로 재분석]  ----------------  [⛶ 새창 확대]`
+  4. 테이블에서 체크박스를 수정하자마자 **대제목 바로 옆에 초록색 네온 `[⚡ 선택 런으로 재분석]` 버튼이 뙇! 활성화**되어 원클릭으로 선택된 런들만 즉시 재연산됩니다!
+  5. 테이블 밑에 불필요한 줄바꿈이 전혀 생기지 않아 화면이 극도로 쾌적해집니다!
+
+---
+
+## 2. 검증 계획 (Verification)
+1. 메인 화면에서 `[재분석]` 및 `[타이어 저장]` 버튼이 2개가 아니라 **단 1개로 깔끔하게 렌더링되는지 확인**.
+2. 사이드바의 5대 메뉴 버튼이 각각 고유한 아이콘(Information, Load, Tire, Project, Save)으로 정상 복원되는지 확인.
+3. 사이드바 데모 버튼에 원형 아이콘이 침범하지 않고 깔끔한 직사각형 버튼으로 바닥에 안착되는지 확인.
+4. Tire 탭에서 토글 체크박스 없이 테이블의 `Valid` 체크박스를 바로 껐다 켤 수 있고, 대제목 바로 옆의 `[⚡ 선택 런으로 재분석]` 버튼으로 즉시 재분석되는지 확인.
+5. 단위 테스트 스위트(`--test`) 100% 통과 확인.
+
+
+---
+
 ### [2026-11-06] v3.85 - unoUtil.vehicle.acc_brk AnResponse 연산 75% 고속화, correct.py DataFrame 단편화 경고 박멸, 5대 save_* 및 plot 파라미터 직교 분리 및 기본값 False 단일 표준화, 시스템 코어 자동 감지 스마트 병렬화(n_jobs=-1) 탑재 및 0.db 분기 생성 완결
 * **`AnResponse` 알고리즘 병목 규명 및 75% 연산 가속 (`func_acc_brk.py`)**:
   - `calc_response` 내부에서 75만 행 전체 시계열 필터링을 런별 유효 슬라이스(`idx_start:idx_end` + 패딩) 1회 사전 필터링으로 개편하고 중복 `pd.concat` 블록을 1회로 통합.
@@ -417,7 +527,7 @@ aliases:
 * **Modern CSS Flexbox 3단 레이아웃 정규화 및 차트 이미지 저장 기능 탑재**: position:fixed 조상 전파 결함을 완전 철거하고, 제동데모와 가속데모를 바닥 좌우 대칭(1줄)으로 완벽 밀착 복원. 차트 확대 창 헤더 메뉴에 고해상도 PNG 원클릭 다운로드 기능 탑재.
 
 ### [2026-11-05] v3.82 - unoUtil.vehicle.acc_brk 통합 인터랙티브 웹 대시보드(Streamlit) 신규 구축, 5대 네온 메달리온 UI 및 다크 홀로그램 글래스모피즘 테마 완성, 온디맨드 렌더링·인터랙티브 런 편집·드래그앤드롭 정렬 탑재, 플로터 12×6 표준화 및 Tire 탭 파라미터 승계 결함 핫픽스
-> 📑 **상세 종합 개발 보고서**: [[2026-11-05_v3.82_가감속제동_인터랙티브_웹대시보드_구축_및_스노우가속_표준속도정합_종합개발보고서|가감속/제동 통합 인터랙티브 웹 대시보드 구축 및 스노우 가속 표준 속도(5-40) 정합 종합개발보고서]]
+> 📑 **상세 종합 개발 보고서**: [[2026-11-12_v4.00_대시보드_v2.0_실시간콘솔_경로정규화_안정화_종합개발보고서|가감속/제동 대시보드 v2.0 실시간 콘솔 스트리머·경로 정규화 및 런처 안정화 종합개발보고서]] · [[2026-11-05_v3.82_가감속제동_인터랙티브_웹대시보드_구축_및_스노우가속_표준속도정합_종합개발보고서|가감속/제동 통합 인터랙티브 웹 대시보드 구축 및 스노우 가속 표준 속도(5-40) 정합 종합개발보고서]]
 
 * **대시보드 전용 독립 서브패키지 신설 (`unoUtil/vehicle/acc_brk/dashboard/`)**:
   - `dashboard_app.py` (약 5,300+ 라인의 인터랙티브 대시보드), `dashboard_app.md` (순수 GFM 1:1 기술 매뉴얼), `acc_brk_hologram_bg.jpg` (배경 이미지)를 `acc_brk/dashboard/` 서브패키지로 독립 수납.
