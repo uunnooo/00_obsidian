@@ -86,7 +86,7 @@ flowchart TD
 | `plotter_tire.py` | `PlotterTire` | 단일 타이어 9대 시각화 (`accbrk`, `acceleration`, `response`, `slip_pdf`, `mu_drop`, `skewness`, `split_speed`, `curve_fit`, `curve_fit_detail`) |
 | `plotter_project.py`| `PlotterProject` | 프로젝트 시험 간 9대 비교 플로터 (`compare_braking`, `compare_curve_fit` 등) |
 | `analyzers/` (6대 서브) + `cf_tire.py`| `AnAcceleration`, `TireCurve` 등 | 가속대역, 감속응답, 슬립PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅 전문 분석 |
-| `dashboard/` | `dashboard_app.py` | Streamlit 기반 차량 가감속/제동 성능 분석 통합 인터랙티브 웹 대시보드 (5대 네온 메뉴, 실시간 보정 전환, 온디맨드 시각화, 인터랙티브 런 편집, 1:1 매뉴얼: `dashboard_app.md`) |
+| dashboard/ | dashboard_app.py | Streamlit 기반 차량 가감속/제동 성능 분석 통합 인터랙티브 웹 대시보드 v2.0 (5대 메뉴: Weather 포함, 186px 사이드바 & 게이트웨이 인터랙션, 네온 바이올렛 테크 뱃지 테마, 배경 홀로그램 바퀴 국소 발광 튜닝, 공식 PPTX: ACC_BRK_DASHBOARD_USER_MANUAL.pptx, 1:1 매뉴얼: dashboard_app.md) |
 
 ### 3.3. 온디맨드(On-demand) 하이브리드 캐싱 아키텍처 및 센티널 라이프사이클 (v3.69)
 
