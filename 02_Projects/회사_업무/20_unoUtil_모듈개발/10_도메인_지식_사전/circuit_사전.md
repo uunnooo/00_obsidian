@@ -91,9 +91,9 @@ flowchart TD
     Sync --> Dynamic["VehicleDynamic.make_standard_df\n- 동역학 좌표계 정렬\n- 조향 기어비(gear_ratio) 기반 순수 타이어 슬립각(ReferSlipFrontTire) 산출"]
     Dynamic --> Cutpoint["CircuitCutpoint\n- GPS 좌표 기반 서킷 자동 식별 (Technoring/IDIADA/Pferdsfeld/ATP)\n- 랩 분할선(Lap point) 및 코너별 게이트(Sections) 로드"]
     Cutpoint --> Split["calc_lap_section_split\n(LapNum & Section 컬럼 1:1 부여)"]
-    Split --> Analyzers["6대 물리 서브 분석기 (circuit/analyzers/)"]
+    Split --> Analyzers["8대 물리 서브 분석기 (circuit/analyzers/)"]
 
-    subgraph Sub_Analyzers [BaseMemory 기반 6대 물리 서브 분석기]
+    subgraph Sub_Analyzers [BaseMemory 기반 8대 물리 서브 분석기]
         Analyzers --> A1["AnLapTime\n(랩타임, 섹션시간, IQR 이상치, 일관성지수)"]
         Analyzers --> A2["AnSteeringDelay\n(영점교차 + 미분피크 + MAD 3.0 조향지연)"]
         Analyzers --> A3["AnUndersteerGradient\n(선회 K_us 구배 & Pacejka MF/RF 피팅)"]
@@ -102,7 +102,7 @@ flowchart TD
         Analyzers --> A6["AnRacingLine\n(기준 랩 대비 k-d Tree Signed CTE 궤적오차)"]
     end
 
-    A1 --> Tire["VTCircuitTire\n(단일 타이어 26개 지표 요약 & 온디맨드 자가 복원)"]
+    A1 --> Tire["VTCircuitTire\n(단일 타이어 54개 지표 및 프로젝트 60대 지표 요약 & 온디맨드 자가 복원)"]
     A2 --> Tire
     A3 --> Tire
     A4 --> Tire
@@ -120,11 +120,13 @@ flowchart TD
 | :--- | :--- | :--- |
 | **`vt_circuit.py`** | `vt_circuit` | 서킷 실차 시험 원스톱 배치 멀티프로세싱 최상위 5줄 래퍼 함수 |
 | **`vt_circuit_project.py`** | `VTCircuitProject` | 멀티 타이어 관리, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 빌더 (`BaseProject` 상속) |
-| **`vt_circuit_tire.py`** | `VTCircuitTire` | 단일 타이어 전처리, 랩/섹션 분할 및 6대 서브 분석 오케스트레이터 (`BaseTire` 상속) |
+| **`vt_circuit_tire.py`** | `VTCircuitTire` | 단일 타이어 전처리, 랩/섹션 분할 및 8대 서브 분석 오케스트레이터 (`BaseTire` 상속) |
 | **`circuit_cutpoint.py`** | `CircuitCutpoint` | GPS 좌표 기반 서킷 자동 식별 및 랩/코너 게이트 레지스트리 |
 | **`plotter_tire.py`** | `PlotterTire` | 단일 타이어 주행 궤적, 랩타임 분포, g-g 마찰원 시각화 (Non-blocking) |
 | **`plotter_project.py`** | `PlotterProject` | 타이어별 랩타임 비교 막대 차트 및 5축 성능 레이더 차트 (Non-blocking) |
 | **`func_circuit.py`** | 순수 물리 연산 함수군 | Haversine, 랩분할, 조향지연, K_us, MF/RF 커브피팅, Signed CTE 등 13대 물리 연산 |
+| **`an_course_in_out.py`** | `AnCourseInOut` | 코너 진입(Turn-In) vs 탈출(Turn-Out) 조향 각속도, 피크 그립 및 언더스티어 비대칭 분석 |
+| **`an_side_slip.py`** | `AnSideSlip` | 차체 COG 및 전/후륜 횡슬립각, 코너링 강성 및 직진 오프셋 영점 보정 |
 | **`an_lap_time.py`** | `AnLapTime` | 랩 및 섹션 주행시간 집계, 최적 랩 선정 및 일관성 지수 산출 |
 | **`an_steering_delay.py`** | `AnSteeringDelay` | 영점교차 + 미분피크 결합 및 MAD 3.0 조향 응답 지연시간 산출 |
 | **`an_understeer_gradient.py`**| `AnUndersteerGradient` | 선회 횡가속도 대 조향각 선형 구배 및 Magic Formula 비선형 피팅 |
@@ -188,3 +190,35 @@ print(pjt.summary[["TestTireSet", "Datetime", "lap_time_mean", "index_lap_time_m
 | **한국테크노링 (Technoring)** | `TR-T1` ~ `TR-T6` (6 VBO) | C1, T2~T6 | 10 ~ 11 Laps | ~67.7s | 242 ~ 258 ms | 62개 | ✅ 통과 |
 | **스페인 이디아다 (IDIADA)** | `ID-T1` ~ `ID-T6` (6 VBO) | C1, T2~T6 | 4 ~ 8 Laps | ~111 ~ 125s | 228 ~ 255 ms | 62개 | ✅ 통과 |
 | **독일 페어츠펠트 (Pferdsfeld)** | `PF-T1` ~ `PF-T6` (6 VBO) | C1, T2~T6 | 9 ~ 15 Laps | ~68 ~ 85s | 222 ~ 263 ms | 70개 | ✅ 통과 |
+
+---
+
+## 📊 7. WetHD 100% 호환 60대 핵심 결과 인자 및 7대 통합 대시보드
+
+### 7.1. 60대 결과 인자(Output Metrics) 전수 매핑 매트릭스
+
+| 카테고리 (분야) | 인자 수 | 주요 결과 인자 목록 | 비고 (물리적 의미) |
+| :--- | :---: | :--- | :--- |
+| **시험 조건 & 메타** | 7 | `PG`, `TestSet`, `Pattern`, `Compd`, `BeltAngle`, `RBelt`, `Day` | 시험장, 평가 패턴 및 타이어 스펙 메타데이터 |
+| **주행 시간 & 직진율**| 3 | `LapTime`, `StraightRatio`, `TimeData` | 평균 랩타임, 서킷 내 직진 주행 비율, 시간 보간 궤적 객체 |
+| **요레이트 게인 & 오차**| 18 | `Yawrate_gain_low/high/high_range`, `Yawrate_error_low/high/high_range`, `Yawrate_gain_normal_low/high/range`, `Yawrate_stability`, `Yawrate_range`, `Yawrate_max`, `Yawrate_*_fit`, `Yawrate_*_bin` | 저/고횡가속도 영역 조향각 대비 요레이트 게인, 모델 오차, 정규화 게인 및 요안정성 2D KDE 면적 |
+| **한계 그립 & 마찰원** | 7 | `LateralGrip_max/min/abs_max`, `LongGrip_acc_max`, `LongGrip_brk_min`, `GG_area`, `GG_Plot` | 횡가속도 최대치(g), 제동/가속 한계 종가속도(g), 95% 분위수 복합 마찰원 면적 및 경계선 좌표 |
+| **조향 응답 지연** | 3 | `ReferAccLateral_delay`, `AngrZ_delay`, `Datetime` | 조향 입력 대비 횡가속도/요레이트 물리적 시간 지연(s) 및 시험 일시 |
+| **슬립각 & 조향각 구배**| 9 | `ReferSlipCOG`, `ReferSlipFront/Rear`, `ReferSlipFront/Rear_grad_raw`, `Slope_VehSWA`, `Slope_VehSWA_peak`, `VehSWA`, `VehSWA_grad_raw`, `VelHorizontal` | 직진 영점 보정 슬립각, 조향 각속도 및 언더스티어 구배 KDE 최빈 피크값 |
+| **4분면 거동 비율** | 6 | `Q1_ratio`, `Q2_ratio`, `Q3_ratio`, `Q4_ratio`, `normal_level`, `count_level` | Ay 대 SWA 4분면 거동 분포 비율 및 카운터스티어 발생 레벨 |
+| **차량 밸런스 지수** | 3 | `Balance`, `Balance_high`, `Balance_low` | 요레이트 게인 기반 시그모이드 차량 선회 밸런스 점수 (프로젝트) |
+| **코스 이탈 횡편차** | 3 | `CourseOut_Inside_Mean`, `CourseOut_Outside_Mean`, `DFInOut` | 컨트롤 타이어 대비 코너 탈출 시 Inside/Outside 횡방향 이탈 거리(m) 및 데이터프레임 |
+| **합계** | **60** | **WetHD 원본 산출물(sample_handling_raw.pkl, total.pkl)과 100.0% 완전 일치** | **단일 타이어 54종 + 프로젝트 6종** |
+
+### 7.2. 프로세스 기반 7대 통합 대시보드 및 온디맨드 트랙맵 체계
+
+| 대시보드 명칭 | 패널 구성 | 디폴트 크기 (`size`) | 주요 시각화 구성 및 핵심 강조 내용 |
+| :--- | :---: | :---: | :--- |
+| **`plot.lap_times()`** | 2 × 2 | `[12.0, 7.5]` | 1. 궤적/직진분할 ➔ 2. 랩별 신호 오버랩 ➔ 3. 랩 시퀀스 ➔ **4. [핵심] 랩타임 바 + 직진비율(`StraightRatio`) 요약 박스** |
+| 🌟 **`plot.acceleration_track_map()`** | 1 × 1 | `[10.0, 7.5]` | **[온디맨드 전용] 다중 랩 공간 보간 기반 트랙 위치별 평균 가속도(종/횡/합성 g) 연속 컬러맵 히트맵 및 컬러바** |
+| **`plot.steering_delay()`** | 2 × 2 | `[12.0, 7.5]` | 1. 원신호/1차미분 ➔ 2. 영점교차 KDE ➔ 3. 미분피크 KDE ➔ **4. [핵심] Ay vs Yaw 지연 비교 및 최종 지연시간 바** |
+| **`plot.course_in_out()`** | 2 × 2 | `[12.0, 7.5]` | 1. 조향속도 KDE ➔ 2. 시계열 In/Out ➔ 3. GPS In/Out ➔ **4. [핵심] In/Out 피크그립 및 언더스티어 구배 비교** |
+| **`plot.understeer_curve()`** | 2 × 2 | `[12.5, 7.5]` | 1. 슬립 영점오프셋 ➔ 2. 구배 KDE ➔ 3. 4분면 거동 ➔ **4. [핵심] Pacejka MF 피팅 커브 (K_us 및 포화각도)** |
+| **`plot.yaw_dynamics()`** | 3 × 2 | `[13.0, 8.0]` | 1. SWA-Yaw ➔ 2. 게인 피팅 ➔ 3. 오차 산점도 ➔ 4. 오차 피팅 ➔ 5. 정규화 게인 ➔ **6. [핵심] 요안정성 면적/밸런스 프리뷰** |
+| **`plot.friction_circle()`** | 1 × 2 | `[12.0, 5.5]` | 1. 코너 섹션별 피크 그립 ➔ **2. [핵심] 복합 마찰원 95% 경계선(`GG_Plot`) 및 유효면적(`GG_area`)** |
+| **`plot.racing_line()`** | 1 × 2 | `[12.0, 5.5]` | 1. 주행선 궤적 편차 ➔ **2. [핵심] 거리별 Signed CTE 프로파일 및 평균/최대 궤적 오차 요약 박스** |
