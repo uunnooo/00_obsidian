@@ -166,6 +166,18 @@ print(pjt.summary[["TestTireSet", "Datetime", "lap_time_mean", "index_lap_time_m
 
 ---
 
+### 5.4. 서킷 모듈 시간축 정규화 및 대표 이벤트 추출 (v4.23)
+* **증상**: 
+  1. VBOX(.vbo) 파일의 HHMMSS.sss 타임스탬프가 분(minute) 단위 변경 시 발생하는 40.01초 가상 시간 점프.
+  2. 서킷 주행 중 조향 응답성 분석을 위한 가장 역동적인 대표 구간 탐색의 어려움.
+  3. 미세한 조향 채터링으로 인한 코너 진입/탈출 태깅 노이즈.
+* **조치**:
+  1. **시간축 정규화**: `normalize_circuit_time` 함수를 신설하여 분 점프 및 60초 롤오버를 감지하고 연속 경과 초(Seconds)로 시계열을 정규화하여 랩타임 계산 및 신호 오버랩 왜곡 방지.
+  2. **대표 이벤트 추출**: `find_representative_steering_event` 및 `find_representative_corner_event`를 도입하여, 조향 반전 에너지가 최대인 구간 및 Turn-In/Apex/Turn-Out이 완벽히 이어지는 5초 구간을 자동 탐색.
+  3. **채터링 방어 및 정밀화**: `calc_course_in_out`에 300ms 스무딩 미분 + `min_segment_len`(15샘플=0.15초) 기반 라벨링 + 미세 갭 브리징 로직을 적용하여 채터링 없는 연속된 진입/탈출 블록 판별.
+
+---
+
 ## 🛠️ 5. 트러블슈팅 및 튜닝 노하우
 
 ### 5.1. 실차 데이터 특이점 및 예외 대응

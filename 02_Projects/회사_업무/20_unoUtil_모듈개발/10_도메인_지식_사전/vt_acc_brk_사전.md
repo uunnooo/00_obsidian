@@ -286,9 +286,15 @@ project.plot.compare_curve_fit(corr="mean", xlim=(0.0, 1.0), show_peak=True, clo
 * **조치**:
   1. `an_slip_pdf.py`의 과도기 조건문을 제거하고 표준 `if self._df is None:` 온디맨드 캐싱 패턴으로 복원.
   2. `VTAccBrkTire.analysis()` 최상단에 선제적 빈 DataFrame 초기화(`self._result.summary = pd.DataFrame()`)를 적용하여 안전성 완결.
-### 5.5. 온디맨드 캐시 복원 시 서브분석기 지표 소실 방지 및 콘트롤 타이어 다형성 판정 (v3.87)
-* **증상**: 대용량 시계열(`result.df`) 캐시 온디맨드 복원이나 요약 테이블 재수집(`update_summary`) 시 기존에 계산되어 있던 서브분석기 요약 컬럼(`vel_*_acc` 등)이 일시 누락되거나, 모든 시험 타이어가 `ref_kwd`와 동일한 패턴일 때 중복 콘트롤로 오인되어 은닉되는 현상 발생.
+### 5.6. 대시보드 인터랙션 버그 및 성능 최적화 트러블슈팅 (v4.23)
+* **증상**: 
+  1. 전체 선택 후 파일·객체·타이어 제거 시 목록 미갱신 및 빈 프로젝트 전환 에러(StreamlitAPIException).
+  2. 병합 프로젝트명 자동 생성 시 중복 접미사(_C1_C1) 발생.
+  3. 체크박스 선택 시 매번 발생하는 Rerun 병목 및 대용량 .pjt 로딩 시 멈춤(프리징) 현상.
 * **조치**:
-  1. `VTAccBrkTire._run()`에서 기존 summary/detail을 선제 백업하고, 누락 컬럼 발생 시 하위 서브분석기(`acceleration`, `split_speed` 등)의 `_summary`를 자동 감지하여 병합.
-  2. `VTAccBrkProject._get_synced_tire_summary()` 신설로 전체 재분석 없이 안전한 요약 조회 및 자동 컬럼 복원 보장.
-  3. `_find_reference_tire()`에서 모든 타이어가 `ref_kwd`에 매칭될 때 첫 번째 행만 기준 타이어로 지정하여 시험 타이어 누락 원천 방지 및 `sort(order=...)`에 `List[str]` 커스텀 순서 다형성 지원.
+  1. **삭제 로직 및 빈 프로젝트 처리**: `_raw_files_cleared_path` 상태 관리 로직 및 `_pending_pjt_sync` 예약 플래그를 도입하여 빈 프로젝트 전환 시 발생하던 API 예외 원천 차단.
+  2. **병합 프로젝트명 생성**: `infer_default_project_name_from_tire` 헬퍼를 통해 첫 타이어 메타데이터 기반 자동 명명 및 이중 접미사 필터링 로직 구현.
+  3. **UI/UX 성능 최적화**: 
+     - 인터랙티브 테이블 및 액션 버튼을 `st.form` 구조로 재설계하여 체크박스 조작 시 Rerun 병목 제거.
+     - 대용량 .pjt 파일 로드 시 원본 경로 직결 로딩 및 0.01초 즉각 스피너 피드백 적용.
+     - Project 탭 테이블 기본 선택값을 `result.summary_all`로 정정하여 모든 구성 타이어 객체 빠짐없이 표시.
