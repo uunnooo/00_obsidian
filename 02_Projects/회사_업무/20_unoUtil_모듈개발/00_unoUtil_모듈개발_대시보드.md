@@ -904,3 +904,13 @@ ont-weight: 900, #F5E8FF 발광) 및 프로젝트 선택창 4방향 1.4px 슬림
 ---
 **Last Updated**: 2026-11-12  
 **Standard**: unoUtil Clean Architecture v3.69 & Single Baseline Law & Single Master MOC Law
+## 📜 버전 이력 및 주요 개발 현황 (Changelog)
+
+### [2026-11-20] circuit 모듈 고도화 완료
+- **작업자**: Gemini CLI Agent
+- **구분**: 기능 고도화
+- **내용**:
+  - VTCircuitProject 런타임 크래시(Circular Reference) 해결 및 인터페이스 완성 (편의 메서드 10종 구현).
+  - PlotterProject 10대 종합 비교 차트(Yaw, Parameter, Balance, RacingLine 등) 전면 구현.
+  - 실데이터(Technoring) 기반 E2E 파이프라인 검증 통과 (전 분석기 정상 동작).
+  - Python 3.12 / pandas 3.0 환경 최적화 적용.
