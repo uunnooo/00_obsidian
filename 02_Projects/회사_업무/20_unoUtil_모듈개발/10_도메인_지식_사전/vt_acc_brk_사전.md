@@ -86,7 +86,7 @@ flowchart TD
 | `plotter_tire.py` | `PlotterTire` | 단일 타이어 9대 시각화 (`accbrk`, `acceleration`, `response`, `slip_pdf`, `mu_drop`, `skewness`, `split_speed`, `curve_fit`, `curve_fit_detail`) |
 | `plotter_project.py`| `PlotterProject` | 프로젝트 시험 간 9대 비교 플로터 (`compare_braking`, `compare_curve_fit` 등) |
 | `analyzers/` (6대 서브) + `cf_tire.py`| `AnAcceleration`, `TireCurve` 등 | 가속대역, 감속응답, 슬립PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅 전문 분석 |
-| dashboard/ | dashboard_app.py | Streamlit 기반 차량 가감속/제동 성능 분석 통합 인터랙티브 웹 대시보드 v2.0 (5대 메뉴: Weather 포함, 186px 사이드바 & 게이트웨이 인터랙션, 네온 바이올렛 테크 뱃지 테마, 배경 홀로그램 바퀴 국소 발광 튜닝, 공식 PPTX: ACC_BRK_DASHBOARD_USER_MANUAL.pptx, 1:1 매뉴얼: dashboard_app.md) |
+| dashboard/ | dashboard_app.py (895줄 메인 진입점), ssets.py, 	heme.py, components.py, ngine.py, 	abs/ (5대 탭 서브패키지) | Streamlit 기반 차량 가감속/제동 성능 분석 통합 인터랙티브 웹 대시보드 v2.0+ (12,345줄 모놀리스 ➔ 11개 직교 모듈 무손실 모듈화 완결, 5열 마스터 그리드 20% 불변 고정, 숫자입력창 100% 폭 고정, 파일 I/O 네온 바이올렛 통일, 사이드바 플로팅 오버랩 리본 탭, 공식 매뉴얼: dashboard_app.md, PPTX: ACC_BRK_DASHBOARD_USER_MANUAL.pptx) |
 
 ### 3.3. 온디맨드(On-demand) 하이브리드 캐싱 아키텍처 및 센티널 라이프사이클 (v3.69)
 
@@ -298,3 +298,4 @@ project.plot.compare_curve_fit(corr="mean", xlim=(0.0, 1.0), show_peak=True, clo
      - 인터랙티브 테이블 및 액션 버튼을 `st.form` 구조로 재설계하여 체크박스 조작 시 Rerun 병목 제거.
      - 대용량 .pjt 파일 로드 시 원본 경로 직결 로딩 및 0.01초 즉각 스피너 피드백 적용.
      - Project 탭 테이블 기본 선택값을 `result.summary_all`로 정정하여 모든 구성 타이어 객체 빠짐없이 표시.
+
