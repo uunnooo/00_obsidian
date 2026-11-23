@@ -77,6 +77,11 @@ aliases:
    - 기준 랩(Ref Lap)의 2D 평면 좌표계에 대해 $k\text{-d Tree}$를 구축하고, 대상 주행 궤적점 $P(x, y)$의 최근접 기준점 $Q(x_0, y_0)$ 및 진행 방향 벡터 $\vec{T}$와의 외적($\vec{T} \times \vec{PQ}$)을 통해 부호를 판별:
    $$e_{ct} = \operatorname{sign}\left(T_x \cdot \Delta y - T_y \cdot \Delta x\right) \cdot \|\vec{PQ}\|$$
    (좌측 편차: $+$, 우측 편차: $-$)
+5. **전체 조향 지연(Total Steering Delay) 및 횡가속도/요레이트 기여율 모델**:
+   - 실차 조향 응답 시 횡가속도 지연($T_{a_y}$)과 요레이트 지연($T_{\text{yaw}}$)을 결합한 통합 조향 지연 시간($T_{\text{total}}$) 및 상대적 기여율($P_{a_y}, P_{\text{yaw}}$) 산출:
+   $$T_{\text{total}} = T_{a_y} + T_{\text{yaw}}$$
+   $$P_{a_y} = \frac{T_{a_y}}{T_{\text{total}}} \times 100\%, \quad P_{\text{yaw}} = \frac{T_{\text{yaw}}}{T_{\text{total}}} \times 100\%$$
+   - 영점 교차 지연(Zero-Crossing)과 1차 미분 피크 지연(Derivative Peak) 각각에 대해 전체 지연 샘플 분포 및 가우시안 KDE 피크값을 도출하여, 타이어의 초기 반응성(Turn-In Response)과 요/횡거동 위상 조화성을 입체적으로 정량화.
 
 ---
 
@@ -122,8 +127,8 @@ flowchart TD
 | **`vt_circuit_project.py`** | `VTCircuitProject` | 멀티 타이어 관리, 컨트롤 타이어 시계열 선형 보간 및 엑셀 리포트 빌더 (`BaseProject` 상속) |
 | **`vt_circuit_tire.py`** | `VTCircuitTire` | 단일 타이어 전처리, 랩/섹션 분할 및 8대 서브 분석 오케스트레이터 (`BaseTire` 상속) |
 | **`circuit_cutpoint.py`** | `CircuitCutpoint` | GPS 좌표 기반 서킷 자동 식별 및 랩/코너 게이트 레지스트리 |
-| **`plotter_tire.py`** | `PlotterTire` | 단일 타이어 주행 궤적, 랩타임 분포, g-g 마찰원 시각화 (Non-blocking) |
-| **`plotter_project.py`** | `PlotterProject` | 타이어별 랩타임 비교 막대 차트 및 5축 성능 레이더 차트 (Non-blocking) |
+| **`plotter_tire.py`** | `PlotterTire` | 단일 타이어 7대 통합 대시보드(조향지연 전체 딜레이 & $A_y$+Yaw 누적 바 차트 포함) 및 온디맨드 트랙맵 (Non-blocking) |
+| **`plotter_project.py`** | `PlotterProject` | 타이어별 랩타임/파라미터 비교 막대 차트(지연 누적 바), 5축 레이더 차트, 2x2 조향 지연 종합 비교 대시보드 (Non-blocking) |
 | **`func_circuit.py`** | 순수 물리 연산 함수군 | Haversine, 랩분할, 조향지연, K_us, MF/RF 커브피팅, Signed CTE 등 13대 물리 연산 |
 | **`an_course_in_out.py`** | `AnCourseInOut` | 코너 진입(Turn-In) vs 탈출(Turn-Out) 조향 각속도, 피크 그립 및 언더스티어 비대칭 분석 |
 | **`an_side_slip.py`** | `AnSideSlip` | 차체 COG 및 전/후륜 횡슬립각, 코너링 강성 및 직진 오프셋 영점 보정 |
@@ -228,9 +233,20 @@ print(pjt.summary[["TestTireSet", "Datetime", "lap_time_mean", "index_lap_time_m
 | :--- | :---: | :---: | :--- |
 | **`plot.lap_times()`** | 2 × 2 | `[12.0, 7.5]` | 1. 궤적/직진분할 ➔ 2. 랩별 신호 오버랩 ➔ 3. 랩 시퀀스 ➔ **4. [핵심] 랩타임 바 + 직진비율(`StraightRatio`) 요약 박스** |
 | 🌟 **`plot.acceleration_track_map()`** | 1 × 1 | `[10.0, 7.5]` | **[온디맨드 전용] 다중 랩 공간 보간 기반 트랙 위치별 평균 가속도(종/횡/합성 g) 연속 컬러맵 히트맵 및 컬러바** |
-| **`plot.steering_delay()`** | 2 × 2 | `[12.0, 7.5]` | 1. 원신호/1차미분 ➔ 2. 영점교차 KDE ➔ 3. 미분피크 KDE ➔ **4. [핵심] Ay vs Yaw 지연 비교 및 최종 지연시간 바** |
+| **`plot.steering_delay()`** | 2 × 2 | `[12.0, 7.5]` | 1. 원신호/1차미분 ➔ 2. 영점교차 KDE (전체 딜레이 포함) ➔ 3. 미분피크 KDE (전체 딜레이 포함) ➔ **4. [핵심] $A_y$ + Yaw 누적(Stacked) 바 차트 ({ms}ms ({pct}%), Total ms 표기)** |
 | **`plot.course_in_out()`** | 2 × 2 | `[12.0, 7.5]` | 1. 조향속도 KDE ➔ 2. 시계열 In/Out ➔ 3. GPS In/Out ➔ **4. [핵심] In/Out 피크그립 및 언더스티어 구배 비교** |
 | **`plot.understeer_curve()`** | 2 × 2 | `[12.5, 7.5]` | 1. 슬립 영점오프셋 ➔ 2. 구배 KDE ➔ 3. 4분면 거동 ➔ **4. [핵심] Pacejka MF 피팅 커브 (K_us 및 포화각도)** |
 | **`plot.yaw_dynamics()`** | 3 × 2 | `[13.0, 8.0]` | 1. SWA-Yaw ➔ 2. 게인 피팅 ➔ 3. 오차 산점도 ➔ 4. 오차 피팅 ➔ 5. 정규화 게인 ➔ **6. [핵심] 요안정성 면적/밸런스 프리뷰** |
 | **`plot.friction_circle()`** | 1 × 2 | `[12.0, 5.5]` | 1. 코너 섹션별 피크 그립 ➔ **2. [핵심] 복합 마찰원 95% 경계선(`GG_Plot`) 및 유효면적(`GG_area`)** |
 | **`plot.racing_line()`** | 1 × 2 | `[12.0, 5.5]` | 1. 주행선 궤적 편차 ➔ **2. [핵심] 거리별 Signed CTE 프로파일 및 평균/최대 궤적 오차 요약 박스** |
+
+### 7.3. 프로젝트 레벨 다중 타이어 조향 지연 종합 비교 대시보드 (`PlotterProject.steering_delay()`)
+
+단일 타이어별 조향 지연 특성을 프로젝트 내 전체 시험 타이어(Control 타이어 포함)에 대해 1화면에서 직관적으로 대조·평가할 수 있는 2 × 2 전용 비교 대시보드입니다 (`size=[14.0, 9.0]`):
+
+| 패널 위치 | 서브플롯 명칭 | 시각화 형태 및 핵심 내용 | 비고 |
+| :---: | :--- | :--- | :--- |
+| **Panel 1** | **Mean Steering Delay Breakdown** | 타이어별 평균 지연시간 누적 바 차트 ($A_y$ 하단 `#e74c3c` + Yaw 상단 `#3498db`), 내부 수치/비율% 및 상단 Total 라벨 | 타이어별 평균 조향 응답 시간 및 $A_y$/Yaw 기여율 비교 |
+| **Panel 2** | **Peak (KDE) Steering Delay Breakdown** | 타이어별 최빈(KDE 피크) 지연시간 누적 바 차트, 내부 수치/비율% 및 상단 Total 라벨 | 가장 빈번하게 발생한 대표 조향 지연시간 및 비중 비교 |
+| **Panel 3** | **Zero-Crossing vs Derivative Total Delay** | 타이어별 영점 교차 전체 지연(`#1abc9c`) vs 1차 미분 피크 전체 지연(`#9b59b6`) 그룹화 바 차트 | 초기 조향 시작 지연(Zero-cross)과 최대 조향 속도 지연(Derivative) 비교 |
+| **Panel 4** | **Multi-Tire Total Delay Distribution** | 전 타이어 전체 지연 KDE 분포 곡선 다중 오버레이 + 타이어별 최빈 피크 다이아몬드 마커 및 범례 | 타이어 간 조향 응답 산포 폭, 왜도(Skewness), 피크 위치 직관 비교 |
