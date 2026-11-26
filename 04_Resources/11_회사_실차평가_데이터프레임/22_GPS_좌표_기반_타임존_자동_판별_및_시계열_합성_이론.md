@@ -1,3 +1,23 @@
+---
+id: "resource_gps_timezone_and_timeseries_synthesis"
+title: "GPS 좌표 기반 타임존 자동 판별 및 시계열 합성 이론"
+type: resource
+category_main: 지식
+category_sub: 회사_실차평가_데이터프레임
+topic: GPS_시계열_합성
+date: 2026-10-18
+status: 완료
+tags:
+  - 실차평가
+  - GPS
+  - 타임존
+  - 시계열
+  - 데이터프레임
+aliases:
+  - "22_GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론"
+  - "GPS_좌표_기반_타임존_자동_판별_및_시계열_합성_이론"
+---
+
 # 🌐 GPS 좌표 기반 타임존 자동 판별 및 시계열 합성 이론
 
 > **상위 분류**: [[11_회사_실차평가_데이터프레임]] | [[00_실차평가_데이터프레임_통합_색인]]  

@@ -1,3 +1,22 @@
+---
+id: "python_code_agent_rule"
+title: "PYTHON_CODE_AGENT 마스터 룰북"
+type: rule
+category_main: 시스템
+category_sub: 에이전트_헌장
+date: 2026-10-18
+status: 상시운용
+tags:
+  - 룰북
+  - 파이썬
+  - 에이전트
+  - 코딩표준
+aliases:
+  - "PYTHON_CODE_AGENT"
+  - "PYTHON_CODE_AGENT.md"
+  - "Gemini_Python_코드_생성_규칙"
+---
+
 # 🧭 unoUtil 파이썬 코드 품질 및 개발 표준 마스터 규칙 (PYTHON_CODE_AGENT.md)
 
 이 문서는 `unoUtil`을 비롯하여 사용자가 개발하는 모든 파이썬 프로젝트에서 코드 작성, 수정, 리팩토링 및 로컬 문서화 작업을 수행할 때 AI 에이전트(Gemini-CLI, agy 등)가 반드시 준수해야 하는 최상위 공통 엔지니어링 표준 법률입니다.

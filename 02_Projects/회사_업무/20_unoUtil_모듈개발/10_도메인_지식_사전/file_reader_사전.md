@@ -17,6 +17,8 @@ tags:
 aliases:
   - "file_reader_사전"
   - "file_reader 모듈 사전"
+  - "FileDataReader"
+  - "VBBReader"
 ---
 
 # 📖 file_reader 모듈 사전 (Domain Engineering Guide)

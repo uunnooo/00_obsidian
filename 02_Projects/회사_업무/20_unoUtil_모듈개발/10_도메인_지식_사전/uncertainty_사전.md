@@ -15,6 +15,7 @@ tags:
   - ISOGUM
   - KOLAS
 aliases:
+  - "uncertainty"
   - "uncertainty_사전"
   - "uncertainty 모듈 사전"
   - "statistics_사전"

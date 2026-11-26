@@ -1,3 +1,25 @@
+---
+id: "report_acc_brk_dashboard_ui_architecture_v434"
+title: "ACC/BRK 대시보드 UI 컴포넌트 아키텍처 (v4.34 - 확장판)"
+type: technical_report
+category_main: 지식
+category_sub: 기술보고서
+topic: 대시보드_UI_아키텍처
+version: "v4.34"
+date: 2026-11-24
+status: 완료
+tags:
+  - 회사_업무
+  - unoUtil
+  - acc_brk
+  - 대시보드
+  - UI아키텍처
+  - Streamlit
+aliases:
+  - "20261124_ACC_BRK_Dashboard_Refactoring"
+  - "ACC_BRK_Dashboard_Refactoring"
+---
+
 # [마스터 기술 명세] ACC/BRK 대시보드 UI 컴포넌트 아키텍처 (v4.34 - 확장판)
 
 ## 1. 개요

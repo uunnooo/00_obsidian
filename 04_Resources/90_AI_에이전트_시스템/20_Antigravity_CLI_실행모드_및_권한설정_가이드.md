@@ -1,4 +1,4 @@
-﻿---
+---
 id: "antigravity_execution_permissions_guide"
 title: "20_Antigravity CLI 실행모드 및 권한설정 가이드"
 type: resource

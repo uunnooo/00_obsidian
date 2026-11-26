@@ -16,6 +16,17 @@ tags:
 aliases:
   - "vt_acc_brk_사전"
   - "vt_acc_brk 모듈 사전"
+  - "vt_acc_brk_project"
+  - "vt_acc_brk_tire"
+  - "func_acc_brk"
+  - "plotter_tire"
+  - "an_acceleration"
+  - "an_mu_drop"
+  - "an_response"
+  - "an_skewness"
+  - "an_slip_pdf"
+  - "an_split_speed"
+  - "correct_factors"
 ---
 
 # 📖 vt_acc_brk 모듈 사전 (Domain Engineering Guide)

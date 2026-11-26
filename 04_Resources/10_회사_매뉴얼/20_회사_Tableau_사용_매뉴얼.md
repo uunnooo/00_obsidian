@@ -1,4 +1,4 @@
-﻿---
+---
 id: "work_20260910_Tableau"
 title: "20_회사 Tableau 대시보드 사용 매뉴얼"
 type: resource

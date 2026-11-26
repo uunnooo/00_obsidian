@@ -1,3 +1,23 @@
+---
+id: "report_snow_surface_daily_note_2526"
+title: "25-26 Snow 노면일지 및 제동 시험 종합 보고서"
+type: technical_report
+category_main: 회사_업무
+category_sub: Snow_기반기술
+domain: snow
+date: 2026-09-10
+status: 완료
+tags:
+  - 회사_업무
+  - 스노우
+  - 노면일지
+  - 제동시험
+  - SRTT
+aliases:
+  - "30_SnowSurface_DailyNote"
+  - "SnowSurface_DailyNote"
+---
+
 # 25-26 Snow 노면일지 및 제동 시험 종합 보고서
 
 ---

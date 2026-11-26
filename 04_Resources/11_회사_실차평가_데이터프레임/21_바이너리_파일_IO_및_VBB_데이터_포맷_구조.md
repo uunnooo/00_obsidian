@@ -288,4 +288,4 @@ def write_sample_vbb(file_path: str, timestamps: np.ndarray, speeds: np.ndarray)
 * 🏎️ **[[func_acc_brk|unoUtil vehicleTest ACCBRK _Func_ACCBRK_ (실차 제동 파이프라인)]]**
 * 📊 **[[10_실차_평가_데이터_프레임|실차 평가 데이터 프레임 마스터 규격서]]**
 * 🏠 **[[00_실차평가_데이터프레임_통합_색인|00_실차평가 데이터프레임 통합 색인 (MOC)]]**
-* 📚 **[[04_Resources/00_지식_위키_통합_색인|04_Resources 영구 지식 위키 대문]]**
+* 📚 **[[00_지식_위키_통합_색인|04_Resources 영구 지식 위키 대문]]**
