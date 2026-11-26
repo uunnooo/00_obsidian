@@ -57,7 +57,12 @@ aliases:
 > [!NOTE]- 📜 v1.0 ~ v4.02 주요 개발 및 리팩토링 이력 [클릭하여 펼치기]
 > | 버전 | 날짜 | 작업자 | 핵심 수정 및 개발 내역 (Changelog) | 상태 |
 > | :--- | :---: | :---: | :--- | :---: |
-| **v4.35** | 2026-11-24 | uno &<br/>Gemini | ⚠️ **[현안/작업 대기] 웨더 탭 기상 마스터 DB 로드 및 텍스트 입력창 상호작용 미동작 이슈 정밀 분석 및 인수인계**<br/>• **미해결 현상**: 웨더 탭에서 마스터 기상 DB 파일 경로를 입력하거나 [불러오기] 버튼 클릭 시, 백엔드 함수(load_master_database) 직결 정비에도 불구하고 사용자 화면에서 데이터가 들어오지 않고 반응이 없는 현상 지속<br/>• **핵심 점검 과제**: ① Streamlit 위젯 렌더링 생명주기 내 세션 상태(input_weather_db_path)의 이벤트 전파 타이밍 및 blur/click 충돌 재검증, ② 브라우저-서버 웹소켓 통신 시 텍스트 인풋 값 유실 여부 확인, ③ 파일 업로더 브릿지와의 상호 간섭 제거<br/>• **상세 분석 문서**: [[2026-11-24_웨더탭_기상DB_로드_미동작_원인분석_및_인수인계_보고서]] | ⏳ 진행중 |
+| **v4.43** | 2026-11-26 | uno &<br/>Gemini | 🌊 **수막 시험(Hydroplaning Studio) 대시보드 acc_brk 전사 표준 규격 일원화, 실차 계측 데이터(태안 테크노링 GOLF7) 벤치마크 데모 구축 및 고해상도 Plotly 3열/4열 인터랙티브 QC 전면 고도화** ([[2026-11-26_v4.43_수막시험_대시보드_acc_brk_표준규격_일원화_및_GOLF7_실차_인터랙티브QC_종합보고서|v4.43 종합보고서]])<br/>• **실차 계측 원본(26RE040033KF GOLF7) 5대 타이어 벤치마크 데모 구축**: 한국타이어(C1/T1), 미쉐린(T2), 콘티넨탈(T3), 피렐리(T4) 전 타이어 189랩(HLA) 및 35런(HLO) 원본 분석 캐시(`demo_hydro_real_*.pjt.gz`) 신규 생성 및 초기 기동 시 자동 로딩을 배제한 안전 수동 로드 체계 수립<br/>• **Tire 탭 HLA/HLO Plotly 인터랙티브 QC 체계 완성**: HLA `[피팅(2.5) : 로컬좌표 궤적(2.5) : Lap테이블(1.0)]` 3열 배치, HLO `[거리vs속도(1.67) : 속도vs슬립율(1.67) : 거리vs슬립율(1.67) : Run테이블(1.0)]` 4열 배치 완결, 선 색상-테이블 컬러 칩 1:1 연동 및 범례 3종 고정으로 라벨 팽창 원천 방지<br/>• **Project 탭 제동가속 표준 4대 섹션 체계 구축**: `[성능보정 설정 ➔ 요약 테이블 ➔ 프로젝트(.pjt) 저장 ➔ 2열 비교 그래프 다중 선택 뷰어]` 체계 완비, `plotter_project.py`에 단독 비교 메서드 5종 분리 및 `st.multiselect` 2열 고정 렌더러 탑재<br/>• **Load 탭 제동가속 표준화 및 완전 자동화 파이프라인**: 4대 예제 바로가기 및 수동 설정 UI 삭제, 대상 폴더 탐색 시 HLA/HLO 전자동 감지 및 `n_jobs=-1` 풀코어 병렬 처리 상시 적용, `[계측 데이터 분석 ➔ .pjt/.tir 파일 불러오기 ➔ 통합 병합 ➔ 프로젝트 목록]` 4대 섹션 완성<br/>• **v2 과도기적 레거시 소멸**: 임시 별칭(`render_tab_load_combination`) 및 분기 코드를 완전 삭제하고 단일 표준 `Load` 및 `render_tab_load`로 직교화 | ✅ 완료 |
+| **v4.42** | 2026-11-26 | uno &<br/>Gemini | 🏎️ **서킷(circuit) 코너 페이즈 4대 분할 알고리즘(HMM, DTW, Energy, Kalman) 순수 NumPy 코어 구현 및 3대 PG(Technoring, IDIADA, Pferdsfeld) 확장 분석 완료**<br/>• **4대 신규 알고리즘 코어 구현**: unc_phase_algorithms.py 신설, 의존성 없는 순수 내장/SciPy 기반 HMM(Viterbi), DTW, 마찰원 에너지 소산, EKF 칼만 필터 자체 구현.<br/>• **VBO 원시 데이터 직접 파싱 지원**: 오케스트레이터에서 .tir 캐시 부재 시 t_circuit 원스톱 파이프라인을 가동하여 .vbo 원본 파일을 자동 로드 및 분석하는 스마트 폴백 추가.<br/>• **3대 PG 전체 타이어 일괄 분석 및 GPS 트랙맵 생성**: 총 18개 타이어 런(수천만 행)에 대해 4대 알고리즘과 레거시 비교 검증 수행, PosX/PosY 로컬 좌표계를 활용하여 왜곡 없는 1:1 비율의 **GPS 트랙 맵 및 에이펙스 마커 시각화** 구현 완료.<br/>• **마크다운 종합 보고서 자동화**: PG별(Technoring, IDIADA, Pferdsfeld) 평균 IoU 및 에이펙스 시간/거리 오차 매트릭스가 포함된 종합 보고서 3종 생성 및 공유 폴더 배치 완료. | ✅ 완료 |
+  | **v4.41** | 2026-11-25 | uno &<br/>Gemini | 🏎️ **수막 시험(Hydroplaning Studio) 대시보드 무손실 모듈화, 핫리로드(HotReload) 엔진 장착, 실차 계측 데이터(태안 테크노링 IONIQ5) 기반 데모 캐싱 및 좌우 1:1 나란히(Same-Row) 인터랙티브 QC 뷰 전면 고도화** ([[2026-11-25_v4.41_수막시험_대시보드_무손실_모듈화_HotReload_및_실차데이터_인터랙티브QC_고도화_종합보고서|종합보고서]])<br/>• **단일 파일(dashboard_app.py) ➔ 5대 컴포넌트·독립 탭(tabs/) 패키지 무손실 모듈화 완결**: 거대 단일 파일을 engine.py, theme.py, components.py, tabs/ 5대 모듈로 직교 분할하고 acc_brk 마스터 CSS 및 에셋 SSOT 상속 체계 확립<br/>• **실시간 컴파일 기반 HotReload 엔진 탑재**: tabs/*.py 및 theme.py 수정 시 Streamlit 서브모듈 캐싱 결함을 방어하여 브라우저 새로고침(F5)만으로 UI가 즉각 재컴파일 렌더링되도록 구현<br/>• **탭 구조 정합**: 레거시 Save 탭 영구 폐기 및 acc_brk 공통 Weather(기상) 탭 직결 연동<br/>• **Information 탭 동기화**: 더미 수심/수온 필드를 전면 제거하고 5열 마스터 그리드 5대 메타데이터 입력창 및 하단 [타이어별 스펙·마킹 요약] st.data_editor 테이블 일괄 편집 체계 완비<br/>• **Tire 탭 좌우 1:1 나란히(Same-Row) 인터랙티브 QC 뷰 구축**: CSS 높이 충돌(38px 압축 버그)을 완벽 차단하고, 좌측 Plotly 피팅 차트(1.35)와 우측 랩 데이터 편집기(1.0)를 동일 행에 나란히 배치하여 우측 체크 해제 시 좌측 피팅 곡선이 즉시 재계산되는 인터랙티브 피드백 완성<br/>• **실차 계측 데이터(26RD080016KF IONIQ5) 기반 0초 데모 캐싱 탑재**: 가상 난수 시뮬레이션을 폐기하고 태안 테크노링 실차 시험 VBO 기반 캐시(.pjt.gz)를 구축하여 기동 시 0.1초 만에 실제 랩 데이터 로드 | ✅ 완료 |
+| **v4.40** | 2026-11-25 | uno &<br/>Gemini | 🏎️ **가감속/제동 대시보드 (`Acceleration / Braking Studio`) ver 3.0 공식 개발 완결 및 코어 엔진 무결성·사이버 테크 UI/UX 전면 고도화** ([[2026-11-25_v4.40_가감속_제동_스튜디오_v3.0_공식완결_및_코어엔진_UIUX_전면고도화_종합보고서|ver 3.0 종합보고서]])<br/>• **코어 엔진 안정성 및 이벤트 무결성 100% 확보**: 웨더 탭 기상 DB 로드 먹통의 근본 원인이었던 비표준 JS 훅(`pointerdown` 스피너 주입 및 `DirtyInputCommit` 클릭 가로채기) 완전 박멸, 3초 토스트(`st.toast`) 전면 제거 및 메인 패널 상세 결과 보고 카드·닫기 일원화, 타이어 탭 재분석 유효데이터(`len(detail)`) 1순위 반영·고유 key 부여·expander 사전 기본값 바인딩으로 런수 보존 완결, 7대 서브분석기 및 15대 그래프 설정 1:1 전수 정밀 감사 통과, `func_circuit.py` L1 `__future__` 구문오류 핫픽스<br/>• **10대 디테일 UI/UX 개선**: 초기 미선택 순백색(#FFFFFF, 800) "로드된 데이터가 없습니다."(ver 3.0), Load/Tire 탭 expander ▼ 기호 삭제, '프로젝트 생성' 및 '프로젝트 및 타이어 목록' 세션명 명료화, Project 탭 드래그 캡션 삭제, 메인 그래프 제목 '그래프 (*타이어명/프로젝트명)' 간결화, '그래프 표시 열 수' 통일, 5대 탭 모든 메인 세션 대제목(`.group-title`) 마우스 호버 설명 툴팁(`title`) 전수 탑재, 프로젝트명 및 세션제목 하단 밑줄(`border-bottom`) 완전 제거<br/>• **하이테크 감성 테마 및 비주얼 폴리싱 완결 (ver 3.0)**: 메인 패널 브라이트 일렉트릭 네온 라임(#CCFF00) 오로라 펄스 빔 및 상단 커튼 톤업, 사이드바 1단 카본 파이버 텍스처 + 사파이어/라임 듀얼 앰비언트 챔버 구축 및 미선택 시 `[ 프로젝트 선택 ▾ ]` 기본 노출, CSS 최하단 최종 SSOT 오버라이드를 통한 전역 흰색 충돌 차단 및 고채도 일렉트릭 네온 바이올렛(#D8B4FE, 3중 글로우) 전면 완성, 한국타이어 공식 로고 사각 외형 보존 & 4변 선형 페더 마스크 및 투명도(0.22 ➔ 1.0) 시네마틱 실크 호흡 펄스 장착 | ✅ 완료 |
+| **v4.36** | 2026-11-24 | uno &<br/>Gemini | 🏎️ **서킷 조종안정성(`circuit`) WetHD KDE 동적구배 물리 엔진 1:1 완벽 호환(`calc_dynamic_gradients`), 언더스티어 구배($K_{us}$) 및 15% 포화각 정합, `PlotterTire` 4대 핵심 시각화 피규어 정밀 튜닝 및 가감속 대시보드(`dashboard`) 웨더 탭 기상 DB 로드 파이프라인 직결 완결** ([[2026-11-24_v4.36_서킷_조종안정성_WetHD_KDE_동적구배_물리엔진_1대1_호환_및_시각화_고도화_종합보고서|서킷 종합보고서]] · [[2026-11-24_웨더탭_기상DB_로드_미동작_원인분석_및_인수인계_보고서|웨더탭 완결보고서]])<br/>• **WetHD `analysis_gradient_v2` 물리 엔진 1:1 완벽 호환 (`func_circuit.py`, `calc_dynamic_gradients`)**: 조타각 변화율 기반 선회 구간 라벨링(`scipy.ndimage.label`), 20-pt 이동평균 및 턴인 단조 증가 구간(`diff(5) > 0`) 세그먼트 엄격 추출, 횡가속도 1.0 m/s² Binning 평균 차분 구배 및 98% 분위수 트리밍 KDE 최빈 피크치(`VehSWA_grad_raw`, `ReferSlipFront_grad_raw`, `ReferSlipRear_grad_raw`) 산출<br/>• **언더스티어 구배 및 포화각 탐색 정합 (`an_understeer_gradient.py`)**: `gear_ratio` 유연화 및 SWA 기반 선형 회귀 구배 $K_{us}$ (deg/g) 산출, 양수 사분면 최대 기울기 15% 이하 포화각($\delta_{sat}$) 정밀 탐색 및 분석기 `df`에 `swa_deg`, `delta_deg`, `ay_g`, `ReferAccLateral`, `VehSWA` 표준화<br/>• **`PlotterTire` 4대 핵심 시각화 피규어 정밀 튜닝 (`plotter_tire.py`, `plotter_tire.md`)**: ① `gradient_kde()`: summary 공식 피크값 우선 연동 및 X축 단위 라벨 보정(`[deg / g]`), ② `understeer_curve()`: Panel 4 X축=횡가속도($A_y$, g), Y축=조향각(SWA, deg) 축 전환 및 Pacejka MF 피팅 곡선/실측 산점도 일치 표출, ③ `vehicle_balance()`: Panel 1 단순 수직선 대신 실제 통계 집계 영역 음영(`axvspan`) 및 평균선(`hlines`), 저횡G/고횡G 분할 영역 표출, ④ `friction_circle()`: 섹션별 그립 바차트 X축 틱라벨 30° 회전 가독성 확보, $g	ext{-}g$ 다이어그램 4대 극치점($\pm A_y, \pm A_x$) 강조 마커 및 수치 배지 표시<br/>• **웨더 탭 기상 DB 로드 파이프라인 직결 및 이슈 완결 (`tab_weather.py`, `engine.py`)**: 텍스트 경로 입력 후 엔터 키 감지(`_on_weather_db_input_enter` ➔ `_trigger_load_w_db = True`) 및 버튼 클릭 로드 파이프라인 100% 직결, 폴더 경로 지정 시 해당 디렉토리 직하(`master_weather_database.pkl.gz` 등) 자동 탐색, 로드 성공 시 녹색 알림 배너(`🟢 기상 마스터 데이터베이스 로드됨`) 표출, `engine.py`의 `NameError: html` 방어 및 안전 임포트 정합 | ✅ 완료 |
+| **v4.35** | 2026-11-24 | uno &<br/>Gemini | ⚠️ **웨더 탭 기상 마스터 DB 로드 및 텍스트 입력창 상호작용 이슈 정밀 분석 및 1차 패치** ([[2026-11-24_웨더탭_기상DB_로드_미동작_원인분석_및_인수인계_보고서|상세 분석 보고서]])<br/>• **원인 규명**: Streamlit 위젯 렌더링 생명주기 내 세션 상태(`input_weather_db_path`)와 초기화 로직 간 충돌 및 탭 컨테이너 내부 버튼 이벤트 소실 현상 정밀 분석<br/>• **조치 사항**: 위젯 세션 키 직접 수정 버그 차단(`_pending_weather_db_path`), `engine.py` L1145 `_render_auto_dismiss_alert`의 `import html` 보강, `tab_weather.py` 순수 PEP 8 클린 원복, 지정 폴더 탐색 범위 격리 (➔ `v4.36`에서 파이프라인 직결로 최종 완결) | ✅ 완결 |
 | **v4.34** | 2026-11-24 | uno &<br/>Gemini | 🏗️ **대시보드 모듈화 아키텍처(Modular Architecture) 전환 완결: 도메인 도메인 단위(Theme/Engine/Components/Tabs/Assets) 100% 분리 및 SSOT 기반 독립 모듈 전환**<br/>• **아키텍처 모듈화 전환**: `dashboard_app.py`에 집중되어 있던 로직을 5대 독립 모듈(Theme, Engine, Components, Tabs, Assets)로 분리하여 코드 응집도(Cohesion) 극대화 및 결합도(Coupling) 최소화<br/>• **세션 격리 및 핫 리로드 방어**: `StreamlitSafeThreadPoolExecutor`를 통한 워커 스레드 컨텍스트 전파 및 핫 리로드 시 모듈 런타임 캐시 방어 엔진(v3) 적용<br/>• **기상 데이터 파이프라인 정규화**: `Datetime` 인덱스 표준화 및 경로 자율 해결 엔진(`resolve_safe_default_path`)을 통해 다중 환경 안정성 확보<br/>• **사이버 홀로그램 UI 고도화**: Matplotlib 그래프의 다크 홀로그램 시각화 엔진(색상 지능형 보정 및 네온 부스트) 적용 및 1:1 기술 매뉴얼 정합 완료 | ✅ 완료 |
 | **v4.33** | 2026-11-23 | uno &<br/>Gemini | 🏎️ **가감속/제동 대시보드 (`dashboard_app.py`, `theme.py`) 드롭박스·입력창 UI 3단계 계층 구조(3-Tier Hierarchy) 표준화 확립, BaseWeb 외곽선 증발 및 f-string 중괄호 파싱 결함(`NameError: name 'background' is not defined`) 완벽 해결, 중복 CSS 98줄 영구 소멸 및 AST·Self-Test 100% 무결성 검증 완료**<br/>• **드롭박스/입력창 UI 3단계 계층 구조(3-Tier Architecture) 수립**: 모든 일반 입력창과 드롭박스의 UI 위계를 직관적이고 직교적인 3단계로 명확히 분리·재설계<br/>  - **1단계 (전역 폼 입력 기본 컨트롤)**: `st.text_input`, `st.number_input`, `st.selectbox`, `st.multiselect` 베이스 컨테이너에 대해 42px 고정 높이, 다크 배경(`color_bg_dark`), 서브 그리드, 입체 슬레이트/라임 테두리, 네온 라임(`#BEF264`/`#A3E635`) 호버 오라를 100% 동일하게 공유<br/>  - **2단계 (컴포넌트 그룹 변형 - MultiSelect)**: `st.multiselect`에 1단계 베이스 스타일을 상속하고, 태그 칩(선택 뱃지)에 네온 사파이어 반투명 유리 질감(`border: #38BDF8`, `#0B1D3A`) 적용 및 다중 태그 추가 시 42px 최소 높이 기준 가변 자동 확장(`height: auto !important; min-height: 42px !important;`) 구현<br/>  - **3단계 (인스턴스 개별 오버라이드 - Project Table Mode)**: 프로젝트 탭의 테이블 보기 모드 선택박스(`pjt_table_mode_select`)만 상단 4대 탭 우측 액션 버튼과 1:1 완벽 쌍둥이 규격(132px × 38px, 딥 사파이어 `#0c284e` 베이스, `#38BDF8` 보더, `#00F0FF` 네온 시안 호버 발광) 오버라이드 적용<br/>• **일반 드롭다운(`st.selectbox`) 배경 투명화 및 테두리 증발 결함 원천 해결**: 기존 `div[data-baseweb="select"] div`의 무차별 자손 선택자로 인해 BaseWeb의 `StyledControlContainer` 외곽선과 배경까지 제거되던 결함을 직계 자식(`> div > div:first-child`, `:has(> input)`) 타겟팅으로 정밀화하여 드롭박스 박스 테두리와 다크 배경이 온전하게 복원<br/>• **f-string 중괄호 파싱 결함(`NameError: name 'background' is not defined`) 완벽 종결**: `theme.py` 내 `_get_dashboard_css()`의 f-string 템플릿(`_DASHBOARD_STATIC_CSS = f"""`)에서 1~2단계 폼 컨트롤 CSS 규칙 블록의 단일 중괄호(`{`, `}`)를 이스케이프(`{{`, `}}`)로 일괄 치환하여 런타임 NameError 크래시 원천 차단<br/>• **하단 중복 CSS 98줄 영구 소멸**: 파일 하단에 방치되어 있던 레거시 CSS 규칙(UI Tier 5-B, 6-B 잔재)을 완전 삭제하여 스타일 충돌 및 유지보수 혼선 제거<br/>• **무결성 검증 100% 통과**: AST 구문 분석(`SYNTAX OK`), CSS 생성(515,401자), 대시보드 전체 자체 검증(`dashboard_app.py --test`, `=== [Self-Test] 모든 검증 통과 완료! ===`) 무결성 통과 | ✅ 완료 |
 | **v4.32** | 2026-11-23 | uno &<br/>Gemini | 🏎️ **서킷 조종안정성(`circuit`) 조향 지연(Steering Delay) 분석 및 시각화 전면 고도화: 단일 타이어 전체 딜레이($T_{\text{total}} = T_{\text{ay}} + T_{\text{yaw}}$) 지표 및 누적 바 차트(비율% 표기) 탑재, 프로젝트 2x2 다중 타이어 조향 지연 종합 비교 대시보드(`PlotterProject.steering_delay()`) 신규 구축 완결**<br/>• **단일 타이어 조향 지연(`AnSteeringDelay`, `PlotterTire.steering_delay()`) 전체 딜레이 및 누적 차트 구현**: ① 분석기(`an_steering_delay.py`) 내 전체 지연 샘플 리스트(`Total_delay`) 및 요약 지표(`Total_delay`, `Total_zero_delay`, `Total_delay_kde_peak`) 신규 산출. ② `PlotterTire.steering_delay()` 패널 2/3에 보라색(#8e44ad) 전체 지연 KDE 분포 곡선 및 피크선·수치 표기 추가. ③ 패널 4를 개별 바에서 하단 $A_y$ 지연(#e74c3c) + 상단 Yaw 지연(#3498db)의 누적(Stacked) 바 차트로 전면 개편하고, 내부 실제 지연시간 및 전체 대비 기여율(`{ms}ms ({pct}%)`) 및 상단 총합(`Total: {tot}ms (100.0%)`) 표기 완성<br/>• **프로젝트 파라미터 바(`PlotterProject.parameter_bars()`) 패널 3 누적 바 차트 전환**: $A_y$ 및 Yaw 지연을 누적 바 차트로 결합하고 내부 지연시간 및 비율%, 상단 전체 지연시간(`Total: {tot:.1f}ms`) 표기로 일체화<br/>• **프로젝트 전용 2x2 다중 타이어 조향 지연 종합 비교 대시보드 신규 구축 (`PlotterProject.steering_delay()`)**: 타이어 간 조향 응답성을 한 화면에서 정밀 비교 분석할 수 있는 4개 패널 통합 대시보드 구현: ① 평균 지연시간 분해 누적 바 차트(Mean Breakdown), ② 최빈(KDE 피크) 지연시간 분해 누적 바 차트(Peak Breakdown), ③ 영점 교차 vs 미분 피크 전체 지연 비교 그룹 바 차트(Zero-Crossing vs Derivative Total), ④ 전 타이어 전체 지연 분포 오버레이(Multi-Tire Total Delay Distribution KDE Overlay with Peak Markers). `PlotterProject.all()` 일괄 출력 파이프라인 정식 등록<br/>• **1:1 기술 매뉴얼(`plotter_tire.md`, `plotter_project.md`) 및 실데이터 검증 완결**: 자체 자가 구동 테스트 스위트 통과(Exit Code 0) 및 테크노링 6개 타이어 실데이터 피규어(`steering_delay_C1~T6.png`, `pjt_parameter_bars_Technoring.png`, `pjt_steering_delay_Technoring.png`) 무결 렌더링 확인 | ✅ 완료 |
@@ -254,7 +259,7 @@ t_hydroplaning.md) 최신화 완료 (Exit Code 0)** | ✅ 완료 |
 > | **`func_acc_brk`** | 가감속/제동 13대 핵심 동역학·신호처리·슬립·수막·응답성 계산 함수군 | [`func_acc_brk.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/func_acc_brk.py) |
 > | **`analyzers` (6대 서브) + `curve_fit`**| 가속대역, 감속응답, 슬립속도PDF, Mu-Drop, 왜도, 구간속도분할 및 Magic Formula 커브 피팅(`TireCurve`) 7대 전문 서브 분석기 | [`analyzers/`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/analyzers/) |
 > | **`plotter_tire` / `plotter_project`** | 단일 타이어 9대 분석 차트(`PlotterTire`: `curve_fit`, `curve_fit_detail` 포함) 및 프로젝트 9대 비교 플로터(`PlotterProject`: `compare_curve_fit` 포함) | [`plotter_tire.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/plotter_tire.py) · [`plotter_project.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/plotter_project.py) |
-> | **`dashboard` (acc_brk)** | 미래형 다크 홀로그램 스타일 가감속/제동 통합 인터랙티브 웹 대시보드 (`dashboard_app.py`) | [`dashboard_app.py`](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/dashboard/dashboard_app.py) |
+> | **dashboard (acc_brk)** | 미래형 사이버 테크 가감속/제동 통합 웹 대시보드 **ver 3.0** (dashboard_app.py, 	abs/) | [dashboard_app.py](file:///D:/uno/Python/Projects/unoUtil/unoUtil/vehicle_test/acc_brk/dashboard/dashboard_app.py) |
 
 ---
 
@@ -416,6 +421,42 @@ t_hydroplaning.md) 최신화 완료 (Exit Code 0)** | ✅ 완료 |
 ---
 
 ## 📜 13. 버전 이력 및 주요 개발 현황 (Changelog)
+  ### [2026-11-26] v4.42 - 서킷(circuit) 코너 페이즈 4대 분할 알고리즘(HMM, DTW, Energy, Kalman) 코어 구현 및 3대 PG 확장 분석, GPS 트랙 맵 시각화 자동화 구축
+  - **4대 신규 코너 페이즈 분할 알고리즘 순수 내장/SciPy 자체 구현 (unc_phase_algorithms.py)**:
+    - **HMM (Hidden Markov Model)**: [직진, 진입, 탈출] 3상태 전이 확률 행렬 극소값(1e-10) 튜닝 및 Viterbi 최적 상태 시퀀스 추정.
+    - **DTW (Dynamic Time Warping)**: 가우시안 곡률 템플릿과 실제 횡가속도 서브시퀀스 교차 상관 유사도 매칭을 통한 기하학적 에이펙스 탐색.
+    - **Energy (마찰원 소산)**: 종/횡가속도(, A_y$) 변화율 추적 및 가속 페달 전개에 따른 에너지 전환점을 동역학적 탈출 시점(Turn-Out)으로 분할.
+    - **Kalman Filter**: 2D EKF 자전거 모델 기반 노이즈 정제 및 조향 각속도 0점 교차(Zero-crossing) 정밀 탐색.
+  - **VBO 원시 데이터 직접 파싱 스마트 폴백 적용 (alidate_pg_phase_algorithms.py)**:
+    - IDIADA, Pferdsfeld 등 캐시(.db)가 없는 PG 환경을 고려하여, .vbo 발견 시 t_circuit 파이프라인으로 타이어 객체 자동 파싱 및 순회.
+  - **GPS 로컬 좌표계(PosX, PosY) 기반 1:1 무왜곡 트랙 맵 시각화 추가**:
+    - 위경도 왜곡 없는 미터 단위 로컬 직교 좌표계를 활용하여 실제 비율(spect='equal')의 트랙 궤적 및 정답/예측 에이펙스 오버레이 산점도(	rack_map_*.png) 렌더링.
+  - **3대 PG 전체 타이어 순회 검증 및 마크다운 보고서 생성 완료**:
+    - Technoring, IDIADA, Pferdsfeld 3개 시험장의 18개 타이어 세트 전수에 대해 평균 IoU, 에이펙스 오차(m, s) 평가 및 PG별 개별 보고서 3종 지정 폴더 업로드 완료.
+### [2026-11-24] v4.36 - 서킷(`circuit`) WetHD KDE 동적구배 물리 엔진 1:1 완벽 호환, 언더스티어 구배·15% 포화각 정합, `PlotterTire` 4대 핵심 시각화 피규어 정밀 튜닝 및 가감속 대시보드(`dashboard`) 웨더 탭 기상 DB 로드 파이프라인 직결 완결
+- **서킷 조종안정성(`circuit`) WetHD `analysis_gradient_v2` 물리 엔진 1:1 완벽 호환 (`func_circuit.py`, `calc_dynamic_gradients`)**:
+  - 조타각 변화율(`diff(swa)`) 임계치 기반 연속 선회 구간 라벨링(`scipy.ndimage.label`, `maintain_size=100`).
+  - 20-pt 1D 이동평균 스무딩 후 턴인 단조 증가 구간(`d_swa5 > 0 & d_ay5 > 0`) 세그먼트 엄격 추출.
+  - 횡가속도 균등 Binning(`bin_interval=1.0 m/s²`) 및 구간 평균 조향각/슬립각 차분 구배(deg/g) 산출.
+  - 98% 분위수 트리밍 후 `calc_dominant_value_kde()`를 통한 3대 핵심 채널(`VehSWA_grad_raw`, `ReferSlipFront_grad_raw`, `ReferSlipRear_grad_raw`) 최빈 피크치 및 신뢰 대역(Left, Right) 산출 완결.
+- **언더스티어 구배 및 포화각 탐색 정합 (`an_understeer_gradient.py`)**:
+  - `gear_ratio` 인자 유연화 및 SWA 기반 선형 회귀 구배 $K_{us}$ (deg/g) 산출.
+  - 양수 사분면 최대 기울기의 15% 이하로 포화되는 한계 조향각($\delta_{sat}$, deg) 탐색 로직 고도화.
+  - 분석기 `df`에 `swa_deg`, `delta_deg`, `ay_g`, `ReferAccLateral`, `VehSWA` 표준 컬럼화.
+- **`PlotterTire` 4대 핵심 시각화 피규어 정밀 튜닝 (`plotter_tire.py`, `plotter_tire.md`)**:
+  - ① `gradient_kde()`: summary 공식 피크값 우선 연동 및 X축 단위 라벨 보정(`[deg / g]`).
+  - ② `understeer_curve()`: Panel 4 X축=횡가속도($A_y$, g), Y축=조향각(SWA, deg) 축 전환 및 Pacejka MF 피팅 곡선/실측 산점도 일치 표출.
+  - ③ `vehicle_balance()`: Panel 1 단순 수직선 대신 실제 통계 집계 영역 음영(`axvspan`) 및 평균선(`hlines`), 저횡G/고횡G 분할 영역 표출.
+  - ④ `friction_circle()`: 섹션별 그립 바차트 X축 틱라벨 30° 회전 가독성 확보, $g	ext{-}g$ 다이어그램 4대 극치점($\pm A_y, \pm A_x$) 강조 마커 및 수치 배지 표시.
+- **가감속/제동 대시보드(`dashboard`) 웨더 탭 기상 DB 로드 파이프라인 직결 완결 (`tab_weather.py`, `engine.py`)**:
+  - 텍스트 입력창 경로 타이핑 후 엔터 키 감지(`_on_weather_db_input_enter` ➔ `_trigger_load_w_db = True`) 및 버튼 클릭 로드 파이프라인 100% 직결.
+  - 사용자가 폴더 경로 입력 시 해당 폴더 직하(`master_weather_database.pkl.gz` 등) 자동 탐색 및 로드.
+  - 로드 성공 즉시 에메랄드 그린 알림 배지(`🟢 기상 마스터 데이터베이스 로드됨`) 표출로 UX 강화.
+  - `engine.py` L1145 `_render_auto_dismiss_alert`의 `import html` 안전 임포트 정합으로 `NameError` 완벽 차단.
+- **연계 기술 보고서**:
+  - [[2026-11-24_v4.36_서킷_조종안정성_WetHD_KDE_동적구배_물리엔진_1대1_호환_및_시각화_고도화_종합보고서|서킷 종합보고서]]
+  - [[2026-11-24_웨더탭_기상DB_로드_미동작_원인분석_및_인수인계_보고서|웨더탭 완결보고서]]
+
 
 📋 [볼트 대시보드에 복사할 내용]  
   
@@ -929,38 +970,5 @@ t_hydroplaning.md) 최신화 완료 (Exit Code 0)** | ✅ 완료 |
 - **Exit Code 0 무결성 통과**: `c_run_snow_correction_pipeline.py` 가동 전수 통과 (3초 완결).
 
 ---
-**Last Updated**: 2026-11-12  
+**Last Updated**: 2026-11-25  
 **Standard**: unoUtil Clean Architecture v3.69 & Single Baseline Law & Single Master MOC Law
-## 📜 버전 이력 및 주요 개발 현황 (Changelog)
-
-### [2026-11-20] circuit 모듈 고도화 완료
-- **작업자**: Gemini CLI Agent
-- **구분**: 기능 고도화
-- **내용**:
-  - VTCircuitProject 런타임 크래시(Circular Reference) 해결 및 인터페이스 완성 (편의 메서드 10종 구현).
-  - PlotterProject 10대 종합 비교 차트(Yaw, Parameter, Balance, RacingLine 등) 전면 구현.
-  - 실데이터(Technoring) 기반 E2E 파이프라인 검증 통과 (전 분석기 정상 동작).
-  - Python 3.12 / pandas 3.0 환경 최적화 적용.
-
-
-### [2026-11-20] acc_brk 대시보드 v2.0 공식 완결 및 UI 정합성 확정
-- **작업자**: Gemini CLI Agent
-- **구분**: 대시보드 고도화
-- **내용**: 
-  - 스튜디오 v2.0 공식 완결 및 한타 로고/네온 UI 통합 테마 적용.
-  - 전사 공통 대시보드 UI 프레임워크 구축 완료.
-  - 공식 개발 보고서 업데이트: 2026-11-19_v4.27_가감속_제동_스튜디오_v2.0_공식완결_및_전사공통_대시보드_UI프레임워크_구축_종합보고서.md 참조.
-
-### [2026-11-20] acc_brk 대시보드 2차 정밀 점검 및 UI/UX 테크 테마 완성
-- **작업자**: Gemini CLI Agent
-- **구분**: UI/UX 고도화
-- **내용**: 
-  - 대시보드 9대 마스터 수정 완료:
-    - 제목 테마(padding 여백 복원) 및 입력창 테크 테마 밸런싱.
-    - 입력창 툴팁/커서 버그 제거 및 정상화.
-    - 그래프 칩 ➔ 사이버 시안 5px 사각 테크 뱃지 개편.
-    - st.form 격리 해제 및 실시간 체크박스 하이라이트 연동.
-    - 프로젝트 탭 버튼 테마 주입 및 드롭박스 정합성 개선.
-    - 툴바 버튼명 표준화(4글자) 및 균등 정렬.
-    - Weather 탭 런타임 에러(UnboundLocalError) 영구 해결.
-    - 내부 서브 탭 네온 바이올렛 통일 및 소제목 정돈.
