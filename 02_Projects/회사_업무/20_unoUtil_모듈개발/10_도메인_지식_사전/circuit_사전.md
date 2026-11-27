@@ -250,3 +250,19 @@ print(pjt.summary[["TestTireSet", "Datetime", "lap_time_mean", "index_lap_time_m
 | **Panel 2** | **Peak (KDE) Steering Delay Breakdown** | 타이어별 최빈(KDE 피크) 지연시간 누적 바 차트, 내부 수치/비율% 및 상단 Total 라벨 | 가장 빈번하게 발생한 대표 조향 지연시간 및 비중 비교 |
 | **Panel 3** | **Zero-Crossing vs Derivative Total Delay** | 타이어별 영점 교차 전체 지연(`#1abc9c`) vs 1차 미분 피크 전체 지연(`#9b59b6`) 그룹화 바 차트 | 초기 조향 시작 지연(Zero-cross)과 최대 조향 속도 지연(Derivative) 비교 |
 | **Panel 4** | **Multi-Tire Total Delay Distribution** | 전 타이어 전체 지연 KDE 분포 곡선 다중 오버레이 + 타이어별 최빈 피크 다이아몬드 마커 및 범례 | 타이어 간 조향 응답 산포 폭, 왜도(Skewness), 피크 위치 직관 비교 |
+
+
+---
+
+## 🏎️ 코너 내부 주행 단계(Phase) 센서 퓨전 분할 알고리즘
+- 모듈 위치: unoUtil.vehicle_test.circuit.func_phase
+- 목적: 단일 코너(Section) 내부에서 운전자의 미시적인 주행 단계(Turn-In, Apex, Turn-Out)를 물리적으로 가장 정확하게 분할해 냅니다.
+- 핵심 원리 (GPS-Fusion Phase):
+  1. 기하학적 곡률(Geometric Curvature) 산출: 차량의 위경도 좌표를 평면 직교 좌표계로 변환한 후 2차 미분하여, 트랙 경로 자체의 순수 수학적 곡률을 계산합니다.
+  2. 기하학적 In/Out 도출: 곡률이 최대 곡률의 10%를 넘어서는 지점을 수학적 코너의 시작(Geo In)과 끝(Geo Out)으로 지정하여, 직선 구간의 조타 노이즈를 1차적으로 완벽히 차단합니다.
+  3. 운전자 입력 동역학 보정 (Sensor Fusion):
+     - 조기 진입 (Early Turn-In) 보정: 운전자는 실제 트랙이 휘어지기 전부터 선회를 준비하며 핸들을 꺾습니다. Geo In 지점에서 과거 시간으로 역탐색하여 조향각(SWA)이 3도 이상 개입되기 시작한 시점을 실제 Turn-In으로 앞당깁니다.
+     - 지연 탈출 (Late Turn-Out) 보정: 코너 탈출 후 자세 안정을 위해 핸들을 천천히 푸는 현상을 반영하여, Geo Out 지점에서 미래 시간으로 순탐색해 조향이 완전히 0이 되는 시점을 최종 Turn-Out으로 연장합니다.
+  4. 에이펙스(Apex) 퓨전: 위 과정을 통해 확정된 물리적 진입/탈출 구간 안에서 기하학적 최대 곡률과 동역학적 최대 횡G/조향각을 융합하여 최종 정점을 확정합니다.
+
+자세한 알고리즘 매뉴얼 및 한계 극복 사례는 [[2026-11-27_GPS_Fusion_Phase_알고리즘_설명서]] 백서를 참조하십시오.
